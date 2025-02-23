@@ -53,10 +53,8 @@ export async function POST(request: Request) {
 
   if (!chat) {
     const title = await generateTitleFromUserMessage({ message: userMessage });
-    console.log('Creating new chat with:', { id, userId: session.user.id, title, agentId });
     try {
       await saveChat({ id, userId: session.user.id, title, agentId });
-      console.log('Successfully created chat');
     } catch (error) {
       console.error('Failed to create chat:', error);
       return new Response('Failed to create chat', { status: 500 });
@@ -130,7 +128,8 @@ export async function POST(request: Request) {
         sendReasoning: true,
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('THE MASSIVE Error in chat:', error);
       return 'Oops, an error occured!';
     },
   });

@@ -58,6 +58,7 @@ export function Chat({
     },
   });
 
+  // Voting Routes and Updates
   const { data: votes } = useSWR<Array<Vote>>(
     `/api/vote?chatId=${id}`,
     fetcher,

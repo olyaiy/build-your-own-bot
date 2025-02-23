@@ -12,7 +12,7 @@ export default async function Page() {
                 {agents.map((agent) => (
                     <Link 
                         key={agent.id} 
-                        href={`/${agent.agent}`}
+                        href={`/${agent.id}`}
                     >
                         <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
                             <h3 className="text-xl font-semibold mb-2">{agent.agent_display_name}</h3>

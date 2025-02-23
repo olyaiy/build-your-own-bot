@@ -61,7 +61,6 @@ export async function saveChat({
   agentId: string;
 }) {
   try {
-    console.log('Attempting to save chat with values:', { id, userId, title, agentId });
     const result = await db.insert(chat).values({
       id,
       createdAt: new Date(),
@@ -69,7 +68,6 @@ export async function saveChat({
       title,
       agentId,
     });
-    console.log('Chat saved successfully:', result);
     return result;
   } catch (error) {
     console.error('Failed to save chat in database:', error);
@@ -123,7 +121,6 @@ export async function saveMessages({ messages }: { messages: Array<Message> }) {
 
 export async function getMessagesByChatId({ id }: { id: string }) {
   try {
-    console.log('Getting messages by THIS chat id:', id);
     return await db
       .select()
       .from(message)
@@ -364,12 +361,16 @@ export async function getAgents() {
   }
 }
 
-export async function getAgentBySlug(slug: string) {
+export async function getAgentById(id: string) {
+  if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id)) {
+    return null;
+  }
+
   try {
-    const [agent] = await db.select().from(agents).where(eq(agents.id, slug));
+    const [agent] = await db.select().from(agents).where(eq(agents.id, id));
     return agent;
   } catch (error) {
-    console.error('Failed to get agent by slug from database');
+    console.error('Failed to get agent by id from database');
     throw error;
   }
 }
