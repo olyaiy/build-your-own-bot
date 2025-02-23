@@ -89,7 +89,9 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
         <Textarea
           id="systemPrompt"
           name="systemPrompt"
-          placeholder="Enter system prompt"
+          placeholder={mode === "create" 
+            ? "e.g. You are a friendly assistant! Keep your responses concise and helpful." 
+            : "Enter system prompt"}
           className="mt-1"
           required
           defaultValue={initialData?.systemPrompt}
