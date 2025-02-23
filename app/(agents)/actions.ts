@@ -21,10 +21,7 @@ export async function createAgent({
   creatorId: string;
 }) {
   try {
-    const slug = agentDisplayName.toLowerCase().replace(/\s+/g, '-');
-    
     return await db.insert(agents).values({
-      agent: slug,
       agent_display_name: agentDisplayName,
       system_prompt: systemPrompt,
       description,
@@ -56,11 +53,8 @@ export async function updateAgent({
   creatorId: string;
 }) {
   try {
-    const slug = agentDisplayName.toLowerCase().replace(/\s+/g, '-');
-    
     return await db.update(agents)
       .set({
-        agent: slug,
         agent_display_name: agentDisplayName,
         system_prompt: systemPrompt,
         description,
@@ -72,5 +66,14 @@ export async function updateAgent({
   } catch (error) {
     console.error('Error updating agent:', error);
     throw new Error('Failed to update agent');
+  }
+}
+
+export async function deleteAgent(id: string) {
+  try {
+    await db.delete(agents).where(eq(agents.id, id));
+  } catch (error) {
+    console.error('Error deleting agent:', error);
+    throw new Error('Failed to delete agent');
   }
 }

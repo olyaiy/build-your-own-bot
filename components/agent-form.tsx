@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateAgent, createAgent } from "@/app/(agents)/actions";
+import { updateAgent, createAgent, deleteAgent } from "@/app/(agents)/actions";
 import { useRouter } from "next/navigation";
 
 interface AgentFormProps {
@@ -83,20 +83,6 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
         />
       </div>
 
-      {/* Agent Slug (only in create mode) */}
-      {mode === "create" && (
-        <div className="flex flex-col">
-          <Label htmlFor="agentSlug">Agent Slug</Label>
-          <Input
-            id="agentSlug"
-            name="agentSlug"
-            type="text"
-            placeholder="Enter agent slug"
-            className="mt-1"
-          />
-        </div>
-      )}
-
       {/* System Prompt */}
       <div className="flex flex-col">
         <Label htmlFor="systemPrompt">System Prompt</Label>
@@ -155,9 +141,29 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
       </div>
 
       <input type="hidden" name="userId" value={userId || ''} />
-      <Button type="submit" disabled={isPending}>
-        {isPending ? `${mode === 'create' ? 'Creating' : 'Updating'}...` : `${mode === 'create' ? 'Create' : 'Update'} Agent`}
-      </Button>
+      <div className="flex gap-4">
+        <Button type="submit" disabled={isPending}>
+          {isPending ? `${mode === 'create' ? 'Creating' : 'Updating'}...` : `${mode === 'create' ? 'Create' : 'Update'} Agent`}
+        </Button>
+        {mode === 'edit' && (
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={isPending}
+            onClick={() => {
+              startTransition(async () => {
+                if (initialData?.id) {
+                  await deleteAgent(initialData.id);
+                  toast.success('Agent deleted successfully');
+                  router.push('/');
+                }
+              });
+            }}
+          >
+            {isPending ? 'Deleting...' : 'Delete Agent'}
+          </Button>
+        )}
+      </div>
     </form>
   );
 } 

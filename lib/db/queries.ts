@@ -410,9 +410,7 @@ export async function createAgent({
   creatorId: string;
 }) {
   try {
-    const slug = agentDisplayName.toLowerCase().replace(/\s+/g, '-');
     return await db.insert(agents).values({
-      agent: slug,
       agent_display_name: agentDisplayName,
       system_prompt: systemPrompt,
       description,
@@ -422,6 +420,15 @@ export async function createAgent({
     });
   } catch (error) {
     console.error('Failed to create agent in database');
+    throw error;
+  }
+}
+
+export async function deleteAgentQuery(id: string) {
+  try {
+    return await db.delete(agents).where(eq(agents.id, id));
+  } catch (error) {
+    console.error('Failed to delete agent from database');
     throw error;
   }
 }
