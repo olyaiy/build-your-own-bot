@@ -9,9 +9,11 @@ export default async function CreateAgentPage() {
     id: models.id,
     displayName: models.model_display_name,
     modelType: models.model_type,
-    description: models.description,
+    description: models.description ,
 
   }).from(models);
+
+  
 
   return (
     <div className="container mx-auto py-8 px-4">
