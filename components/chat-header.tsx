@@ -59,7 +59,7 @@ function PureChatHeader({
               variant="outline"
               className="order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0"
               onClick={() => {
-                router.push('/');
+                router.push(`/${agentId}`);
                 router.refresh();
               }}
             >
@@ -86,16 +86,19 @@ function PureChatHeader({
         />
       )}
 
+
       {!isReadonly && (
+        <div className="order-1 md:order-4">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant="ghost"
+            variant="outline"
               size="icon"
               className="h-8 w-8"
               asChild
             >
               <Link href={`/agents/edit/${agentId}`}>
+                
                 <SettingsIcon />
                 <span className="sr-only">Agent Settings</span>
               </Link>
@@ -103,6 +106,7 @@ function PureChatHeader({
           </TooltipTrigger>
           <TooltipContent>Agent Settings</TooltipContent>
         </Tooltip>
+        </div>
       )}
     </header>
   );

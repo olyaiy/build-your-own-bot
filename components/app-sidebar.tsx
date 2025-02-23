@@ -1,7 +1,7 @@
 'use client';
 
 import type { User } from 'next-auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 
 import { PlusIcon } from '@/components/icons';
 import { SidebarHistory } from '@/components/sidebar-history';
@@ -21,6 +21,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
   const { setOpenMobile } = useSidebar();
+  const params = useParams();
+  const agentId = params.agent ?? 'fb4a1d96-bd42-46cb-a153-4aac537f3720';
 
   return (
     <Sidebar className="group-data-[side=left]:border-r-0">
@@ -46,7 +48,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   className="p-2 h-fit"
                   onClick={() => {
                     setOpenMobile(false);
-                    router.push('/');
+                    router.push(`/${agentId}`);
                     router.refresh();
                   }}
                 >
