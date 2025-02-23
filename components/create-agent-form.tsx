@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 
 interface CreateAgentFormProps {
   userId?: string;
@@ -25,6 +26,7 @@ interface CreateAgentFormProps {
 
 export default function CreateAgentForm({ userId, models }: CreateAgentFormProps) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,7 +44,7 @@ export default function CreateAgentForm({ userId, models }: CreateAgentFormProps
         });
         
         toast.success("Agent created successfully");
-        // Optional: Reset form here if needed
+        router.push("/");
       } catch (error) {
         toast.error("Failed to create agent. Please try again.");
       }
