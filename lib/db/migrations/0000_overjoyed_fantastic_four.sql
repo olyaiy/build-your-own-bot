@@ -1,3 +1,20 @@
+DO $$ BEGIN
+ CREATE TYPE "public"."visibility" AS ENUM('public', 'private', 'link');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "agents" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"agent" varchar(255) DEFAULT 'temp_slug' NOT NULL,
+	"agent_display_name" varchar(255) NOT NULL,
+	"system_prompt" text NOT NULL,
+	"description" text,
+	"model" uuid,
+	"visibility" "visibility" DEFAULT 'public',
+	CONSTRAINT "agents_agent_unique" UNIQUE("agent")
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Chat" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"createdAt" timestamp NOT NULL,
@@ -22,6 +39,15 @@ CREATE TABLE IF NOT EXISTS "Message" (
 	"role" varchar NOT NULL,
 	"content" json NOT NULL,
 	"createdAt" timestamp NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "models" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"model_display_name" varchar(255) NOT NULL,
+	"model" varchar(255) NOT NULL,
+	"provider" varchar(255) NOT NULL,
+	CONSTRAINT "models_model_unique" UNIQUE("model"),
+	CONSTRAINT "models_provider_unique" UNIQUE("provider")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Suggestion" (
@@ -49,6 +75,12 @@ CREATE TABLE IF NOT EXISTS "Vote" (
 	"isUpvoted" boolean NOT NULL,
 	CONSTRAINT "Vote_chatId_messageId_pk" PRIMARY KEY("chatId","messageId")
 );
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "agents" ADD CONSTRAINT "agents_model_models_id_fk" FOREIGN KEY ("model") REFERENCES "public"."models"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "Chat" ADD CONSTRAINT "Chat_userId_User_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE no action ON UPDATE no action;

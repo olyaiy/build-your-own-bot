@@ -9,6 +9,7 @@ import {
   primaryKey,
   foreignKey,
   boolean,
+  pgEnum,
 } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('User', {
@@ -113,3 +114,29 @@ export const suggestion = pgTable(
 );
 
 export type Suggestion = InferSelectModel<typeof suggestion>;
+
+export const models = pgTable("models", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  model_display_name: varchar("model_display_name", { length: 255 }).notNull(),
+  model: varchar("model", { length: 255 }).notNull().unique(),
+  provider: varchar("provider", { length: 255 }).notNull().unique(),
+});
+
+export type Model = typeof models.$inferSelect;
+
+export const visibilityEnum = pgEnum("visibility", ["public", "private", "link"]);
+
+export const agents = pgTable("agents", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  agent: varchar("agent", { length: 255 }).notNull().unique().default("temp_slug"),
+  agent_display_name: varchar("agent_display_name", { length: 255 }).notNull(),
+  system_prompt: text("system_prompt").notNull(),
+  description: text("description"),
+  model: uuid("model").references(() => models.id),
+  visibility: visibilityEnum("visibility").default("public"),
+  // creatorId: text("creator_id").references(() => user.id),
+});
+
+export type Agent = typeof agents.$inferSelect;
+
+
