@@ -6,7 +6,7 @@ import {
   wrapLanguageModel,
 } from 'ai';
 
-export const DEFAULT_CHAT_MODEL: string = 'chat-model-small';
+export const DEFAULT_CHAT_MODEL: string = 'chat-model-large';
 
 export const myProvider = customProvider({
   languageModels: {
@@ -18,6 +18,8 @@ export const myProvider = customProvider({
     }),
     'title-model': openai('gpt-4-turbo'),
     'artifact-model': openai('gpt-4o-mini'),
+    'gpt-4o-mini': openai('gpt-4o-mini'),
+    'gpt-4o': openai('gpt-4o'),
   },
   imageModels: {
     'small-model': openai.image('dall-e-2'),
@@ -46,5 +48,15 @@ export const chatModels: Array<ChatModel> = [
     id: 'chat-model-reasoning',
     name: 'Reasoning model',
     description: 'Uses advanced reasoning',
+  },
+  {
+    id: 'gpt-4o-mini',
+    name: 'GPT 4o mini',
+    description: 'GPT-4o-mini model',
+  },
+  {
+    id: 'gpt-4o',
+    name: 'GPT 4o',
+    description: 'GPT-4o model',
   },
 ];

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { auth } from '@/app/(auth)/auth';
 import { Chat } from '@/components/chat';
-import { getChatById, getMessagesByChatId, getAgentById } from '@/lib/db/queries';
+import { getChatById, getMessagesByChatId, getAgentById, getModelById } from '@/lib/db/queries';
 import { convertToUIMessages } from '@/lib/utils';
 import { DataStreamHandler } from '@/components/data-stream-handler';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
@@ -23,7 +23,6 @@ export default async function Page(props: {
 
 
   const chat = await getChatById({ id: chatId });
-
   if (!chat) {
     notFound();
   }
@@ -38,6 +37,8 @@ export default async function Page(props: {
   const cookieStore = await cookies();
   const chatModelFromCookie = cookieStore.get('chat-model');
 
+  const model = await getModelById(agent.model || "");
+  console.log('Agent model:', model.model);
 
   
   if (!chatModelFromCookie) {
@@ -47,7 +48,7 @@ export default async function Page(props: {
           id={chatId}
           agentId={agent.id}
           initialMessages={convertToUIMessages(messagesFromDb)}
-          selectedChatModel={DEFAULT_CHAT_MODEL}
+          selectedChatModel={model.model || DEFAULT_CHAT_MODEL}
           selectedVisibilityType={chat.visibility}
           isReadonly={session?.user?.id !== chat.userId}
         />
@@ -62,7 +63,7 @@ export default async function Page(props: {
         id={chatId}
         agentId={agent.id}
         initialMessages={convertToUIMessages(messagesFromDb)}
-        selectedChatModel={chatModelFromCookie.value}
+        selectedChatModel={model.model || DEFAULT_CHAT_MODEL}
         selectedVisibilityType={chat.visibility}
         isReadonly={session?.user?.id !== chat.userId}
       />

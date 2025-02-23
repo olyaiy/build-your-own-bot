@@ -65,6 +65,8 @@ export async function POST(request: Request) {
     messages: [{ ...userMessage, createdAt: new Date(), chatId: id }],
   });
 
+  console.log('Selected chat model:', selectedChatModel);
+
   return createDataStreamResponse({
     execute: (dataStream) => {
       const result = streamText({

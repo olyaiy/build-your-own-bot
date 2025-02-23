@@ -121,7 +121,7 @@ export const models = pgTable("models", {
   id: uuid("id").defaultRandom().primaryKey(),
   model_display_name: varchar("model_display_name", { length: 255 }).notNull(),
   model: varchar("model", { length: 255 }).notNull().unique(),
-  provider: varchar("provider", { length: 255 }).notNull().unique(),
+  provider: varchar("provider", { length: 255 }).notNull(),
 });
 
 export type Model = typeof models.$inferSelect;
