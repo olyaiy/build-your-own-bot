@@ -23,6 +23,8 @@ interface AgentFormProps {
   models: {
     id: string;
     displayName: string;
+    modelType: string;
+    description?: string;
   }[];
   initialData?: {
     id: string;
