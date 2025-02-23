@@ -20,8 +20,8 @@ export function AgentCardSettings({ agentId, userId, creatorId }: AgentCardSetti
         e.preventDefault();
         router.push(
           userId === creatorId 
-            ? `/agents/edit/${agentId}` 
-            : `/agents/view/${agentId}`
+            ? `/agents/${agentId}/edit` 
+            : `/agents/${agentId}/view`
         );
       }}
     >
