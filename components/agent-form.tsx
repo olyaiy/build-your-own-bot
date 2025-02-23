@@ -94,7 +94,7 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
         <div className="flex-1 space-y-6">
           <div>
             <Label htmlFor="agentDisplayName" className="text-lg font-semibold">
-              Agent Display Name
+              Agent Name
             </Label>
             <Input
               id="agentDisplayName"
