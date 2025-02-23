@@ -354,7 +354,16 @@ export async function updateChatVisiblityById({
 
 export async function getAgents() {
   try {
-    return await db.select().from(agents).orderBy(desc(agents.id));
+    return await db.select({
+      id: agents.id,
+      agent_display_name: agents.agent_display_name,
+      description: agents.description,
+      visibility: agents.visibility,
+      model: models
+    })
+    .from(agents)
+    .leftJoin(models, eq(agents.model, models.id))
+    .orderBy(desc(agents.id));
   } catch (error) {
     console.error('Failed to get agents from database');
     throw error;
