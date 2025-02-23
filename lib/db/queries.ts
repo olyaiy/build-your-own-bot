@@ -15,6 +15,8 @@ import {
   type Message,
   message,
   vote,
+  agents,
+  models,
 } from './schema';
 import { ArtifactKind } from '@/components/artifact';
 
@@ -342,6 +344,35 @@ export async function updateChatVisiblityById({
     return await db.update(chat).set({ visibility }).where(eq(chat.id, chatId));
   } catch (error) {
     console.error('Failed to update chat visibility in database');
+    throw error;
+  }
+}
+
+export async function getAgents() {
+  try {
+    return await db.select().from(agents).orderBy(desc(agents.id));
+  } catch (error) {
+    console.error('Failed to get agents from database');
+    throw error;
+  }
+}
+
+export async function getAgentBySlug(slug: string) {
+  try {
+    const [agent] = await db.select().from(agents).where(eq(agents.agent, slug));
+    return agent;
+  } catch (error) {
+    console.error('Failed to get agent by slug from database');
+    throw error;
+  }
+}
+
+export async function getModelById(id: string) {
+  try {
+    const [model] = await db.select().from(models).where(eq(models.id, id));
+    return model;
+  } catch (error) {
+    console.error('Failed to get model by id from database');
     throw error;
   }
 }

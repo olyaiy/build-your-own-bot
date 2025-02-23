@@ -6,8 +6,8 @@ import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { generateUUID } from '@/lib/utils';
 import { DataStreamHandler } from '@/components/data-stream-handler';
 
-export default async function Page({ params }: { params: { chat: string } }) {
-  const agent = await getAgentBySlug(params.chat);
+export default async function Page({ params }: { params: { agent: string } }) {
+  const agent = await getAgentBySlug(params.agent);
   if (!agent) return notFound();
 
   const model = agent.model ? await getModelById(agent.model) : null;
