@@ -26,7 +26,7 @@ import { ArtifactKind } from '@/components/artifact';
 
 // biome-ignore lint: Forbidden non-null assertion.
 const client = postgres(process.env.POSTGRES_URL!);
-const db = drizzle(client);
+export const db = drizzle(client);
 
 export async function getUser(email: string): Promise<Array<User>> {
   try {
@@ -390,6 +390,38 @@ export async function getModelById(id: string) {
     return model;
   } catch (error) {
     console.error('Failed to get model by id from database');
+    throw error;
+  }
+}
+
+export async function createAgent({
+  agentDisplayName,
+  systemPrompt,
+  description,
+  modelId,
+  visibility,
+  creatorId,
+}: {
+  agentDisplayName: string;
+  systemPrompt: string;
+  description?: string;
+  modelId: string;
+  visibility: 'public' | 'private' | 'link';
+  creatorId: string;
+}) {
+  try {
+    const slug = agentDisplayName.toLowerCase().replace(/\s+/g, '-');
+    return await db.insert(agents).values({
+      agent: slug,
+      agent_display_name: agentDisplayName,
+      system_prompt: systemPrompt,
+      description,
+      model: modelId,
+      visibility,
+      creatorId,
+    });
+  } catch (error) {
+    console.error('Failed to create agent in database');
     throw error;
   }
 }

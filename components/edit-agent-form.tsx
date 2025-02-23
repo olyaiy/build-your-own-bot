@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createAgent } from "@/app/(agents)/actions";
 import {
   Select,
   SelectContent,
@@ -14,16 +13,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { updateAgent } from "@/app/(agents)/actions";
 
-interface CreateAgentFormProps {
+interface EditAgentFormProps {
   userId?: string;
   models: {
     id: string;
     displayName: string;
   }[];
+  initialData: {
+    id: string;
+    agentDisplayName: string;
+    systemPrompt: string;
+    description?: string;
+    modelId: string;
+    visibility: "public" | "private" | "link";
+  };
 }
 
-export default function CreateAgentForm({ userId, models }: CreateAgentFormProps) {
+export default function EditAgentForm({ userId, models, initialData }: EditAgentFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -32,7 +40,8 @@ export default function CreateAgentForm({ userId, models }: CreateAgentFormProps
 
     startTransition(async () => {
       try {
-        await createAgent({
+        await updateAgent({
+          id: initialData.id,
           agentDisplayName: formData.get("agentDisplayName") as string,
           systemPrompt: formData.get("systemPrompt") as string,
           description: formData.get("description") as string || undefined,
@@ -41,10 +50,9 @@ export default function CreateAgentForm({ userId, models }: CreateAgentFormProps
           creatorId: formData.get("userId") as string
         });
         
-        toast.success("Agent created successfully");
-        // Optional: Reset form here if needed
+        toast.success("Agent updated successfully");
       } catch (error) {
-        toast.error("Failed to create agent. Please try again.");
+        toast.error("Failed to update agent. Please try again.");
       }
     });
   };
@@ -61,17 +69,7 @@ export default function CreateAgentForm({ userId, models }: CreateAgentFormProps
           placeholder="Enter agent display name"
           className="mt-1"
           required
-        />
-      </div>
-
-      {/* Agent Slug */}
-      <div className="flex flex-col">
-        <Label htmlFor="agentSlug">Agent Slug</Label>
-        <Input
-          id="agentSlug"
-          type="text"
-          placeholder="Enter agent slug"
-          className="mt-1"
+          defaultValue={initialData.agentDisplayName}
         />
       </div>
 
@@ -84,23 +82,14 @@ export default function CreateAgentForm({ userId, models }: CreateAgentFormProps
           placeholder="Enter system prompt"
           className="mt-1"
           required
-        />
-      </div>
-
-      {/* Description */}
-      <div className="flex flex-col">
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          placeholder="Enter description (optional)"
-          className="mt-1"
+          defaultValue={initialData.systemPrompt}
         />
       </div>
 
       {/* Model */}
       <div className="flex flex-col">
         <Label htmlFor="model">Model</Label>
-        <Select name="model" required>
+        <Select name="model" required defaultValue={initialData.modelId}>
           <SelectTrigger className="mt-1">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
@@ -121,7 +110,7 @@ export default function CreateAgentForm({ userId, models }: CreateAgentFormProps
           id="visibility"
           name="visibility"
           className="border rounded px-3 py-2 mt-1"
-          defaultValue="public"
+          defaultValue={initialData.visibility}
         >
           <option value="public">Public</option>
           <option value="private">Private</option>
@@ -131,7 +120,7 @@ export default function CreateAgentForm({ userId, models }: CreateAgentFormProps
 
       <input type="hidden" name="userId" value={userId || ''} />
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Creating..." : "Create Agent"}
+        {isPending ? "Updating..." : "Update Agent"}
       </Button>
     </form>
   );

@@ -15,6 +15,20 @@
       "when": 1740301939461,
       "tag": "0001_flashy_sleepwalker",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1740337548526,
+      "tag": "0002_cute_big_bertha",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1740337580179,
+      "tag": "0003_burly_vampiro",
+      "breakpoints": true
     }
   ]
 }

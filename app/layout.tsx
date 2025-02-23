@@ -66,7 +66,7 @@ export default async function Layout({
           enableSystem
           disableTransitionOnChange
         >
-          <Toaster position="top-center" />
+          <Toaster position="top-center" richColors />
           <SidebarProvider defaultOpen={!isCollapsed}>
             <AppSidebar user={session?.user} />
             <SidebarInset>{children}</SidebarInset>

@@ -94,7 +94,7 @@ export type Document = InferSelectModel<typeof document>;
 export const suggestion = pgTable(
   'Suggestion',
   {
-    id: uuid('id').notNull().defaultRandom(),
+    id: uuid('id').defaultRandom(),
     documentId: uuid('documentId').notNull(),
     documentCreatedAt: timestamp('documentCreatedAt').notNull(),
     originalText: text('originalText').notNull(),
@@ -128,6 +128,8 @@ export type Model = typeof models.$inferSelect;
 
 export const visibilityEnum = pgEnum("visibility", ["public", "private", "link"]);
 
+export type AgentVisibility = typeof visibilityEnum.enumValues[number];
+
 export const agents = pgTable("agents", {
   id: uuid("id").defaultRandom().primaryKey(),
   agent: varchar("agent", { length: 255 }).notNull().unique().default("temp_slug"),
@@ -136,7 +138,7 @@ export const agents = pgTable("agents", {
   description: text("description"),
   model: uuid("model").references(() => models.id),
   visibility: visibilityEnum("visibility").default("public"),
-  // creatorId: text("creator_id").references(() => user.id),
+  creatorId: uuid("creator_id").references(() => user.id),
 });
 
 export type Agent = typeof agents.$inferSelect;
