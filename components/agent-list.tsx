@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import Link from 'next/link';
 import type { Agent, Model } from "@/lib/db/schema";
+import { Plus } from "lucide-react";
 
 interface AgentListProps {
   agents: (Agent & { model?: Model })[];
@@ -32,6 +33,11 @@ export function AgentList({ agents }: AgentListProps) {
           </Card>
         </Link>
       ))}
+      <Link key="create-agent" href="/agents/create">
+        <Card className="h-full flex items-center justify-center p-6 hover:shadow-lg transition-shadow cursor-pointer">
+          <Plus className="w-8 h-8" />
+        </Card>
+      </Link>
     </div>
   );
 } 
