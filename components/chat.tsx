@@ -4,6 +4,7 @@ import type { Attachment, Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
+import type { Agent } from '@/lib/db/schema';
 
 import { ChatHeader } from '@/components/chat-header';
 import type { Vote } from '@/lib/db/schema';
@@ -19,6 +20,7 @@ import { toast } from 'sonner';
 export function Chat({
   id,
   agentId,
+  agent,
   initialMessages,
   selectedChatModel,
   selectedVisibilityType,
@@ -26,6 +28,7 @@ export function Chat({
 }: {
   id: string;
   agentId: string;
+  agent?: Agent;
   initialMessages: Array<Message>;
   selectedChatModel: string;
   selectedVisibilityType: VisibilityType;
@@ -45,7 +48,12 @@ export function Chat({
     reload,
   } = useChat({
     id,
-    body: { id, selectedChatModel: selectedChatModel, agentId },
+    body: { 
+      id, 
+      selectedChatModel: selectedChatModel, 
+      agentId,
+      agentSystemPrompt: agent?.system_prompt
+    },
     initialMessages,
     experimental_throttle: 100,
     sendExtraMessageFields: true,

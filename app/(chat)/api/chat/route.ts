@@ -34,9 +34,17 @@ export async function POST(request: Request) {
     messages,
     selectedChatModel,
     agentId,
-  }: { id: string; messages: Array<Message>; selectedChatModel: string; agentId: string } =
-    await request.json();
+    agentSystemPrompt,
+  }: { 
+    id: string; 
+    messages: Array<Message>; 
+    selectedChatModel: string; 
+    agentId: string;
+    agentSystemPrompt?: string;
+  } = await request.json();
 
+  console.log('Agent system prompt:', agentSystemPrompt);
+  
   const session = await auth();
 
   if (!session || !session.user || !session.user.id) {
@@ -71,7 +79,7 @@ export async function POST(request: Request) {
     execute: (dataStream) => {
       const result = streamText({
         model: myProvider.languageModel(selectedChatModel),
-        system: systemPrompt({ selectedChatModel }),
+        system: systemPrompt({ selectedChatModel, agentSystemPrompt }),
         messages,
         maxSteps: 5,
         experimental_activeTools:

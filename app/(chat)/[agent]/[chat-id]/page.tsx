@@ -29,6 +29,8 @@ export default async function Page(props: {
 
   const session = await auth();
 
+  console.log('Current route agent ID:', agent.id);
+
 
   const messagesFromDb = await getMessagesByChatId({
     id: chatId,
@@ -38,7 +40,6 @@ export default async function Page(props: {
   const chatModelFromCookie = cookieStore.get('chat-model');
 
   const model = await getModelById(agent.model || "");
-  console.log('Agent model:', model.model);
 
   
   if (!chatModelFromCookie) {
@@ -47,6 +48,7 @@ export default async function Page(props: {
         <Chat
           id={chatId}
           agentId={agent.id}
+          agent={agent}
           initialMessages={convertToUIMessages(messagesFromDb)}
           selectedChatModel={model.model || DEFAULT_CHAT_MODEL}
           selectedVisibilityType={chat.visibility}
