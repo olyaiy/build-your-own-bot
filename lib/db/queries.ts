@@ -432,3 +432,25 @@ export async function deleteAgentQuery(id: string) {
     throw error;
   }
 }
+
+export async function getAgentWithModelById(id: string) {
+  if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id)) {
+    return null;
+  }
+
+  try {
+    const [result] = await db
+      .select({
+        agent: agents,
+        model: models
+      })
+      .from(agents)
+      .leftJoin(models, eq(agents.model, models.id))
+      .where(eq(agents.id, id));
+
+    return result;
+  } catch (error) {
+    console.error('Failed to get agent with model from database');
+    throw error;
+  }
+}
