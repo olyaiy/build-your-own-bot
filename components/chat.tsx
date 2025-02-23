@@ -18,12 +18,14 @@ import { toast } from 'sonner';
 
 export function Chat({
   id,
+  agentId,
   initialMessages,
   selectedChatModel,
   selectedVisibilityType,
   isReadonly,
 }: {
   id: string;
+  agentId: string;
   initialMessages: Array<Message>;
   selectedChatModel: string;
   selectedVisibilityType: VisibilityType;
@@ -88,6 +90,7 @@ export function Chat({
         <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
           {!isReadonly && (
             <MultimodalInput
+              agentId={agentId}
               chatId={id}
               input={input}
               setInput={setInput}

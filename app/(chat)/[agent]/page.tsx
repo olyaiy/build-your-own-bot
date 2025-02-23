@@ -18,17 +18,24 @@ export default async function Page({ params }: { params: { agent: string } }) {
     model: model?.model
   });
 
+
+
+  // generate a unique id for the chat
+  const id = generateUUID();
+
+
   return (
     <>
       <Chat
-        key={agent.id}
-        id={agent.id}
+        key={id}
+        id={id}
+        agentId={agent.agent}
         initialMessages={[]}
         selectedChatModel={model?.model || DEFAULT_CHAT_MODEL}
         selectedVisibilityType={"public"}
         isReadonly={false}
       />
-      <DataStreamHandler id={agent.id} />
+      <DataStreamHandler id={id} />
     </>
   );
 }

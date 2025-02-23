@@ -32,6 +32,7 @@ import equal from 'fast-deep-equal';
 
 function PureMultimodalInput({
   chatId,
+  agentId,
   input,
   setInput,
   isLoading,
@@ -45,6 +46,7 @@ function PureMultimodalInput({
   className,
 }: {
   chatId: string;
+  agentId: string;
   input: string;
   setInput: (value: string) => void;
   isLoading: boolean;
@@ -118,7 +120,7 @@ function PureMultimodalInput({
   const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
 
   const submitForm = useCallback(() => {
-    window.history.replaceState({}, '', `/chat/${chatId}`);
+    window.history.replaceState({}, '', `/${agentId}/${chatId}`);
 
     handleSubmit(undefined, {
       experimental_attachments: attachments,
