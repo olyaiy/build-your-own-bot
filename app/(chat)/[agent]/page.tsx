@@ -9,7 +9,7 @@ import { DataStreamHandler } from '@/components/data-stream-handler';
 export default async function Page({ params }: { params: Promise<{ agent: string }> }) {
   const { agent: agentId } = await params;
 
-  // Single query for agent+model
+  // query for agent+model
   const agentWithModel = await getAgentWithModelById(agentId);
   if (!agentWithModel?.agent) return notFound();
 

@@ -7,7 +7,10 @@ export default async function CreateAgentPage() {
   const session = await auth();
   const modelsList = await db.select({
     id: models.id,
-    displayName: models.model_display_name
+    displayName: models.model_display_name,
+    modelType: models.model_type,
+    description: models.description,
+
   }).from(models);
 
   return (

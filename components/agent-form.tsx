@@ -130,8 +130,13 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
                 </SelectTrigger>
                 <SelectContent>
                   {models.map((model) => (
-                    <SelectItem key={model.id} value={model.id}>
-                      {model.displayName}
+                    <SelectItem key={model.id} value={model.id} className=" flex flex-col justify-start items-start">
+                      <div className="flex flex-col justify-start items-start">
+                        <span className="font-medium">{model.displayName}</span>
+                        <span className="text-xs text-muted-foreground">{model.modelType}</span>
+                        <span className="text-xs text-muted-foreground">{model.description}</span>
+
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -117,11 +117,21 @@ export const suggestion = pgTable(
 
 export type Suggestion = InferSelectModel<typeof suggestion>;
 
+export const modelTypeEnum = pgEnum("model_type", [
+  "text-large",
+  "text-small", 
+  "reasoning",
+  "image",
+  "search"
+]);
+
 export const models = pgTable("models", {
   id: uuid("id").defaultRandom().primaryKey(),
   model_display_name: varchar("model_display_name", { length: 255 }).notNull(),
   model: varchar("model", { length: 255 }).notNull().unique(),
   provider: varchar("provider", { length: 255 }).notNull(),
+  model_type: modelTypeEnum("model_type").default("text-small"),
+  description: text("description"),
 });
 
 export type Model = typeof models.$inferSelect;

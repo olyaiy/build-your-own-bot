@@ -1,6 +1,5 @@
-import { cookies } from 'next/headers';
+// import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-
 import { auth } from '@/app/(auth)/auth';
 import { Chat } from '@/components/chat';
 import { getChatById, getMessagesByChatId, getAgentWithModelById } from '@/lib/db/queries';
@@ -26,8 +25,8 @@ export default async function Page(props: {
 
   const session = await auth();
   const messagesFromDb = await getMessagesByChatId({ id: chatId });
-  const cookieStore = await cookies();
-  const chatModelFromCookie = cookieStore.get('chat-model');
+  // const cookieStore = await cookies();
+  // const chatModelFromCookie = cookieStore.get('chat-model');
 
   return (
     <>
