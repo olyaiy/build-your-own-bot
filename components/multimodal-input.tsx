@@ -140,6 +140,7 @@ function PureMultimodalInput({
     setLocalStorageInput,
     width,
     chatId,
+    agentId,
   ]);
 
   const uploadFile = async (file: File) => {
@@ -200,7 +201,7 @@ function PureMultimodalInput({
       {messages.length === 0 &&
         attachments.length === 0 &&
         uploadQueue.length === 0 && (
-          <SuggestedActions append={append} chatId={chatId} />
+          <SuggestedActions append={append} chatId={chatId} agentId={agentId} />
         )}
 
       <input

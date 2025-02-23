@@ -3,21 +3,27 @@ import { notFound } from 'next/navigation';
 
 import { auth } from '@/app/(auth)/auth';
 import { Chat } from '@/components/chat';
-import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
+import { getChatById, getMessagesByChatId, getAgentBySlug } from '@/lib/db/queries';
 import { convertToUIMessages } from '@/lib/utils';
 import { DataStreamHandler } from '@/components/data-stream-handler';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 
 export default async function Page(props: { 
-  params: { 
+  params: Promise<{ 
     agent: string;
     'chat-id': string;
-  } 
+  }>
 }) {
-  const { agent, 'chat-id': chatId } = props.params;
+  const { agent: agentSlug, 'chat-id': chatId } = await props.params;
   
-  console.log('Agent ID:', agent);
+  console.log('Agent Slug:', agentSlug);
   console.log('Chat ID:', chatId);
+
+  const agent = await getAgentBySlug(agentSlug);
+  if (!agent) {
+    return notFound();
+  }
+
 
   const chat = await getChatById({ id: chatId });
 
@@ -37,6 +43,7 @@ export default async function Page(props: {
   //   }
   // }
 
+  console.log('Chat ID IN EXISTING CHAT PAGE THSIS IS ITTTTT:', chatId);
   const messagesFromDb = await getMessagesByChatId({
     id: chatId,
   });
@@ -51,7 +58,7 @@ export default async function Page(props: {
       <>
         <Chat
           id={chatId}
-          agentId={agent}
+          agentId={agent.id}
           initialMessages={convertToUIMessages(messagesFromDb)}
           selectedChatModel={DEFAULT_CHAT_MODEL}
           selectedVisibilityType={chat.visibility}
@@ -66,7 +73,7 @@ export default async function Page(props: {
     <>
       <Chat
         id={chatId}
-        agentId={agent}
+        agentId={agent.id}
         initialMessages={convertToUIMessages(messagesFromDb)}
         selectedChatModel={chatModelFromCookie.value}
         selectedVisibilityType={chat.visibility}

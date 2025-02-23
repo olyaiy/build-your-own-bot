@@ -45,7 +45,7 @@ export function Chat({
     reload,
   } = useChat({
     id,
-    body: { id, selectedChatModel: selectedChatModel },
+    body: { id, selectedChatModel: selectedChatModel, agentId },
     initialMessages,
     experimental_throttle: 100,
     sendExtraMessageFields: true,

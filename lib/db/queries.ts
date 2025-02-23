@@ -53,20 +53,26 @@ export async function saveChat({
   id,
   userId,
   title,
+  agentId,
 }: {
   id: string;
   userId: string;
   title: string;
+  agentId: string;
 }) {
   try {
-    return await db.insert(chat).values({
+    console.log('Attempting to save chat with values:', { id, userId, title, agentId });
+    const result = await db.insert(chat).values({
       id,
       createdAt: new Date(),
       userId,
       title,
+      agentId,
     });
+    console.log('Chat saved successfully:', result);
+    return result;
   } catch (error) {
-    console.error('Failed to save chat in database');
+    console.error('Failed to save chat in database:', error);
     throw error;
   }
 }
@@ -117,6 +123,7 @@ export async function saveMessages({ messages }: { messages: Array<Message> }) {
 
 export async function getMessagesByChatId({ id }: { id: string }) {
   try {
+    console.log('Getting messages by THIS chat id:', id);
     return await db
       .select()
       .from(message)
@@ -359,7 +366,7 @@ export async function getAgents() {
 
 export async function getAgentBySlug(slug: string) {
   try {
-    const [agent] = await db.select().from(agents).where(eq(agents.agent, slug));
+    const [agent] = await db.select().from(agents).where(eq(agents.id, slug));
     return agent;
   } catch (error) {
     console.error('Failed to get agent by slug from database');

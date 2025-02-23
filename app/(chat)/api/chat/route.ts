@@ -33,7 +33,8 @@ export async function POST(request: Request) {
     id,
     messages,
     selectedChatModel,
-  }: { id: string; messages: Array<Message>; selectedChatModel: string } =
+    agentId,
+  }: { id: string; messages: Array<Message>; selectedChatModel: string; agentId: string } =
     await request.json();
 
   const session = await auth();
@@ -52,7 +53,14 @@ export async function POST(request: Request) {
 
   if (!chat) {
     const title = await generateTitleFromUserMessage({ message: userMessage });
-    await saveChat({ id, userId: session.user.id, title });
+    console.log('Creating new chat with:', { id, userId: session.user.id, title, agentId });
+    try {
+      await saveChat({ id, userId: session.user.id, title, agentId });
+      console.log('Successfully created chat');
+    } catch (error) {
+      console.error('Failed to create chat:', error);
+      return new Response('Failed to create chat', { status: 500 });
+    }
   }
 
   await saveMessages({
