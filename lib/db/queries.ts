@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { genSaltSync, hashSync } from 'bcrypt-ts';
-import { and, asc, desc, eq, gt, gte, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, inArray, or } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
@@ -361,17 +361,22 @@ export async function updateChatVisiblityById({
   }
 }
 
-export async function getAgents() {
+export const getAgents = async (userId?: string) => {
   try {
     return await db.select({
       id: agents.id,
       agent_display_name: agents.agent_display_name,
       description: agents.description,
       visibility: agents.visibility,
-      model: models
+      model: models,
+      creatorId: agents.creatorId
     })
     .from(agents)
     .leftJoin(models, eq(agents.model, models.id))
+    .where(or(
+      eq(agents.visibility, 'public'),
+      userId ? eq(agents.creatorId, userId) : undefined
+    ))
     .orderBy(desc(agents.id));
   } catch (error) {
     console.error('Failed to get agents from database');

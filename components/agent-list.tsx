@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import Link from 'next/link';
 import type { Agent, Model } from "@/lib/db/schema";
-import { Plus, Settings } from "lucide-react";
+import { Plus } from "lucide-react";
 import { AgentCardSettings } from "./agent-card-settings";
 
 interface AgentListProps {

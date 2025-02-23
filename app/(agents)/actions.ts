@@ -4,6 +4,7 @@ import { db } from '@/lib/db/queries';
 import { agents } from '@/lib/db/schema';
 import { type AgentVisibility } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { generateSlug } from '@/lib/utils';
 
 export async function createAgent({
   agentDisplayName,
@@ -24,6 +25,7 @@ export async function createAgent({
 }) {
   try {
     return await db.insert(agents).values({
+      agent: generateSlug(agentDisplayName),
       agent_display_name: agentDisplayName,
       system_prompt: systemPrompt,
       description,

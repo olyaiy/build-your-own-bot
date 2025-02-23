@@ -1,12 +1,13 @@
-
 import { getAgents } from "@/lib/db/queries";
 import { AgentList } from "@/components/agent-list";
 import { MainHeader } from "@/components/main-header";
+import { auth } from "@/app/(auth)/auth";
 
 export default async function Page() {
-    const agents = await getAgents();
+    const session = await auth();
+    const agents = await getAgents(session?.user?.id);
 
-    
+    // console.log("AGENTS ARE HERE>>>>>>>>", agents)
 
     return (
         <>
