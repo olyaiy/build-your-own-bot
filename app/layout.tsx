@@ -1,16 +1,16 @@
-import type { Metadata } from 'next';
-import { Toaster } from 'sonner';
-
-import { ThemeProvider } from '@/components/theme-provider';
-
 import './globals.css';
+import { cookies } from 'next/headers';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from 'sonner';
+import Script from 'next/script';
 
+import { AppSidebar } from '@/components/app-sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
+import { auth } from './(auth)/auth';
 
+export const experimental_ppr = true;
 
-
-const LIGHT_THEME_COLOR = 'hsl(0 0% 100%)';
-const DARK_THEME_COLOR = 'hsl(240deg 10% 3.92%)';
 const THEME_COLOR_SCRIPT = `\
 (function() {
   var html = document.documentElement;
@@ -22,35 +22,44 @@ const THEME_COLOR_SCRIPT = `\
   }
   function updateThemeColor() {
     var isDark = html.classList.contains('dark');
-    meta.setAttribute('content', isDark ? '${DARK_THEME_COLOR}' : '${LIGHT_THEME_COLOR}');
+    meta.setAttribute('content', isDark ? 'hsl(240 10% 3.9%)' : 'hsl(0 0% 100%)');
   }
   var observer = new MutationObserver(updateThemeColor);
   observer.observe(html, { attributes: true, attributeFilter: ['class'] });
   updateThemeColor();
 })();`;
 
-export default async function RootLayout({
+export const metadata = {
+  title: 'AI Assistant Platform',
+  description: 'Next-generation AI agent development environment',
+};
+
+export default async function Layout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const [session, cookieStore] = await Promise.all([auth(), cookies()]);
+  const isCollapsed = cookieStore.get('sidebar:state')?.value !== 'true';
+
   return (
-    <html
-      lang="en"
-      // `next-themes` injects an extra classname to the body element to avoid
-      // visual flicker before hydration. Hence the `suppressHydrationWarning`
-      // prop is necessary to avoid the React hydration mismatch warning.
-      // https://github.com/pacocoursey/next-themes?tab=readme-ov-file#with-app
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: THEME_COLOR_SCRIPT,
           }}
         />
+        <Script
+          src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"
+          strategy="beforeInteractive"
+        />
       </head>
-      <body className="antialiased">
+      <body className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -58,7 +67,10 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <Toaster position="top-center" />
-          {children}
+          <SidebarProvider defaultOpen={!isCollapsed}>
+            <AppSidebar user={session?.user} />
+            <SidebarInset>{children}</SidebarInset>
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>
