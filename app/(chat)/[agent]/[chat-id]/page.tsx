@@ -47,7 +47,6 @@ export default async function Page(props: {
       <>
         <Chat
           id={chatId}
-          agentId={agent.id}
           agent={agent}
           initialMessages={convertToUIMessages(messagesFromDb)}
           selectedChatModel={model.model || DEFAULT_CHAT_MODEL}
@@ -63,7 +62,7 @@ export default async function Page(props: {
     <>
       <Chat
         id={chatId}
-        agentId={agent.id}
+        agent={agent}
         initialMessages={convertToUIMessages(messagesFromDb)}
         selectedChatModel={model.model || DEFAULT_CHAT_MODEL}
         selectedVisibilityType={chat.visibility}

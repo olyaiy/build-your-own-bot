@@ -19,7 +19,6 @@ import { toast } from 'sonner';
 
 export function Chat({
   id,
-  agentId,
   agent,
   initialMessages,
   selectedChatModel,
@@ -27,8 +26,7 @@ export function Chat({
   isReadonly,
 }: {
   id: string;
-  agentId: string;
-  agent?: Agent;
+  agent: Agent;
   initialMessages: Array<Message>;
   selectedChatModel: string;
   selectedVisibilityType: VisibilityType;
@@ -51,7 +49,7 @@ export function Chat({
     body: { 
       id, 
       selectedChatModel: selectedChatModel, 
-      agentId,
+      agentId: agent.id,
       agentSystemPrompt: agent?.system_prompt
     },
     initialMessages,
@@ -80,7 +78,7 @@ export function Chat({
       <div className="flex flex-col min-w-0 h-dvh bg-background">
         <ChatHeader
           chatId={id}
-          agentId={agentId}
+          agentId={agent.id}
           selectedModelId={selectedChatModel}
           selectedVisibilityType={selectedVisibilityType}
           isReadonly={isReadonly}
@@ -100,7 +98,7 @@ export function Chat({
         <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
           {!isReadonly && (
             <MultimodalInput
-              agentId={agentId}
+              agentId={agent.id}
               chatId={id}
               input={input}
               setInput={setInput}
