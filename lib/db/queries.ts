@@ -90,8 +90,17 @@ export async function deleteChatById({ id }: { id: string }) {
 export async function getChatsByUserId({ id }: { id: string }) {
   try {
     return await db
-      .select()
+      .select({
+        id: chat.id,
+        createdAt: chat.createdAt,
+        title: chat.title,
+        userId: chat.userId,
+        agentId: chat.agentId,
+        visibility: chat.visibility,
+        agentDisplayName: agents.agent_display_name
+      })
       .from(chat)
+      .leftJoin(agents, eq(chat.agentId, agents.id))
       .where(eq(chat.userId, id))
       .orderBy(desc(chat.createdAt));
   } catch (error) {

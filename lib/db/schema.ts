@@ -34,6 +34,10 @@ export const chat = pgTable('Chat', {
     .default('private'),
 });
 
+export type ExtendedChat = Chat & {
+  agentDisplayName?: string | null;
+};
+
 export type Chat = InferSelectModel<typeof chat>;
 
 export const message = pgTable('Message', {

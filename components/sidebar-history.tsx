@@ -46,7 +46,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import type { Chat } from '@/lib/db/schema';
+import type { ExtendedChat as Chat } from '@/lib/db/schema';
 import { fetcher } from '@/lib/utils';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 
@@ -74,11 +74,16 @@ const PureChatItem = ({
     initialVisibility: chat.visibility,
   });
 
+  console.log("CHATS ARE HERE>>>>>>>>", chat)
+
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild isActive={isActive}>
         <Link href={`/${chat.agentId}/${chat.id}`} onClick={() => setOpenMobile(false)}>
-          <span>{chat.title}</span>
+          <div className="flex flex-col gap-0.5 items-start w-full">
+            <span className="text-sm font-medium truncate w-full">{chat.title}</span>
+            <span className="text-xs text-muted-foreground truncate w-full">{chat.agentDisplayName}</span>
+          </div>
         </Link>
       </SidebarMenuButton>
 
