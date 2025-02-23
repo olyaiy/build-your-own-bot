@@ -1,4 +1,4 @@
-import CreateAgentForm from "@/components/create-agent-form";
+import AgentForm from "@/components/agent-form";
 import { auth } from "@/app/(auth)/auth";
 import { db } from "@/lib/db/queries";
 import { models } from "@/lib/db/schema";
@@ -13,9 +13,8 @@ export default async function CreateAgentPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold mb-4">Create New Agent</h1>
-   
-
-      <CreateAgentForm 
+      <AgentForm 
+        mode="create"
         userId={session?.user?.id}
         models={modelsList}
       />

@@ -94,6 +94,7 @@ export default function CreateAgentForm({ userId, models }: CreateAgentFormProps
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
+          name="description"
           placeholder="Enter description (optional)"
           className="mt-1"
         />

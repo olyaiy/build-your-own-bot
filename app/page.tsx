@@ -1,7 +1,6 @@
 
 import { getAgents } from "@/lib/db/queries";
 import { AgentList } from "@/components/agent-list";
-import { ChatHeader } from "@/components/chat-header";
 import { MainHeader } from "@/components/main-header";
 
 export default async function Page() {

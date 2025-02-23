@@ -1,4 +1,4 @@
-import EditAgentForm from "@/components/edit-agent-form";
+import AgentForm from "@/components/agent-form";
 import { auth } from "@/app/(auth)/auth";
 import { db } from "@/lib/db/queries";
 import { models, agents } from "@/lib/db/schema";
@@ -37,9 +37,8 @@ export default async function EditAgentPage({
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold mb-4">Edit Agent</h1>
-
-
-      <EditAgentForm 
+      <AgentForm 
+        mode="edit"
         userId={session?.user?.id}
         models={modelsList}
         initialData={initialData}

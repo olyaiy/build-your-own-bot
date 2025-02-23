@@ -13,15 +13,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateAgent } from "@/app/(agents)/actions";
+import { updateAgent, createAgent } from "@/app/(agents)/actions";
+import { useRouter } from "next/navigation";
 
-interface EditAgentFormProps {
+interface AgentFormProps {
+  mode: "create" | "edit";
   userId?: string;
   models: {
     id: string;
     displayName: string;
   }[];
-  initialData: {
+  initialData?: {
     id: string;
     agentDisplayName: string;
     systemPrompt: string;
@@ -31,8 +33,9 @@ interface EditAgentFormProps {
   };
 }
 
-export default function EditAgentForm({ userId, models, initialData }: EditAgentFormProps) {
+export default function AgentForm({ mode, userId, models, initialData }: AgentFormProps) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,19 +43,26 @@ export default function EditAgentForm({ userId, models, initialData }: EditAgent
 
     startTransition(async () => {
       try {
-        await updateAgent({
-          id: initialData.id,
+        const baseData = {
           agentDisplayName: formData.get("agentDisplayName") as string,
           systemPrompt: formData.get("systemPrompt") as string,
           description: formData.get("description") as string || undefined,
           modelId: formData.get("model") as string,
           visibility: formData.get("visibility") as "public" | "private" | "link",
           creatorId: formData.get("userId") as string
-        });
-        
-        toast.success("Agent updated successfully");
+        };
+
+        if (mode === "edit") {
+          await updateAgent({ ...baseData, id: initialData!.id });
+          toast.success("Agent updated successfully");
+        } else {
+          await createAgent(baseData);
+          toast.success("Agent created successfully");
+          router.push("/");
+        }
       } catch (error) {
-        toast.error("Failed to update agent. Please try again.");
+        const action = mode === "create" ? "create" : "update";
+        toast.error(`Failed to ${action} agent. Please try again.`);
       }
     });
   };
@@ -69,9 +79,23 @@ export default function EditAgentForm({ userId, models, initialData }: EditAgent
           placeholder="Enter agent display name"
           className="mt-1"
           required
-          defaultValue={initialData.agentDisplayName}
+          defaultValue={initialData?.agentDisplayName}
         />
       </div>
+
+      {/* Agent Slug (only in create mode) */}
+      {mode === "create" && (
+        <div className="flex flex-col">
+          <Label htmlFor="agentSlug">Agent Slug</Label>
+          <Input
+            id="agentSlug"
+            name="agentSlug"
+            type="text"
+            placeholder="Enter agent slug"
+            className="mt-1"
+          />
+        </div>
+      )}
 
       {/* System Prompt */}
       <div className="flex flex-col">
@@ -82,14 +106,26 @@ export default function EditAgentForm({ userId, models, initialData }: EditAgent
           placeholder="Enter system prompt"
           className="mt-1"
           required
-          defaultValue={initialData.systemPrompt}
+          defaultValue={initialData?.systemPrompt}
+        />
+      </div>
+
+      {/* Description */}
+      <div className="flex flex-col">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          name="description"
+          placeholder="Enter description (optional)"
+          className="mt-1"
+          defaultValue={initialData?.description}
         />
       </div>
 
       {/* Model */}
       <div className="flex flex-col">
         <Label htmlFor="model">Model</Label>
-        <Select name="model" required defaultValue={initialData.modelId}>
+        <Select name="model" required defaultValue={initialData?.modelId}>
           <SelectTrigger className="mt-1">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
@@ -110,7 +146,7 @@ export default function EditAgentForm({ userId, models, initialData }: EditAgent
           id="visibility"
           name="visibility"
           className="border rounded px-3 py-2 mt-1"
-          defaultValue={initialData.visibility}
+          defaultValue={initialData?.visibility || "public"}
         >
           <option value="public">Public</option>
           <option value="private">Private</option>
@@ -118,21 +154,9 @@ export default function EditAgentForm({ userId, models, initialData }: EditAgent
         </select>
       </div>
 
-      {/* Add Description field */}
-      <div className="flex flex-col">
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          name="description"
-          placeholder="Enter description (optional)"
-          className="mt-1"
-          defaultValue={initialData.description}
-        />
-      </div>
-
       <input type="hidden" name="userId" value={userId || ''} />
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Updating..." : "Update Agent"}
+        {isPending ? `${mode === 'create' ? 'Creating' : 'Updating'}...` : `${mode === 'create' ? 'Create' : 'Update'} Agent`}
       </Button>
     </form>
   );
