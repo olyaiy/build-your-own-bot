@@ -3,7 +3,13 @@
 import { Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function AgentCardSettings({ agentId }: { agentId: string }) {
+interface AgentCardSettingsProps {
+  agentId: string;
+  userId?: string;
+  creatorId?: string | null;
+}
+
+export function AgentCardSettings({ agentId, userId, creatorId }: AgentCardSettingsProps) {
   const router = useRouter();
 
   return (
@@ -12,7 +18,11 @@ export function AgentCardSettings({ agentId }: { agentId: string }) {
       onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
-        router.push(`/agents/edit/${agentId}`);
+        router.push(
+          userId === creatorId 
+            ? `/agents/edit/${agentId}` 
+            : `/agents/view/${agentId}`
+        );
       }}
     >
       <Settings className="w-4 h-4" />

@@ -14,7 +14,7 @@ export default async function Page() {
             <MainHeader/>
             <div className="container mx-auto p-4">
                 <h1 className="text-3xl font-bold mb-6">AI Agents</h1>
-                <AgentList agents={agents} />
+                <AgentList agents={agents} userId={session?.user?.id} />
             </div>
         </>
     );

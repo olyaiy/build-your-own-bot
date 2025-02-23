@@ -365,11 +365,14 @@ export const getAgents = async (userId?: string) => {
   try {
     return await db.select({
       id: agents.id,
+      agent: agents.agent,
       agent_display_name: agents.agent_display_name,
+      system_prompt: agents.system_prompt,
       description: agents.description,
       visibility: agents.visibility,
       model: models,
-      creatorId: agents.creatorId
+      creatorId: agents.creatorId,
+      artifacts_enabled: agents.artifacts_enabled
     })
     .from(agents)
     .leftJoin(models, eq(agents.model, models.id))
