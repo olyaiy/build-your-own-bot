@@ -71,91 +71,124 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Agent Display Name */}
-      <div className="flex flex-col">
-        <Label htmlFor="agentDisplayName">Agent Display Name</Label>
-        <Input
-          id="agentDisplayName"
-          name="agentDisplayName"
-          type="text"
-          placeholder="Enter agent display name"
-          className="mt-1"
-          required
-          defaultValue={initialData?.agentDisplayName}
-        />
+    <form onSubmit={handleSubmit} className="space-y-8 max-w-7xl mx-auto">
+      <div className="flex gap-8">
+        {/* Profile Placeholder - Left Column */}
+        <div className="w-1/4 aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
+          <svg
+            className="w-1/2 h-1/2 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            />
+          </svg>
+        </div>
+
+        {/* Right Column - All Form Fields */}
+        <div className="flex-1 space-y-6">
+          <div>
+            <Label htmlFor="agentDisplayName" className="text-lg font-semibold">
+              Agent Display Name
+            </Label>
+            <Input
+              id="agentDisplayName"
+              name="agentDisplayName"
+              type="text"
+              placeholder="Enter agent display name"
+              className="mt-2 text-xl h-16 px-6 font-medium"
+              required
+              defaultValue={initialData?.agentDisplayName}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="description" className="text-lg font-semibold">
+              Description
+            </Label>
+            <Textarea
+              id="description"
+              name="description"
+              placeholder="Enter description (optional)"
+              className="mt-2"
+              defaultValue={initialData?.description}
+            />
+          </div>
+
+          {/* Settings Row */}
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="model" className="text-sm font-medium">Model</Label>
+              <Select name="model" required defaultValue={initialData?.modelId}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Select a model" />
+                </SelectTrigger>
+                <SelectContent>
+                  {models.map((model) => (
+                    <SelectItem key={model.id} value={model.id}>
+                      {model.displayName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="visibility" className="text-sm font-medium">Visibility</Label>
+              <Select name="visibility" defaultValue={initialData?.visibility || "public"}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Select visibility" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="public">Public</SelectItem>
+                  <SelectItem value="private">Private</SelectItem>
+                  <SelectItem value="link">Link</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-end h-full">
+              <div className="flex items-center gap-2">
+                <Switch 
+                  id="artifactsEnabled" 
+                  name="artifactsEnabled"
+                  defaultChecked={initialData?.artifactsEnabled ?? true}
+                />
+                <Label htmlFor="artifactsEnabled">
+                  Enable Artifacts
+                </Label>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* System Prompt */}
-      <div className="flex flex-col">
-        <Label htmlFor="systemPrompt">System Prompt</Label>
+      {/* System Prompt Section */}
+      <div className="border-t pt-8">
+        <Label htmlFor="systemPrompt" className="text-lg font-semibold">
+          System Prompt
+        </Label>
         <Textarea
           id="systemPrompt"
           name="systemPrompt"
           placeholder={mode === "create" 
             ? "e.g. You are a friendly assistant! Keep your responses concise and helpful." 
             : "Enter system prompt"}
-          className="mt-1"
+          className="mt-2 min-h-[150px]"
           required
           defaultValue={initialData?.systemPrompt}
         />
       </div>
 
-      {/* Description */}
-      <div className="flex flex-col">
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          name="description"
-          placeholder="Enter description (optional)"
-          className="mt-1"
-          defaultValue={initialData?.description}
-        />
-      </div>
-
-      {/* Model */}
-      <div className="flex flex-col">
-        <Label htmlFor="model">Model</Label>
-        <Select name="model" required defaultValue={initialData?.modelId}>
-          <SelectTrigger className="mt-1">
-            <SelectValue placeholder="Select a model" />
-          </SelectTrigger>
-          <SelectContent>
-            {models.map((model) => (
-              <SelectItem key={model.id} value={model.id}>
-                {model.displayName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Visibility */}
-      <div className="flex flex-col">
-        <Label htmlFor="visibility">Visibility</Label>
-        <select
-          id="visibility"
-          name="visibility"
-          className="border rounded px-3 py-2 mt-1"
-          defaultValue={initialData?.visibility || "public"}
-        >
-          <option value="public">Public</option>
-          <option value="private">Private</option>
-          <option value="link">Link</option>
-        </select>
-      </div>
-
-      <div className="flex items-center gap-2 ">
-        <Switch 
-          id="artifactsEnabled" 
-          name="artifactsEnabled"
-          defaultChecked={initialData?.artifactsEnabled ?? true}
-        />
-        <Label htmlFor="artifactsEnabled">Enable Artifacts</Label>
-      </div>
-
       <input type="hidden" name="userId" value={userId || ''} />
-      <div className="flex gap-4">
+      
+      {/* Action Buttons */}
+      <div className="flex gap-4 pt-4 border-t">
         <Button type="submit" disabled={isPending}>
           {isPending ? `${mode === 'create' ? 'Creating' : 'Updating'}...` : `${mode === 'create' ? 'Create' : 'Update'} Agent`}
         </Button>
