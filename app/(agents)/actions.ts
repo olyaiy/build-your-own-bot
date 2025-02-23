@@ -12,6 +12,7 @@ export async function createAgent({
   modelId,
   visibility,
   creatorId,
+  artifactsEnabled,
 }: {
   agentDisplayName: string;
   systemPrompt: string;
@@ -19,6 +20,7 @@ export async function createAgent({
   modelId: string;
   visibility: AgentVisibility;
   creatorId: string;
+  artifactsEnabled: boolean;
 }) {
   try {
     return await db.insert(agents).values({
@@ -28,6 +30,7 @@ export async function createAgent({
       model: modelId,
       visibility,
       creatorId,
+      artifacts_enabled: artifactsEnabled,
     });
   } catch (error) {
     console.error('Error creating agent:', error);
@@ -43,6 +46,7 @@ export async function updateAgent({
   modelId,
   visibility,
   creatorId,
+  artifactsEnabled,
 }: {
   id: string;
   agentDisplayName: string;
@@ -51,6 +55,7 @@ export async function updateAgent({
   modelId: string;
   visibility: AgentVisibility;
   creatorId: string;
+  artifactsEnabled: boolean;
 }) {
   try {
     return await db.update(agents)
@@ -61,6 +66,7 @@ export async function updateAgent({
         model: modelId,
         visibility,
         creatorId,
+        artifacts_enabled: artifactsEnabled,
       })
       .where(eq(agents.id, id));
   } catch (error) {

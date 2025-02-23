@@ -139,6 +139,7 @@ export const agents = pgTable("agents", {
   model: uuid("model").references(() => models.id),
   visibility: visibilityEnum("visibility").default("public"),
   creatorId: uuid("creator_id").references(() => user.id),
+  artifacts_enabled: boolean("artifacts_enabled").default(true),
 });
 
 export type Agent = typeof agents.$inferSelect;

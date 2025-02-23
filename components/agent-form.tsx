@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { updateAgent, createAgent, deleteAgent } from "@/app/(agents)/actions";
 import { useRouter } from "next/navigation";
+import { Switch } from "@/components/ui/switch";
 
 interface AgentFormProps {
   mode: "create" | "edit";
@@ -30,6 +31,7 @@ interface AgentFormProps {
     description?: string;
     modelId: string;
     visibility: "public" | "private" | "link";
+    artifactsEnabled: boolean;
   };
 }
 
@@ -49,7 +51,8 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
           description: formData.get("description") as string || undefined,
           modelId: formData.get("model") as string,
           visibility: formData.get("visibility") as "public" | "private" | "link",
-          creatorId: formData.get("userId") as string
+          creatorId: formData.get("userId") as string,
+          artifactsEnabled: formData.get("artifactsEnabled") === "on"
         };
 
         if (mode === "edit") {
@@ -140,6 +143,15 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
           <option value="private">Private</option>
           <option value="link">Link</option>
         </select>
+      </div>
+
+      <div className="flex items-center gap-2 ">
+        <Switch 
+          id="artifactsEnabled" 
+          name="artifactsEnabled"
+          defaultChecked={initialData?.artifactsEnabled ?? true}
+        />
+        <Label htmlFor="artifactsEnabled">Enable Artifacts</Label>
       </div>
 
       <input type="hidden" name="userId" value={userId || ''} />
