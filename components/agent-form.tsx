@@ -144,10 +144,10 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-7xl mx-auto">
-      <div className="flex gap-8">
-        {/* Image Upload Area - Left Column */}
-        <div className="w-1/4 relative">
+    <form onSubmit={handleSubmit} className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Image Upload Area - Full width on mobile, 1/4 width on desktop */}
+        <div className="w-full md:w-1/4 relative mb-6 md:mb-0">
           <div className="w-full h-0 pb-[75%] relative bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
             {isUploading ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -166,11 +166,11 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
                     sizes="(max-width: 768px) 100vw, 25vw"
                     priority
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
                     <Button 
                       type="button" 
                       variant="secondary" 
-                      className="z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      className="z-10 opacity-0 hover:opacity-100 transition-opacity duration-200"
                       onClick={open}
                     >
                       Change Image
@@ -182,7 +182,7 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
                     type="button"
                     size="icon"
                     variant="destructive"
-                    className="absolute bottom-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    className="absolute bottom-2 right-2 z-10 opacity-70 sm:opacity-0 sm:hover:opacity-100 transition-opacity duration-200"
                     onClick={handleDeleteImage}
                     disabled={isDeletingImage}
                   >
@@ -197,7 +197,7 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
               >
                 <input {...getInputProps()} />
                 <svg
-                  className="size-1/4 text-gray-400 mb-4"
+                  className="size-16 sm:size-1/4 text-gray-400 mb-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -228,7 +228,7 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
         </div>
 
         {/* Right Column - All Form Fields */}
-        <div className="flex-1 space-y-6">
+        <div className="w-full md:flex-1 space-y-6">
           <div>
             <Label htmlFor="agentDisplayName" className="text-lg font-semibold">
               Agent Name
@@ -238,7 +238,7 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
               name="agentDisplayName"
               type="text"
               placeholder="Enter agent display name"
-              className="mt-2 text-xl h-16 px-6 font-medium"
+              className="mt-2 text-xl h-12 sm:h-16 px-4 sm:px-6 font-medium"
               required
               defaultValue={initialData?.agentDisplayName}
             />
@@ -257,8 +257,8 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
             />
           </div>
 
-          {/* Settings Row */}
-          <div className="grid grid-cols-3 gap-4">
+          {/* Settings Row - Stack on mobile, grid on desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 gap-y-6">
             <div>
               <Label htmlFor="model" className="text-sm font-medium">Model</Label>
               <Select name="model" required defaultValue={initialData?.modelId}>
@@ -267,12 +267,11 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
                 </SelectTrigger>
                 <SelectContent>
                   {models.map((model) => (
-                    <SelectItem key={model.id} value={model.id} className=" flex flex-col justify-start items-start">
+                    <SelectItem key={model.id} value={model.id} className="flex flex-col justify-start items-start">
                       <div className="flex flex-col justify-start items-start">
                         <span className="font-medium">{model.displayName}</span>
                         <span className="text-xs text-muted-foreground">{model.modelType}</span>
                         <span className="text-xs text-muted-foreground">{model.description}</span>
-
                       </div>
                     </SelectItem>
                   ))}
@@ -294,8 +293,8 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
               </Select>
             </div>
 
-            <div className="flex items-end h-full">
-              <div className="flex items-center gap-2">
+            <div className="flex items-start sm:items-end h-full">
+              <div className="flex items-center gap-2 mt-4 sm:mt-0">
                 <Switch 
                   id="artifactsEnabled" 
                   name="artifactsEnabled"
@@ -330,8 +329,12 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
       <input type="hidden" name="userId" value={userId || ''} />
       
       {/* Action Buttons */}
-      <div className="flex gap-4 pt-4 border-t">
-        <Button type="submit" disabled={isPending}>
+      <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t">
+        <Button 
+          type="submit" 
+          disabled={isPending}
+          className="w-full sm:w-auto"
+        >
           {isPending ? `${mode === 'create' ? 'Creating' : 'Updating'}...` : `${mode === 'create' ? 'Create' : 'Update'} Agent`}
         </Button>
         {mode === 'edit' && (
@@ -339,6 +342,7 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
             type="button"
             variant="destructive"
             disabled={isPending}
+            className="w-full sm:w-auto"
             onClick={() => {
               if (confirm("Are you sure you want to delete this agent? This action cannot be undone.")) {
                 startTransition(async () => {
