@@ -28,7 +28,7 @@ export function AgentList({ agents, userId }: AgentListProps) {
               </div>
             )}
             
-            <div className="h-28 mb-2 rounded-lg bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 relative">
+            <div className="h-36 mb-2 rounded-lg bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 relative">
               {agent.image_url ? (
                 <div className="absolute inset-0 overflow-hidden rounded-lg">
                   <Image
@@ -44,8 +44,8 @@ export function AgentList({ agents, userId }: AgentListProps) {
               )}
             </div>
 
-            <h3 className="text-lg font-semibold mb-2 line-clamp-1">{agent.agent_display_name}</h3>
-            <p className="text-xs text-muted-foreground mb-2 line-clamp-3 flex-1">
+            <h3 className="text-lg font-semibold mb-1 line-clamp-1">{agent.agent_display_name}</h3>
+            <p className="text-xs text-muted-foreground mb-1 line-clamp-2 flex-1">
               {agent.description}
             </p>
             
