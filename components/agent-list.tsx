@@ -21,7 +21,7 @@ export function AgentList({ agents, userId }: AgentListProps) {
           <Card className="p-4 hover:shadow-lg transition-shadow cursor-pointer relative group h-[270px] flex flex-col">
             {agent.visibility !== 'public' && (
               <div className="absolute top-2 right-2 z-10">
-                <Badge variant="outline" className="text-[10px] px-2 py-0 h-5">
+                <Badge variant="secondary" className="text-[10px] px-2 py-0 h-5 bg-muted">
                   {agent.visibility}
                 </Badge>
               </div>
@@ -32,7 +32,7 @@ export function AgentList({ agents, userId }: AgentListProps) {
             </div>
 
             <h3 className="text-lg font-semibold mb-2 line-clamp-1">{agent.agent_display_name}</h3>
-            <p className="text-sm text-muted-foreground mb-2 line-clamp-3 flex-1">
+            <p className="text-xs text-muted-foreground mb-2 line-clamp-3 flex-1">
               {agent.description}
             </p>
             
