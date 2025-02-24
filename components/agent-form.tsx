@@ -147,79 +147,84 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
     <form onSubmit={handleSubmit} className="space-y-8 max-w-7xl mx-auto">
       <div className="flex gap-8">
         {/* Image Upload Area - Left Column */}
-        <div className="w-1/4 aspect-square bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center relative overflow-hidden">
-          {isUploading ? (
-            <div className="flex flex-col items-center justify-center h-full w-full">
-              <Loader2 className="h-10 w-10 text-gray-400 animate-spin" />
-              <span className="mt-2 text-sm text-gray-500">Uploading...</span>
-            </div>
-          ) : imageUrl ? (
-            <div className="relative h-full w-full group">
-              <Image 
-                src={imageUrl} 
-                alt="Agent profile" 
-                fill 
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 25vw"
-                priority
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
-                <Button 
-                  type="button" 
-                  variant="secondary" 
-                  className="z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  onClick={open}
-                >
-                  Change Image
-                </Button>
+        <div className="w-1/4 relative">
+          <div className="w-full h-0 pb-[75%] relative bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
+            {isUploading ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <Loader2 className="h-10 w-10 text-gray-400 animate-spin" />
+                <span className="mt-2 text-sm text-gray-500">Uploading...</span>
               </div>
-              
-              {/* Delete Image Button */}
-              <Button
-                type="button"
-                size="icon"
-                variant="destructive"
-                className="absolute bottom-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                onClick={handleDeleteImage}
-                disabled={isDeletingImage}
-              >
-                {isDeletingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-              </Button>
-            </div>
-          ) : (
-            <div 
-              {...getRootProps()} 
-              className="h-full w-full flex flex-col items-center justify-center p-4 cursor-pointer"
-            >
-              <input {...getInputProps()} />
-              <svg
-                className="size-1/4 text-gray-400 mb-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-              {isDragActive ? (
-                <p className="text-sm text-center text-gray-500">Drop the image here</p>
-              ) : (
-                <>
-                  <p className="text-sm text-center text-gray-500 mb-2">Drag and drop an image here or</p>
-                  <Button type="button" variant="outline" size="sm">
-                    Browse Files
+            ) : imageUrl ? (
+              <div className="absolute inset-0">
+                <div className="relative w-full h-full">
+                  <Image 
+                    src={imageUrl} 
+                    alt="Agent profile" 
+                    width={400}
+                    height={300}
+                    className="w-full h-full object-cover"
+                    sizes="(max-width: 768px) 100vw, 25vw"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
+                    <Button 
+                      type="button" 
+                      variant="secondary" 
+                      className="z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      onClick={open}
+                    >
+                      Change Image
+                    </Button>
+                  </div>
+                  
+                  {/* Delete Image Button */}
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="destructive"
+                    className="absolute bottom-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    onClick={handleDeleteImage}
+                    disabled={isDeletingImage}
+                  >
+                    {isDeletingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                   </Button>
-                </>
-              )}
-              <p className="text-xs text-gray-400 mt-2 text-center">
-                PNG or JPG (max. 5MB)
-              </p>
-            </div>
-          )}
+                </div>
+              </div>
+            ) : (
+              <div 
+                {...getRootProps()} 
+                className="absolute inset-0 flex flex-col items-center justify-center p-4 cursor-pointer"
+              >
+                <input {...getInputProps()} />
+                <svg
+                  className="size-1/4 text-gray-400 mb-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+                {isDragActive ? (
+                  <p className="text-sm text-center text-gray-500">Drop the image here</p>
+                ) : (
+                  <>
+                    <p className="text-sm text-center text-gray-500 mb-2">Drag and drop an image here or</p>
+                    <Button type="button" variant="outline" size="sm">
+                      Browse Files
+                    </Button>
+                  </>
+                )}
+                <p className="text-xs text-gray-400 mt-2 text-center">
+                  PNG or JPG (max. 5MB)
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Column - All Form Fields */}
