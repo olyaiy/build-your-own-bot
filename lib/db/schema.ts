@@ -156,7 +156,7 @@ export const agents = pgTable("agents", {
   artifacts_enabled: boolean("artifacts_enabled").default(true),
   image_url: text("image_url"),
 });
-
+ 
 export type Agent = typeof agents.$inferSelect;
 
 
