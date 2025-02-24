@@ -1,5 +1,8 @@
 import type { NextAuthConfig } from 'next-auth';
 
+// Set this to false to temporarily disable registrations
+const ENABLE_REGISTRATION = false;
+
 export const authConfig = {
   pages: {
     signIn: '/login',
@@ -20,8 +23,18 @@ export const authConfig = {
         return Response.redirect(new URL('/', nextUrl as unknown as URL));
       }
 
-      if (isOnRegister || isOnLogin) {
-        return true; // Always allow access to register and login pages
+      // Handle registration page access based on ENABLE_REGISTRATION flag
+      if (isOnRegister) {
+        if (ENABLE_REGISTRATION) {
+          return true; // Allow access to registration page if enabled
+        } else {
+          // Redirect to login page when registrations are disabled
+          return Response.redirect(new URL('/login', nextUrl as unknown as URL));
+        }
+      }
+
+      if (isOnLogin) {
+        return true; // Always allow access to login page
       }
 
       if (isOnChat) {
