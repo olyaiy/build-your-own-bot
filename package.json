@@ -25,6 +25,8 @@
 		"@ai-sdk/mistral": "^1.1.12",
 		"@ai-sdk/openai": "1.1.9",
 		"@ai-sdk/perplexity": "^1.0.1",
+		"@aws-sdk/client-s3": "^3.750.0",
+		"@aws-sdk/s3-request-presigner": "^3.750.0",
 		"@codemirror/lang-javascript": "^6.2.2",
 		"@codemirror/lang-python": "^6.1.6",
 		"@codemirror/state": "^6.5.0",
