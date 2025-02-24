@@ -117,6 +117,7 @@ export function Chat({
 
       <Artifact
         chatId={id}
+        agentId={agent.id}
         input={input}
         setInput={setInput}
         handleSubmit={handleSubmit}
