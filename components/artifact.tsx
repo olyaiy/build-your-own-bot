@@ -57,6 +57,7 @@ export interface UIArtifact {
 
 function PureArtifact({
   chatId,
+  agentId,
   input,
   setInput,
   handleSubmit,
@@ -72,6 +73,7 @@ function PureArtifact({
   isReadonly,
 }: {
   chatId: string;
+  agentId: string;
   input: string;
   setInput: (input: string) => void;
   isLoading: boolean;
@@ -337,6 +339,7 @@ function PureArtifact({
                 <form className="flex flex-row gap-2 relative items-end w-full px-4 pb-4">
                   <MultimodalInput
                     chatId={chatId}
+                    agentId={agentId}
                     input={input}
                     setInput={setInput}
                     handleSubmit={handleSubmit}
