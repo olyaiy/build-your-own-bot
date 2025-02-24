@@ -57,6 +57,13 @@
       "when": 1740344760012,
       "tag": "0007_bright_nemesis",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1740434444731,
+      "tag": "0008_motionless_black_queen",
+      "breakpoints": true
     }
   ]
 }
