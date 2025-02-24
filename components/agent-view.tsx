@@ -47,7 +47,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
         {/* Profile Placeholder - Same as form */}
         <div className="w-1/4 aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
           <svg
-            className="w-1/2 h-1/2 text-gray-400"
+            className="size-1/2 text-gray-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

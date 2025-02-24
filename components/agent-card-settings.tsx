@@ -25,7 +25,7 @@ export function AgentCardSettings({ agentId, userId, creatorId }: AgentCardSetti
         );
       }}
     >
-      <Settings className="w-4 h-4" />
+      <Settings className="size-4" />
     </button>
   );
 } 

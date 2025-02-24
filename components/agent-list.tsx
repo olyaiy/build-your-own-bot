@@ -56,7 +56,7 @@ export function AgentList({ agents, userId }: AgentListProps) {
       {userId && (
         <Link key="create-agent" href="/agents/create">
           <Card className="h-[270px] flex items-center justify-center p-4 hover:shadow-lg transition-shadow cursor-pointer">
-            <Plus className="w-8 h-8" />
+            <Plus className="size-8" />
           </Card>
         </Link>
       )}

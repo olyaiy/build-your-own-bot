@@ -94,7 +94,7 @@ function PureChatHeader({
             <Button
             variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="size-8"
               asChild
             >
               <Link href={`/agents/edit/${agentId}`}>

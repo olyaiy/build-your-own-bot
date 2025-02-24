@@ -27,7 +27,7 @@ export default async function ViewAgentPage({
   if (accessCheck.visibility === 'private' && session?.user?.id !== accessCheck.creatorId) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <p>Sorry, you don't have access</p>
+        <p>Sorry, you don&#39;t have access</p>
       </div>
     );
   }

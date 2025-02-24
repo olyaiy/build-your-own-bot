@@ -18,9 +18,9 @@ export const Overview = () => {
           <MessageIcon size={32} />
         </p>
         <p>
-          Welcome to your AI assistant! I'm here to help answer your questions
+          Welcome to your AI assistant! I&#39;m here to help answer your questions
           and provide information on a wide range of topics. Feel free to ask me
-          anything - I'll do my best to give you clear, helpful responses.
+          anything - I&#39;ll do my best to give you clear, helpful responses.
         </p>
         <p>
           Start typing your question in the chat box below. You can ask about:
