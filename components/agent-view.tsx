@@ -22,7 +22,7 @@ interface AgentViewProps {
     description?: string;
     modelId: string;
     visibility: "public" | "private" | "link";
-    artifactsEnabled: boolean;
+    artifactsEnabled: boolean | null;
     modelDetails?: {
       displayName: string;
       modelType: string;
@@ -32,7 +32,7 @@ interface AgentViewProps {
   models: {
     id: string;
     displayName: string;
-    modelType: string;
+    modelType: string | null;
     description?: string;
   }[];
 }
@@ -93,7 +93,9 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
                   <SelectItem value={selectedModel?.id || ''}>
                     <div className="flex flex-col justify-start items-start">
                       <span className="font-medium">{selectedModel?.displayName}</span>
-                      <span className="text-xs text-muted-foreground">{selectedModel?.modelType}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {selectedModel?.modelType ?? ''}
+                      </span>
                       <span className="text-xs text-muted-foreground">{selectedModel?.description}</span>
                     </div>
                   </SelectItem>
@@ -113,7 +115,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
             <div className="flex items-end h-full">
               <div className="flex items-center gap-2">
                 <Switch 
-                  checked={agentData.artifactsEnabled}
+                  checked={agentData.artifactsEnabled ?? false}
                   disabled
                 />
                 <Label>Artifacts Enabled</Label>

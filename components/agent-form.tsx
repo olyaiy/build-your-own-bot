@@ -23,7 +23,7 @@ interface AgentFormProps {
   models: {
     id: string;
     displayName: string;
-    modelType: string | null;
+    modelType?: string | null;
     description?: string | null;
   }[];
   initialData?: {
@@ -33,7 +33,7 @@ interface AgentFormProps {
     description?: string;
     modelId: string;
     visibility: "public" | "private" | "link";
-    artifactsEnabled: boolean;
+    artifactsEnabled: boolean | null;
   };
 }
 

@@ -6,11 +6,12 @@ import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 
 export default async function EditAgentPage({
-  params,
+  params: paramsPromise,
 }: {
-  params: { "agent-id": string };
+  params: Promise<{ "agent-id": string }>;
 }) {
   const session = await auth();
+  const params = await paramsPromise;
   const agentId = params["agent-id"];
 
   const [agentData, modelsList] = await Promise.all([
@@ -35,6 +36,9 @@ export default async function EditAgentPage({
     artifactsEnabled: agentData[0].artifacts_enabled,
   };
 
+
+  console.log("INITIAL DATA", initialData)
+  console.log("MODELS LIST", modelsList)
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold mb-4">Edit Agent</h1>

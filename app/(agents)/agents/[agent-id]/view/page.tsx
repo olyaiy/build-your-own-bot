@@ -6,13 +6,14 @@ import AgentView from "@/components/agent-view";
 import { models, agents } from "@/lib/db/schema";
 
 export default async function ViewAgentPage({
-  params,
+  params: paramsPromise,
 }: {
-  params: { "agent-id": string };
+  params: Promise<{ "agent-id": string }>;
 }) {
+  const params = await paramsPromise;
   const agentId = params["agent-id"];
 
-  const [agentData, modelsList] = await Promise.all([
+  const [agentData, rawModels] = await Promise.all([
     db.select().from(agents).where(eq(agents.id, agentId)),
     db.select({
       id: models.id,
@@ -35,6 +36,11 @@ export default async function ViewAgentPage({
     visibility: agentData[0].visibility || 'public',
     artifactsEnabled: agentData[0].artifacts_enabled,
   };
+
+  const modelsList = rawModels.map(m => ({
+    ...m,
+    description: m.description ?? undefined
+  }));
 
   return (
     <div className="container mx-auto py-8 px-4">
