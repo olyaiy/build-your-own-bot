@@ -34,6 +34,7 @@ export default async function EditAgentPage({
     modelId: agentData[0].model || '',
     visibility: agentData[0].visibility || 'public',
     artifactsEnabled: agentData[0].artifacts_enabled,
+    imageUrl: agentData[0].image_url ?? undefined,
   };
 
   return (

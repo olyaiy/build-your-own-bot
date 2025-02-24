@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useTransition } from "react";
+import React, { useEffect, useTransition, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,9 @@ import {
 import { updateAgent, createAgent, deleteAgent } from "@/app/(agents)/actions";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
+import { useDropzone } from "react-dropzone";
+import Image from "next/image";
+import { Loader2 } from "lucide-react";
 
 interface AgentFormProps {
   mode: "create" | "edit";
@@ -34,12 +37,58 @@ interface AgentFormProps {
     modelId: string;
     visibility: "public" | "private" | "link";
     artifactsEnabled: boolean | null;
+    imageUrl?: string | null;
   };
 }
 
 export default function AgentForm({ mode, userId, models, initialData }: AgentFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [imageUrl, setImageUrl] = useState<string | null>(initialData?.imageUrl || null);
+  const [isUploading, setIsUploading] = useState(false);
   const router = useRouter();
+
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+    accept: {
+      'image/jpeg': [],
+      'image/png': []
+    },
+    maxSize: 5 * 1024 * 1024, // 5MB
+    maxFiles: 1,
+    onDrop: async (acceptedFiles) => {
+      if (acceptedFiles.length > 0) {
+        await handleImageUpload(acceptedFiles[0]);
+      }
+    },
+    noClick: false,
+    noKeyboard: false,
+  });
+
+  const handleImageUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/files/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      setImageUrl(data.url);
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,7 +103,8 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
           modelId: formData.get("model") as string,
           visibility: formData.get("visibility") as "public" | "private" | "link",
           creatorId: formData.get("userId") as string,
-          artifactsEnabled: formData.get("artifactsEnabled") === "on"
+          artifactsEnabled: formData.get("artifactsEnabled") === "on",
+          imageUrl: imageUrl
         };
 
         if (mode === "edit") {
@@ -75,21 +125,68 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-7xl mx-auto">
       <div className="flex gap-8">
-        {/* Profile Placeholder - Left Column */}
-        <div className="w-1/4 aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-          <svg
-            className="size-1/2 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
-          </svg>
+        {/* Image Upload Area - Left Column */}
+        <div className="w-1/4 aspect-square bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center relative overflow-hidden">
+          {isUploading ? (
+            <div className="flex flex-col items-center justify-center h-full w-full">
+              <Loader2 className="h-10 w-10 text-gray-400 animate-spin" />
+              <span className="mt-2 text-sm text-gray-500">Uploading...</span>
+            </div>
+          ) : imageUrl ? (
+            <div className="relative h-full w-full group">
+              <Image 
+                src={imageUrl} 
+                alt="Agent profile" 
+                fill 
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 25vw"
+                priority
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
+                <Button 
+                  type="button" 
+                  variant="secondary" 
+                  className="z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  onClick={open}
+                >
+                  Change Image
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div 
+              {...getRootProps()} 
+              className="h-full w-full flex flex-col items-center justify-center p-4 cursor-pointer"
+            >
+              <input {...getInputProps()} />
+              <svg
+                className="size-1/4 text-gray-400 mb-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
+              {isDragActive ? (
+                <p className="text-sm text-center text-gray-500">Drop the image here</p>
+              ) : (
+                <>
+                  <p className="text-sm text-center text-gray-500 mb-2">Drag and drop an image here or</p>
+                  <Button type="button" variant="outline" size="sm">
+                    Browse Files
+                  </Button>
+                </>
+              )}
+              <p className="text-xs text-gray-400 mt-2 text-center">
+                PNG or JPG (max. 5MB)
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Right Column - All Form Fields */}

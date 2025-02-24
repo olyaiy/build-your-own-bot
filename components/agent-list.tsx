@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Agent, agents, Model, models } from "@/lib/db/schema";
 import { Plus } from "lucide-react";
 import { AgentCardSettings } from "./agent-card-settings";
@@ -28,7 +29,19 @@ export function AgentList({ agents, userId }: AgentListProps) {
             )}
             
             <div className="h-28 mb-2 rounded-lg bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 relative">
-              <div className="absolute inset-0 bg-grid-slate-200 [mask-image:linear-gradient(0deg,transparent,black)] dark:bg-grid-slate-700 rounded-lg"></div>
+              {agent.image_url ? (
+                <div className="absolute inset-0 overflow-hidden rounded-lg">
+                  <Image
+                    src={agent.image_url}
+                    alt={agent.agent_display_name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="absolute inset-0 bg-grid-slate-200 [mask-image:linear-gradient(0deg,transparent,black)] dark:bg-grid-slate-700 rounded-lg"></div>
+              )}
             </div>
 
             <h3 className="text-lg font-semibold mb-2 line-clamp-1">{agent.agent_display_name}</h3>

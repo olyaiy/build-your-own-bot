@@ -372,7 +372,8 @@ export const getAgents = async (userId?: string) => {
       visibility: agents.visibility,
       model: models,
       creatorId: agents.creatorId,
-      artifacts_enabled: agents.artifacts_enabled
+      artifacts_enabled: agents.artifacts_enabled,
+      image_url: agents.image_url
     })
     .from(agents)
     .leftJoin(models, eq(agents.model, models.id))
@@ -418,6 +419,8 @@ export async function createAgent({
   modelId,
   visibility,
   creatorId,
+  artifactsEnabled,
+  imageUrl,
 }: {
   agentDisplayName: string;
   systemPrompt: string;
@@ -425,6 +428,8 @@ export async function createAgent({
   modelId: string;
   visibility: 'public' | 'private' | 'link';
   creatorId: string;
+  artifactsEnabled?: boolean;
+  imageUrl?: string | null;
 }) {
   try {
     return await db.insert(agents).values({
@@ -434,6 +439,8 @@ export async function createAgent({
       model: modelId,
       visibility,
       creatorId,
+      artifacts_enabled: artifactsEnabled ?? true,
+      image_url: imageUrl,
     });
   } catch (error) {
     console.error('Failed to create agent in database');
@@ -468,6 +475,43 @@ export async function getAgentWithModelById(id: string) {
     return result;
   } catch (error) {
     console.error('Failed to get agent with model from database');
+    throw error;
+  }
+}
+
+export async function updateAgentById({
+  id,
+  agentDisplayName,
+  systemPrompt,
+  description,
+  modelId,
+  visibility,
+  artifactsEnabled,
+  imageUrl,
+}: {
+  id: string;
+  agentDisplayName: string;
+  systemPrompt: string;
+  description?: string;
+  modelId: string;
+  visibility: 'public' | 'private' | 'link';
+  artifactsEnabled?: boolean;
+  imageUrl?: string | null;
+}) {
+  try {
+    return await db.update(agents)
+      .set({
+        agent_display_name: agentDisplayName,
+        system_prompt: systemPrompt,
+        description,
+        model: modelId,
+        visibility,
+        artifacts_enabled: artifactsEnabled,
+        image_url: imageUrl,
+      })
+      .where(eq(agents.id, id));
+  } catch (error) {
+    console.error('Failed to update agent in database');
     throw error;
   }
 }

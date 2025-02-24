@@ -1,6 +1,7 @@
 'use server';
 
-import { db } from '@/lib/db/queries';
+import { revalidatePath } from 'next/cache';
+import { createAgent as createAgentQuery, deleteAgentQuery, getAgentById, updateAgentById } from '@/lib/db/queries';
 import { agents } from '@/lib/db/schema';
 import { type AgentVisibility } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -14,28 +15,32 @@ export async function createAgent({
   visibility,
   creatorId,
   artifactsEnabled,
+  imageUrl
 }: {
   agentDisplayName: string;
   systemPrompt: string;
   description?: string;
   modelId: string;
-  visibility: AgentVisibility;
+  visibility: "public" | "private" | "link";
   creatorId: string;
-  artifactsEnabled: boolean;
+  artifactsEnabled?: boolean;
+  imageUrl?: string | null;
 }) {
   try {
-    return await db.insert(agents).values({
-      agent: generateSlug(agentDisplayName),
-      agent_display_name: agentDisplayName,
-      system_prompt: systemPrompt,
+    await createAgentQuery({
+      agentDisplayName,
+      systemPrompt,
       description,
-      model: modelId,
+      modelId,
       visibility,
       creatorId,
-      artifacts_enabled: artifactsEnabled,
+      artifactsEnabled,
+      imageUrl
     });
+    
+    revalidatePath('/');
   } catch (error) {
-    console.error('Error creating agent:', error);
+    console.error('Failed to create agent:', error);
     throw new Error('Failed to create agent');
   }
 }
@@ -47,41 +52,50 @@ export async function updateAgent({
   description,
   modelId,
   visibility,
-  creatorId,
   artifactsEnabled,
+  imageUrl
 }: {
   id: string;
   agentDisplayName: string;
   systemPrompt: string;
   description?: string;
   modelId: string;
-  visibility: AgentVisibility;
-  creatorId: string;
-  artifactsEnabled: boolean;
+  visibility: "public" | "private" | "link";
+  artifactsEnabled?: boolean;
+  imageUrl?: string | null;
 }) {
   try {
-    return await db.update(agents)
-      .set({
-        agent_display_name: agentDisplayName,
-        system_prompt: systemPrompt,
-        description,
-        model: modelId,
-        visibility,
-        creatorId,
-        artifacts_enabled: artifactsEnabled,
-      })
-      .where(eq(agents.id, id));
+    const agent = await getAgentById(id);
+    
+    if (!agent) {
+      throw new Error('Agent not found');
+    }
+    
+    // Call the updateAgentById function
+    await updateAgentById({
+      id,
+      agentDisplayName,
+      systemPrompt,
+      description,
+      modelId,
+      visibility,
+      artifactsEnabled,
+      imageUrl
+    });
+    
+    revalidatePath('/');
   } catch (error) {
-    console.error('Error updating agent:', error);
+    console.error('Failed to update agent:', error);
     throw new Error('Failed to update agent');
   }
 }
 
 export async function deleteAgent(id: string) {
   try {
-    await db.delete(agents).where(eq(agents.id, id));
+    await deleteAgentQuery(id);
+    revalidatePath('/');
   } catch (error) {
-    console.error('Error deleting agent:', error);
+    console.error('Failed to delete agent:', error);
     throw new Error('Failed to delete agent');
   }
 }
