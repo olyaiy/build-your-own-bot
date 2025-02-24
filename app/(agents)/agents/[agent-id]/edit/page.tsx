@@ -36,9 +36,6 @@ export default async function EditAgentPage({
     artifactsEnabled: agentData[0].artifacts_enabled,
   };
 
-
-  console.log("INITIAL DATA", initialData)
-  console.log("MODELS LIST", modelsList)
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold mb-4">Edit Agent</h1>

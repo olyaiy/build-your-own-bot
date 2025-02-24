@@ -43,7 +43,6 @@ export async function POST(request: Request) {
     agentSystemPrompt?: string;
   } = await request.json();
 
-  console.log('Agent system prompt:', agentSystemPrompt);
   
   const session = await auth();
 
@@ -73,7 +72,6 @@ export async function POST(request: Request) {
     messages: [{ ...userMessage, createdAt: new Date(), chatId: id }],
   });
 
-  console.log('Selected chat model:', selectedChatModel);
 
   return createDataStreamResponse({
     execute: (dataStream) => {

@@ -7,7 +7,6 @@ export default async function Page() {
     const session = await auth();
     const agents = await getAgents(session?.user?.id);
 
-    // console.log("AGENTS ARE HERE>>>>>>>>", agents)
 
     return (
         <>

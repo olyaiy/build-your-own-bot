@@ -74,7 +74,6 @@ const PureChatItem = ({
     initialVisibility: chat.visibility,
   });
 
-  console.log("CHATS ARE HERE>>>>>>>>", chat)
 
   return (
     <SidebarMenuItem>
