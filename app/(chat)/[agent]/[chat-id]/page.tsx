@@ -2,10 +2,16 @@
 import { notFound } from 'next/navigation';
 import { auth } from '@/app/(auth)/auth';
 import { Chat } from '@/components/chat';
-import { getChatById, getMessagesByChatId, getAgentWithModelById } from '@/lib/db/queries';
+import { 
+  getChatById, 
+  getMessagesByChatId, 
+  getAgentWithModelById,
+  getAgentWithAvailableModels
+} from '@/lib/db/queries';
 import { convertToUIMessages } from '@/lib/utils';
 import { DataStreamHandler } from '@/components/data-stream-handler';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
+import type { Model } from '@/lib/db/schema';
 
 export default async function Page(props: { 
   params: Promise<{ 
@@ -20,6 +26,20 @@ export default async function Page(props: {
     return notFound();
   }
 
+  // Get all available models for this agent
+  const agentWithAvailableModels = await getAgentWithAvailableModels(agentSlug);
+  const availableModels = agentWithAvailableModels?.availableModels || [];
+  
+  // Get the chat's existing model ID if one exists
+  const existingModelId = agentWithModel.model?.id;
+  
+  // Find the default model's ID, falling back to DEFAULT_CHAT_MODEL if no default is set
+  const defaultModel = availableModels.find(model => model.isDefault);
+  const defaultModelId = defaultModel?.id || DEFAULT_CHAT_MODEL;
+  
+  // Use existing model ID if available, otherwise use the default model
+  const selectedModelId = existingModelId || defaultModelId;
+
   const chat = await getChatById({ id: chatId });
   if (!chat) notFound();
 
@@ -33,8 +53,9 @@ export default async function Page(props: {
       <Chat
         id={chatId}
         agent={agentWithModel.agent}
+        availableModels={availableModels}
         initialMessages={convertToUIMessages(messagesFromDb)}
-        selectedChatModel={agentWithModel.model?.model || DEFAULT_CHAT_MODEL}
+        selectedChatModel={selectedModelId}
         selectedVisibilityType={chat.visibility}
         isReadonly={session?.user?.id !== chat.userId}
       />
