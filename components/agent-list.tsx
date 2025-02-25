@@ -50,17 +50,30 @@ export function AgentList({ agents, userId }: AgentListProps) {
             </p>
             
             <div className="flex items-center justify-between mt-auto">
-              <div className="flex flex-wrap gap-1 max-w-[80%]">
+              <div className="flex items-center gap-1 max-w-[80%] overflow-hidden">
                 {agent.models && agent.models.length > 0 ? (
-                  agent.models.map((model) => (
-                    <Badge 
-                      key={model.id} 
-                      variant="secondary" 
-                      className="text-[10px] px-2 py-0 h-5 truncate max-w-28"
-                    >
-                      {model.model_display_name}
-                    </Badge>
-                  ))
+                  <>
+                    {/* Display first two models */}
+                    {agent.models.slice(0, 2).map((model) => (
+                      <Badge 
+                        key={model.id} 
+                        variant="secondary" 
+                        className="text-[10px] px-2 py-0 h-5 truncate max-w-28"
+                      >
+                        {model.model_display_name}
+                      </Badge>
+                    ))}
+                    
+                    {/* If there are more than 2 models, show a +n badge */}
+                    {agent.models.length > 2 && (
+                      <Badge 
+                        variant="secondary" 
+                        className="text-[10px] px-2 py-0 h-5"
+                      >
+                        +{agent.models.length - 2}
+                      </Badge>
+                    )}
+                  </>
                 ) : null}
               </div>
               <div className="opacity-0 group-hover:opacity-100 transition-opacity z-20">
