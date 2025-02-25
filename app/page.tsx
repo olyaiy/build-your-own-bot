@@ -5,7 +5,7 @@ import { auth } from "@/app/(auth)/auth";
 
 export default async function Page() {
     const session = await auth();
-    const agents = await getAgents(session?.user?.id);
+    const agents = await getAgents(session?.user?.id, true);
 
 
     return (

@@ -370,7 +370,7 @@ type AgentWithModels = Agent & {
   defaultModel: Model | null;
 };
 
-export const getAgents = async (userId?: string) => {
+export const getAgents = async (userId?: string, includeAllModels?: boolean) => {
   try {
     const result = await db.select({
       id: agents.id,
@@ -401,13 +401,23 @@ export const getAgents = async (userId?: string) => {
         .leftJoin(models, eq(agentModels.modelId, models.id))
         .where(eq(agentModels.agentId, agent.id));
 
-        return {
-          ...agent,
-          models: agentModelResults
-            .map(r => r.model)
-            .filter((model): model is Model => model !== null),
-          defaultModel: agentModelResults.find(r => r.isDefault)?.model || null
-        };
+        const agentModelsArray = agentModelResults
+          .map(r => r.model)
+          .filter((model): model is Model => model !== null);
+          
+        const defaultModel = agentModelResults.find(r => r.isDefault)?.model || null;
+
+        if (includeAllModels) {
+          return {
+            ...agent,
+            models: agentModelsArray
+          };
+        } else {
+          return {
+            ...agent,
+            model: defaultModel
+          };
+        }
       })
     );
 

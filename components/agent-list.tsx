@@ -9,7 +9,7 @@ import { InferSelectModel } from "drizzle-orm";
 
 interface AgentListProps {
   agents: (Omit<InferSelectModel<typeof agents>, 'model'> & {
-    model?: InferSelectModel<typeof models> | null
+    models?: InferSelectModel<typeof models>[] | null
   })[];
   userId?: string;
 }
@@ -50,11 +50,19 @@ export function AgentList({ agents, userId }: AgentListProps) {
             </p>
             
             <div className="flex items-center justify-between mt-auto">
-              {agent.model?.model_display_name && (
-                <Badge variant="secondary" className="text-[10px] px-2 py-0 h-5">
-                  {agent.model.model_display_name}
-                </Badge>
-              )}
+              <div className="flex flex-wrap gap-1 max-w-[80%]">
+                {agent.models && agent.models.length > 0 ? (
+                  agent.models.map((model) => (
+                    <Badge 
+                      key={model.id} 
+                      variant="secondary" 
+                      className="text-[10px] px-2 py-0 h-5 truncate max-w-28"
+                    >
+                      {model.model_display_name}
+                    </Badge>
+                  ))
+                ) : null}
+              </div>
               <div className="opacity-0 group-hover:opacity-100 transition-opacity z-20">
                 <AgentCardSettings 
                   agentId={agent.id}
