@@ -50,6 +50,10 @@ export function Chat({
   const { mutate } = useSWRConfig();
   const [currentModel, setCurrentModel] = useState<string>(selectedChatModel);
 
+  // Find the selected model details
+  const selectedModelDetails = availableModels.find(model => model.id === currentModel);
+  const modelIdentifier = selectedModelDetails?.model || selectedChatModel;
+
   const {
     messages,
     setMessages,
@@ -64,7 +68,7 @@ export function Chat({
     id,
     body: { 
       id, 
-      selectedChatModel: currentModel, 
+      selectedChatModel: modelIdentifier, // Send the actual model identifier to the API
       agentId: agent.id,
       agentSystemPrompt: agent?.system_prompt
     },
@@ -135,7 +139,7 @@ export function Chat({
                 </SelectTrigger>
                 <SelectContent>
                   {availableModels.map((model) => (
-                    <SelectItem key={model.id} value={model.model}>
+                    <SelectItem key={model.id} value={model.id}>
                       <div className="flex items-center justify-between w-full">
                         <span>{model.model_display_name}</span>
                         {model.isDefault && <span className="text-xs text-muted-foreground ml-2">(Default)</span>}
