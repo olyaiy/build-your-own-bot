@@ -2,10 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAgent as createAgentQuery, deleteAgentQuery, getAgentById, updateAgentById } from '@/lib/db/queries';
-import { agents } from '@/lib/db/schema';
+import { agents, agentModels } from '@/lib/db/schema';
 import { type AgentVisibility } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { generateSlug } from '@/lib/utils';
+import { db } from '@/lib/db/queries';
 
 export async function createAgent({
   agentDisplayName,
@@ -15,7 +16,8 @@ export async function createAgent({
   visibility,
   creatorId,
   artifactsEnabled,
-  imageUrl
+  imageUrl,
+  alternateModelIds = []
 }: {
   agentDisplayName: string;
   systemPrompt: string;
@@ -25,9 +27,11 @@ export async function createAgent({
   creatorId: string;
   artifactsEnabled?: boolean;
   imageUrl?: string | null;
+  alternateModelIds?: string[];
 }) {
   try {
-    await createAgentQuery({
+    // Create agent with primary model
+    const result = await createAgentQuery({
       agentDisplayName,
       systemPrompt,
       description,
@@ -38,7 +42,19 @@ export async function createAgent({
       imageUrl
     });
     
+    // If alternate models were provided, add them to the agent
+    if (alternateModelIds.length > 0 && result?.id) {
+      const alternateModelsData = alternateModelIds.map(alternateModelId => ({
+        agentId: result.id,
+        modelId: alternateModelId,
+        isDefault: false
+      }));
+      
+      await db.insert(agentModels).values(alternateModelsData);
+    }
+    
     revalidatePath('/');
+    return result;
   } catch (error) {
     console.error('Failed to create agent:', error);
     throw new Error('Failed to create agent');
@@ -53,7 +69,8 @@ export async function updateAgent({
   modelId,
   visibility,
   artifactsEnabled,
-  imageUrl
+  imageUrl,
+  alternateModelIds = []
 }: {
   id: string;
   agentDisplayName: string;
@@ -63,6 +80,7 @@ export async function updateAgent({
   visibility: "public" | "private" | "link";
   artifactsEnabled?: boolean;
   imageUrl?: string | null;
+  alternateModelIds?: string[];
 }) {
   try {
     const agent = await getAgentById(id);
@@ -71,7 +89,7 @@ export async function updateAgent({
       throw new Error('Agent not found');
     }
     
-    // Call the updateAgentById function
+    // Update the agent with primary model
     await updateAgentById({
       id,
       agentDisplayName,
@@ -82,6 +100,49 @@ export async function updateAgent({
       artifactsEnabled,
       imageUrl
     });
+    
+    // Handle alternate models
+    // First, get existing alternate models (non-default ones)
+    const existingModels = await db.select({
+      modelId: agentModels.modelId,
+      isDefault: agentModels.isDefault
+    })
+    .from(agentModels)
+    .where(eq(agentModels.agentId, id));
+    
+    const existingAlternateModelIds = existingModels
+      .filter(m => !m.isDefault)
+      .map(m => m.modelId);
+    
+    // Models to remove (they exist but aren't in the new list)
+    const modelIdsToRemove = existingAlternateModelIds
+      .filter(existingId => !alternateModelIds.includes(existingId));
+    
+    // Models to add (they're in the new list but don't exist yet)
+    const modelIdsToAdd = alternateModelIds
+      .filter(newId => !existingAlternateModelIds.includes(newId));
+    
+    // Remove models that are no longer needed
+    if (modelIdsToRemove.length > 0) {
+      await Promise.all(modelIdsToRemove.map(modelId => 
+        db.delete(agentModels)
+          .where(and(
+            eq(agentModels.agentId, id), 
+            eq(agentModels.modelId, modelId)
+          ))
+      ));
+    }
+    
+    // Add new alternate models
+    if (modelIdsToAdd.length > 0) {
+      const newModelsData = modelIdsToAdd.map(modelId => ({
+        agentId: id,
+        modelId,
+        isDefault: false
+      }));
+      
+      await db.insert(agentModels).values(newModelsData);
+    }
     
     revalidatePath('/');
   } catch (error) {
@@ -160,15 +221,31 @@ export async function deleteAgentImage(id: string, imageUrl: string) {
     await s3Client.send(deleteCommand);
     console.log('R2 delete operation completed successfully');
     
+    // Get agent details
+    const agent = await getAgentById(id);
+    if (!agent) {
+      throw new Error('Agent not found');
+    }
+    
+    // Get agent's default model
+    const models = await db.select({
+      modelId: agentModels.modelId,
+      isDefault: agentModels.isDefault
+    })
+    .from(agentModels)
+    .where(eq(agentModels.agentId, id));
+    
+    const defaultModelId = models.find((m: { modelId: string, isDefault: boolean | null }) => m.isDefault === true)?.modelId || '';
+    
     // Update the agent record to remove the image reference
     await updateAgentById({
       id,
-      agentDisplayName: (await getAgentById(id))?.agent_display_name || '',
-      systemPrompt: (await getAgentById(id))?.system_prompt || '',
-      description: (await getAgentById(id))?.description || undefined,
-      modelId: (await getAgentById(id))?.model || '',
-      visibility: (await getAgentById(id))?.visibility || 'public',
-      artifactsEnabled: (await getAgentById(id))?.artifacts_enabled || true,
+      agentDisplayName: agent.agent_display_name || '',
+      systemPrompt: agent.system_prompt || '',
+      description: agent.description || undefined,
+      modelId: defaultModelId,
+      visibility: agent.visibility || 'public',
+      artifactsEnabled: agent.artifacts_enabled || true,
       imageUrl: null,
     });
     

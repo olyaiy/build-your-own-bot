@@ -18,17 +18,28 @@ import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2, Plus, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Card, 
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter
+} from "@/components/ui/card";
+
+type ModelInfo = {
+  id: string;
+  displayName: string;
+  modelType?: string | null;
+  description?: string | null;
+};
 
 interface AgentFormProps {
   mode: "create" | "edit";
   userId?: string;
-  models: {
-    id: string;
-    displayName: string;
-    modelType?: string | null;
-    description?: string | null;
-  }[];
+  models: ModelInfo[];
   initialData?: {
     id: string;
     agentDisplayName: string;
@@ -38,6 +49,7 @@ interface AgentFormProps {
     visibility: "public" | "private" | "link";
     artifactsEnabled: boolean | null;
     imageUrl?: string | null;
+    alternateModelIds?: string[]; // New field for alternate models
   };
 }
 
@@ -46,6 +58,8 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
   const [imageUrl, setImageUrl] = useState<string | null>(initialData?.imageUrl || null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [primaryModelId, setPrimaryModelId] = useState<string>(initialData?.modelId || "");
+  const [alternateModelIds, setAlternateModelIds] = useState<string[]>(initialData?.alternateModelIds || []);
   const router = useRouter();
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
@@ -111,21 +125,56 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
     }
   };
 
+  const handlePrimaryModelChange = (value: string) => {
+    setPrimaryModelId(value);
+    
+    // If the selected primary model is in the alternate models list, remove it
+    if (alternateModelIds.includes(value)) {
+      setAlternateModelIds(alternateModelIds.filter(id => id !== value));
+    }
+  };
+
+  const handleAddAlternateModel = (value: string) => {
+    // Don't add if it's already the primary model
+    if (value === primaryModelId) {
+      toast.error("This model is already set as the primary model");
+      return;
+    }
+    
+    // Don't add if it's already in the list
+    if (alternateModelIds.includes(value)) {
+      toast.error("This model is already added");
+      return;
+    }
+    
+    setAlternateModelIds([...alternateModelIds, value]);
+  };
+
+  const handleRemoveAlternateModel = (id: string) => {
+    setAlternateModelIds(alternateModelIds.filter(modelId => modelId !== id));
+  };
+  
+  const getModelById = (id: string): ModelInfo | undefined => {
+    return models.find(model => model.id === id);
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
     startTransition(async () => {
       try {
+        // Basic agent data
         const baseData = {
           agentDisplayName: formData.get("agentDisplayName") as string,
           systemPrompt: formData.get("systemPrompt") as string,
           description: formData.get("description") as string || undefined,
-          modelId: formData.get("model") as string,
+          modelId: primaryModelId, // Use the primary model ID
           visibility: formData.get("visibility") as "public" | "private" | "link",
           creatorId: formData.get("userId") as string,
           artifactsEnabled: formData.get("artifactsEnabled") === "on",
-          imageUrl: imageUrl
+          imageUrl: imageUrl,
+          alternateModelIds: alternateModelIds, // Include alternate models
         };
 
         if (mode === "edit") {
@@ -257,13 +306,17 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
             />
           </div>
 
-          {/* Settings Row - Stack on mobile, grid on desktop */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 gap-y-6">
+          {/* Models Section */}
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="model" className="text-sm font-medium">Model</Label>
-              <Select name="model" required defaultValue={initialData?.modelId}>
-                <SelectTrigger className="mt-2">
-                  <SelectValue placeholder="Select a model" />
+              <Label htmlFor="primaryModel" className="text-lg font-semibold">Primary Model</Label>
+              <Select 
+                value={primaryModelId}
+                onValueChange={handlePrimaryModelChange}
+                required
+              >
+                <SelectTrigger id="primaryModel" className="mt-2">
+                  <SelectValue placeholder="Select a primary model" />
                 </SelectTrigger>
                 <SelectContent>
                   {models.map((model) => (
@@ -279,30 +332,86 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
               </Select>
             </div>
 
+            {/* Alternate Models Section */}
             <div>
-              <Label htmlFor="visibility" className="text-sm font-medium">Visibility</Label>
-              <Select name="visibility" defaultValue={initialData?.visibility || "public"}>
-                <SelectTrigger className="mt-2">
-                  <SelectValue placeholder="Select visibility" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="public">Public</SelectItem>
-                  <SelectItem value="private">Private</SelectItem>
-                  <SelectItem value="link">Link</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label className="text-lg font-semibold">Alternate Models</Label>
+              <div className="flex flex-wrap gap-2 mt-2 mb-4">
+                {alternateModelIds.map(modelId => {
+                  const model = getModelById(modelId);
+                  return model ? (
+                    <Badge key={modelId} variant="secondary" className="py-1 px-2 flex items-center gap-1">
+                      {model.displayName}
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveAlternateModel(modelId)}
+                        className="ml-1 text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ) : null;
+                })}
+                {alternateModelIds.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No alternate models selected</p>
+                )}
+              </div>
+              
+              <div className="flex gap-2">
+                <Select onValueChange={handleAddAlternateModel}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Add alternate model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {models
+                      .filter(model => model.id !== primaryModelId && !alternateModelIds.includes(model.id))
+                      .map((model) => (
+                        <SelectItem 
+                          key={model.id} 
+                          value={model.id} 
+                          className="flex flex-col justify-start items-start"
+                        >
+                          <div className="flex flex-col justify-start items-start">
+                            <span className="font-medium">{model.displayName}</span>
+                            <span className="text-xs text-muted-foreground">{model.modelType}</span>
+                            <span className="text-xs text-muted-foreground">{model.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Add alternate models that this agent can use in addition to the primary model.
+              </p>
             </div>
 
-            <div className="flex items-start sm:items-end h-full">
-              <div className="flex items-center gap-2 mt-4 sm:mt-0">
-                <Switch 
-                  id="artifactsEnabled" 
-                  name="artifactsEnabled"
-                  defaultChecked={initialData?.artifactsEnabled ?? true}
-                />
-                <Label htmlFor="artifactsEnabled">
-                  Enable Artifacts
-                </Label>
+            {/* Other Settings Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 gap-y-6 mt-4">
+              <div>
+                <Label htmlFor="visibility" className="text-sm font-medium">Visibility</Label>
+                <Select name="visibility" defaultValue={initialData?.visibility || "public"}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Select visibility" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="public">Public</SelectItem>
+                    <SelectItem value="private">Private</SelectItem>
+                    <SelectItem value="link">Link</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-start sm:items-end h-full">
+                <div className="flex items-center gap-2 mt-4 sm:mt-0">
+                  <Switch 
+                    id="artifactsEnabled" 
+                    name="artifactsEnabled"
+                    defaultChecked={initialData?.artifactsEnabled ?? true}
+                  />
+                  <Label htmlFor="artifactsEnabled">
+                    Enable Artifacts
+                  </Label>
+                </div>
               </div>
             </div>
           </div>
@@ -332,7 +441,7 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t">
         <Button 
           type="submit" 
-          disabled={isPending}
+          disabled={isPending || !primaryModelId}
           className="w-full sm:w-auto"
         >
           {isPending ? `${mode === 'create' ? 'Creating' : 'Updating'}...` : `${mode === 'create' ? 'Create' : 'Update'} Agent`}

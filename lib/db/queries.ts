@@ -17,6 +17,9 @@ import {
   vote,
   agents,
   models,
+  agentModels,
+  type Agent,
+  type Model,
 } from './schema';
 import { ArtifactKind } from '@/components/artifact';
 
@@ -361,27 +364,54 @@ export async function updateChatVisiblityById({
   }
 }
 
+// Define extended types for the agent with models
+type AgentWithModels = Agent & {
+  models: Model[];
+  defaultModel: Model | null;
+};
+
 export const getAgents = async (userId?: string) => {
   try {
-    return await db.select({
+    const result = await db.select({
       id: agents.id,
       agent: agents.agent,
       agent_display_name: agents.agent_display_name,
       system_prompt: agents.system_prompt,
       description: agents.description,
       visibility: agents.visibility,
-      model: models,
       creatorId: agents.creatorId,
       artifacts_enabled: agents.artifacts_enabled,
-      image_url: agents.image_url
+      image_url: agents.image_url,
     })
     .from(agents)
-    .leftJoin(models, eq(agents.model, models.id))
     .where(or(
       eq(agents.visibility, 'public'),
       userId ? eq(agents.creatorId, userId) : undefined
     ))
     .orderBy(desc(agents.id));
+
+    // For each agent, fetch their models
+    const agentsWithModels = await Promise.all(
+      result.map(async (agent) => {
+        const agentModelResults = await db.select({
+          model: models,
+          isDefault: agentModels.isDefault
+        })
+        .from(agentModels)
+        .leftJoin(models, eq(agentModels.modelId, models.id))
+        .where(eq(agentModels.agentId, agent.id));
+
+        return {
+          ...agent,
+          models: agentModelResults
+            .map(r => r.model)
+            .filter((model): model is Model => model !== null),
+          defaultModel: agentModelResults.find(r => r.isDefault)?.model || null
+        };
+      })
+    );
+
+    return agentsWithModels;
   } catch (error) {
     console.error('Failed to get agents from database');
     throw error;
@@ -432,16 +462,27 @@ export async function createAgent({
   imageUrl?: string | null;
 }) {
   try {
-    return await db.insert(agents).values({
+    // First create the agent without a model
+    const [result] = await db.insert(agents).values({
       agent_display_name: agentDisplayName,
       system_prompt: systemPrompt,
       description,
-      model: modelId,
       visibility,
       creatorId,
       artifacts_enabled: artifactsEnabled ?? true,
       image_url: imageUrl,
-    });
+    }).returning({ id: agents.id });
+
+    // Then create the agent-model relationship with isDefault=true
+    if (result?.id) {
+      await db.insert(agentModels).values({
+        agentId: result.id,
+        modelId,
+        isDefault: true
+      });
+    }
+
+    return result;
   } catch (error) {
     console.error('Failed to create agent in database');
     throw error;
@@ -463,16 +504,31 @@ export async function getAgentWithModelById(id: string) {
   }
 
   try {
-    const [result] = await db
+    const [agent] = await db
       .select({
-        agent: agents,
-        model: models
+        agent: agents
       })
       .from(agents)
-      .leftJoin(models, eq(agents.model, models.id))
       .where(eq(agents.id, id));
 
-    return result;
+    if (!agent) return null;
+
+    // Get all models for this agent
+    const agentModelResults = await db.select({
+      model: models,
+      isDefault: agentModels.isDefault
+    })
+    .from(agentModels)
+    .leftJoin(models, eq(agentModels.modelId, models.id))
+    .where(eq(agentModels.agentId, id));
+
+    // Get the default model
+    const defaultModel = agentModelResults.find(r => r.isDefault)?.model || null;
+
+    return {
+      agent: agent.agent,
+      model: defaultModel
+    };
   } catch (error) {
     console.error('Failed to get agent with model from database');
     throw error;
@@ -499,19 +555,149 @@ export async function updateAgentById({
   imageUrl?: string | null;
 }) {
   try {
-    return await db.update(agents)
+    // Update the agent
+    await db.update(agents)
       .set({
         agent_display_name: agentDisplayName,
         system_prompt: systemPrompt,
         description,
-        model: modelId,
         visibility,
         artifacts_enabled: artifactsEnabled,
         image_url: imageUrl,
       })
       .where(eq(agents.id, id));
+
+    // Check if the agent already has this model
+    const existingModels = await db.select()
+      .from(agentModels)
+      .where(and(
+        eq(agentModels.agentId, id),
+        eq(agentModels.modelId, modelId)
+      ));
+
+    if (existingModels.length === 0) {
+      // If the model doesn't exist for this agent, add it
+      
+      // First, set all existing models to not default
+      await db.update(agentModels)
+        .set({ isDefault: false })
+        .where(eq(agentModels.agentId, id));
+      
+      // Then add the new model as default
+      await db.insert(agentModels).values({
+        agentId: id,
+        modelId,
+        isDefault: true
+      });
+    } else {
+      // If the model exists, make it the default
+      // First, set all models to not default
+      await db.update(agentModels)
+        .set({ isDefault: false })
+        .where(eq(agentModels.agentId, id));
+      
+      // Then set this one to default
+      await db.update(agentModels)
+        .set({ isDefault: true })
+        .where(and(
+          eq(agentModels.agentId, id),
+          eq(agentModels.modelId, modelId)
+        ));
+    }
+
+    return { success: true };
   } catch (error) {
     console.error('Failed to update agent in database');
+    throw error;
+  }
+}
+
+// Specialized function to get an agent with all model information for editing
+export async function getAgentWithAllModels(id: string) {
+  if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id)) {
+    return null;
+  }
+
+  try {
+    // Get the agent
+    const [agent] = await db.select().from(agents).where(eq(agents.id, id));
+    
+    if (!agent) return null;
+
+    // Get all models for this agent
+    const agentModelResults = await db.select({
+      modelId: agentModels.modelId,
+      isDefault: agentModels.isDefault
+    })
+    .from(agentModels)
+    .leftJoin(models, eq(agentModels.modelId, models.id))
+    .where(eq(agentModels.agentId, id));
+
+    // Extract primary model and alternate models
+    const defaultModel = agentModelResults.find(m => m.isDefault === true);
+    const alternateModels = agentModelResults.filter(m => m.isDefault !== true);
+
+    return {
+      ...agent,
+      modelId: defaultModel?.modelId || '',
+      alternateModelIds: alternateModels.map(m => m.modelId)
+    };
+  } catch (error) {
+    console.error('Failed to get agent with models from database');
+    throw error;
+  }
+}
+
+// Function to get an agent with all its available models for the chat interface
+export async function getAgentWithAvailableModels(id: string) {
+  if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id)) {
+    return null;
+  }
+
+  try {
+    // Get the agent
+    const [agentData] = await db.select().from(agents).where(eq(agents.id, id));
+    
+    if (!agentData) return null;
+
+    // Get all models for this agent
+    const agentModelResults = await db.select({
+      modelId: agentModels.modelId,
+      isDefault: agentModels.isDefault
+    })
+    .from(agentModels)
+    .where(eq(agentModels.agentId, id));
+
+    // Get full model details for each agent model
+    const modelDetails = await Promise.all(
+      agentModelResults.map(async (modelRef) => {
+        const [modelData] = await db
+          .select()
+          .from(models)
+          .where(eq(models.id, modelRef.modelId));
+        
+        return modelData ? {
+          ...modelData,
+          isDefault: modelRef.isDefault
+        } : null;
+      })
+    );
+
+    // Filter out null results and sort (default first)
+    const availableModels = modelDetails
+      .filter((model): model is (Model & { isDefault: boolean | null }) => model !== null)
+      .sort((a, b) => {
+        if (a.isDefault && !b.isDefault) return -1;
+        if (!a.isDefault && b.isDefault) return 1;
+        return 0;
+      });
+
+    return {
+      agent: agentData,
+      availableModels
+    };
+  } catch (error) {
+    console.error('Failed to get agent with available models from database');
     throw error;
   }
 }

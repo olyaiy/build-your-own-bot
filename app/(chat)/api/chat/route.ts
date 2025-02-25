@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   const {
     id,
     messages,
-    selectedChatModel,
+    selectedChatModel, // This will now be the ID of either the default model or a user-selected alternate model
     agentId,
     agentSystemPrompt,
   }: { 

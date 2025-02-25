@@ -12,6 +12,19 @@ import {
   pgEnum,
 } from 'drizzle-orm/pg-core';
 
+// Enums
+export const modelTypeEnum = pgEnum("model_type", [
+  "text-large",
+  "text-small", 
+  "reasoning",
+  "image",
+  "search"
+]);
+
+export const visibilityEnum = pgEnum("visibility", ["public", "private", "link"]);
+export type AgentVisibility = typeof visibilityEnum.enumValues[number];
+
+// Base tables (no foreign key dependencies)
 export const user = pgTable('User', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
   email: varchar('email', { length: 64 }).notNull(),
@@ -20,57 +33,31 @@ export const user = pgTable('User', {
 
 export type User = InferSelectModel<typeof user>;
 
-export const chat = pgTable('Chat', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  createdAt: timestamp('createdAt').notNull(),
-  title: text('title').notNull(),
-  userId: uuid('userId')
-    .notNull()
-    .references(() => user.id),
-  agentId: uuid('agentId')
-    .references(() => agents.id, { onDelete: 'cascade' }),
-  visibility: varchar('visibility', { enum: ['public', 'private'] })
-    .notNull()
-    .default('private'),
+export const models = pgTable("models", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  model_display_name: varchar("model_display_name", { length: 255 }).notNull(),
+  model: varchar("model", { length: 255 }).notNull().unique(),
+  provider: varchar("provider", { length: 255 }).notNull(),
+  model_type: modelTypeEnum("model_type").default("text-small"),
+  description: text("description"),
 });
 
-export type ExtendedChat = Chat & {
-  agentDisplayName?: string | null;
-};
+export type Model = typeof models.$inferSelect;
 
-export type Chat = InferSelectModel<typeof chat>;
-
-export const message = pgTable('Message', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  chatId: uuid('chatId')
-    .notNull()
-    .references(() => chat.id, { onDelete: 'cascade' }),
-  role: varchar('role').notNull(),
-  content: json('content').notNull(),
-  createdAt: timestamp('createdAt').notNull(),
+// First level of dependencies (only depend on base tables)
+export const agents = pgTable("agents", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  agent: varchar("agent", { length: 255 }).notNull().unique().default("temp_slug"),
+  agent_display_name: varchar("agent_display_name", { length: 255 }).notNull(),
+  system_prompt: text("system_prompt").notNull(),
+  description: text("description"),
+  visibility: visibilityEnum("visibility").default("public"),
+  creatorId: uuid("creator_id").references(() => user.id),
+  artifacts_enabled: boolean("artifacts_enabled").default(true),
+  image_url: text("image_url"),
 });
-
-export type Message = InferSelectModel<typeof message>;
-
-export const vote = pgTable(
-  'Vote',
-  {
-    chatId: uuid('chatId')
-      .notNull()
-      .references(() => chat.id, { onDelete: 'cascade' }),
-    messageId: uuid('messageId')
-      .notNull()
-      .references(() => message.id, { onDelete: 'cascade' }),
-    isUpvoted: boolean('isUpvoted').notNull(),
-  },
-  (table) => {
-    return {
-      pk: primaryKey({ columns: [table.chatId, table.messageId] }),
-    };
-  },
-);
-
-export type Vote = InferSelectModel<typeof vote>;
+ 
+export type Agent = typeof agents.$inferSelect;
 
 export const document = pgTable(
   'Document',
@@ -94,6 +81,43 @@ export const document = pgTable(
 );
 
 export type Document = InferSelectModel<typeof document>;
+
+// Second level of dependencies
+export const agentModels = pgTable("agent_models", {
+  agentId: uuid("agent_id")
+    .notNull()
+    .references(() => agents.id, { onDelete: "cascade" }),
+  modelId: uuid("model_id")
+    .notNull()
+    .references(() => models.id, { onDelete: "cascade" }),
+  isDefault: boolean("is_default").default(false),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.agentId, table.modelId] }),
+  };
+});
+
+export type AgentModel = typeof agentModels.$inferSelect;
+
+export const chat = pgTable('Chat', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  createdAt: timestamp('createdAt').notNull(),
+  title: text('title').notNull(),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => user.id),
+  agentId: uuid('agentId')
+    .references(() => agents.id, { onDelete: 'cascade' }),
+  visibility: varchar('visibility', { enum: ['public', 'private'] })
+    .notNull()
+    .default('private'),
+});
+
+export type Chat = InferSelectModel<typeof chat>;
+
+export type ExtendedChat = Chat & {
+  agentDisplayName?: string | null;
+};
 
 export const suggestion = pgTable(
   'Suggestion',
@@ -121,42 +145,38 @@ export const suggestion = pgTable(
 
 export type Suggestion = InferSelectModel<typeof suggestion>;
 
-export const modelTypeEnum = pgEnum("model_type", [
-  "text-large",
-  "text-small", 
-  "reasoning",
-  "image",
-  "search"
-]);
-
-export const models = pgTable("models", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  model_display_name: varchar("model_display_name", { length: 255 }).notNull(),
-  model: varchar("model", { length: 255 }).notNull().unique(),
-  provider: varchar("provider", { length: 255 }).notNull(),
-  model_type: modelTypeEnum("model_type").default("text-small"),
-  description: text("description"),
+// Third level of dependencies
+export const message = pgTable('Message', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  chatId: uuid('chatId')
+    .notNull()
+    .references(() => chat.id, { onDelete: 'cascade' }),
+  role: varchar('role').notNull(),
+  content: json('content').notNull(),
+  createdAt: timestamp('createdAt').notNull(),
 });
 
-export type Model = typeof models.$inferSelect;
+export type Message = InferSelectModel<typeof message>;
 
-export const visibilityEnum = pgEnum("visibility", ["public", "private", "link"]);
+// Fourth level of dependencies
+export const vote = pgTable(
+  'Vote',
+  {
+    chatId: uuid('chatId')
+      .notNull()
+      .references(() => chat.id, { onDelete: 'cascade' }),
+    messageId: uuid('messageId')
+      .notNull()
+      .references(() => message.id, { onDelete: 'cascade' }),
+    isUpvoted: boolean('isUpvoted').notNull(),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.chatId, table.messageId] }),
+    };
+  },
+);
 
-export type AgentVisibility = typeof visibilityEnum.enumValues[number];
-
-export const agents = pgTable("agents", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  agent: varchar("agent", { length: 255 }).notNull().unique().default("temp_slug"),
-  agent_display_name: varchar("agent_display_name", { length: 255 }).notNull(),
-  system_prompt: text("system_prompt").notNull(),
-  description: text("description"),
-  model: uuid("model").references(() => models.id),
-  visibility: visibilityEnum("visibility").default("public"),
-  creatorId: uuid("creator_id").references(() => user.id),
-  artifacts_enabled: boolean("artifacts_enabled").default(true),
-  image_url: text("image_url"),
-});
- 
-export type Agent = typeof agents.$inferSelect;
+export type Vote = InferSelectModel<typeof vote>;
 
 

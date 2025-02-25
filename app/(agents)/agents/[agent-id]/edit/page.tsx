@@ -1,6 +1,6 @@
 import AgentForm from "@/components/agent-form";
 import { auth } from "@/app/(auth)/auth";
-import { db } from "@/lib/db/queries";
+import { db, getAgentWithAllModels } from "@/lib/db/queries";
 import { models, agents } from "@/lib/db/schema";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
@@ -14,27 +14,30 @@ export default async function EditAgentPage({
   const params = await paramsPromise;
   const agentId = params["agent-id"];
 
-  const [agentData, modelsList] = await Promise.all([
-    db.select().from(agents).where(eq(agents.id, agentId)),
+  const [agentWithModels, modelsList] = await Promise.all([
+    getAgentWithAllModels(agentId),
     db.select({
       id: models.id,
-      displayName: models.model_display_name
+      displayName: models.model_display_name,
+      modelType: models.model_type,
+      description: models.description
     }).from(models),
   ]);
 
-  if (!agentData.length) {
+  if (!agentWithModels) {
     return notFound();
   }
 
   const initialData = {
     id: agentId,
-    agentDisplayName: agentData[0].agent_display_name,
-    systemPrompt: agentData[0].system_prompt,
-    description: agentData[0].description ?? undefined,
-    modelId: agentData[0].model || '',
-    visibility: agentData[0].visibility || 'public',
-    artifactsEnabled: agentData[0].artifacts_enabled,
-    imageUrl: agentData[0].image_url ?? undefined,
+    agentDisplayName: agentWithModels.agent_display_name,
+    systemPrompt: agentWithModels.system_prompt,
+    description: agentWithModels.description ?? undefined,
+    modelId: agentWithModels.modelId,
+    alternateModelIds: agentWithModels.alternateModelIds,
+    visibility: agentWithModels.visibility || 'public',
+    artifactsEnabled: agentWithModels.artifacts_enabled,
+    imageUrl: agentWithModels.image_url ?? undefined,
   };
 
   return (

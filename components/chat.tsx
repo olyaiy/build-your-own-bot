@@ -4,7 +4,7 @@ import type { Attachment, Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
-import type { Agent } from '@/lib/db/schema';
+import type { Agent, Model } from '@/lib/db/schema';
 
 import { ChatHeader } from '@/components/chat-header';
 import type { Vote } from '@/lib/db/schema';
@@ -16,10 +16,24 @@ import { Messages } from './messages';
 import { VisibilityType } from './visibility-selector';
 import { useArtifactSelector } from '@/hooks/use-artifact';
 import { toast } from 'sonner';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+
+// Extend the Model type to include the isDefault flag
+type ModelWithDefault = Model & {
+  isDefault: boolean | null;
+};
 
 export function Chat({
   id,
   agent,
+  availableModels = [],
   initialMessages,
   selectedChatModel,
   selectedVisibilityType,
@@ -27,12 +41,14 @@ export function Chat({
 }: {
   id: string;
   agent: Agent;
+  availableModels?: ModelWithDefault[];
   initialMessages: Array<Message>;
   selectedChatModel: string;
   selectedVisibilityType: VisibilityType;
   isReadonly: boolean;
 }) {
   const { mutate } = useSWRConfig();
+  const [currentModel, setCurrentModel] = useState<string>(selectedChatModel);
 
   const {
     messages,
@@ -48,7 +64,7 @@ export function Chat({
     id,
     body: { 
       id, 
-      selectedChatModel: selectedChatModel, 
+      selectedChatModel: currentModel, 
       agentId: agent.id,
       agentSystemPrompt: agent?.system_prompt
     },
@@ -73,13 +89,19 @@ export function Chat({
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
 
+  // Handler for changing the model
+  const handleModelChange = (modelId: string) => {
+    setCurrentModel(modelId);
+    // We don't need to update the chat - next message will use the new model
+  };
+
   return (
     <>
       <div className="flex flex-col min-w-0 h-dvh overflow-hidden bg-background">
         <ChatHeader
           chatId={id}
           agentId={agent.id}
-          selectedModelId={selectedChatModel}
+          selectedModelId={currentModel}
           selectedVisibilityType={selectedVisibilityType}
           isReadonly={isReadonly}
         />
@@ -97,7 +119,34 @@ export function Chat({
           />
         </div>
 
-        <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
+        <form className="flex flex-col mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
+          {/* Model Selector */}
+          {!isReadonly && availableModels.length > 1 && (
+            <div className="flex flex-col md:flex-row items-center gap-2 mb-2">
+              <Label htmlFor="model-selector" className="text-sm whitespace-nowrap">
+                Model:
+              </Label>
+              <Select
+                value={currentModel}
+                onValueChange={handleModelChange}
+              >
+                <SelectTrigger id="model-selector" className="h-8 w-full md:w-60">
+                  <SelectValue placeholder="Select model" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableModels.map((model) => (
+                    <SelectItem key={model.id} value={model.model}>
+                      <div className="flex items-center justify-between w-full">
+                        <span>{model.model_display_name}</span>
+                        {model.isDefault && <span className="text-xs text-muted-foreground ml-2">(Default)</span>}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {!isReadonly && (
             <MultimodalInput
               agentId={agent.id}
