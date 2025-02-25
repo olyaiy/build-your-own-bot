@@ -29,6 +29,14 @@ import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { SuggestedActions } from './suggested-actions';
 import equal from 'fast-deep-equal';
+import { type ModelWithDefault } from '@/components/chat-model-selector';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 function PureMultimodalInput({
   chatId,
@@ -44,6 +52,10 @@ function PureMultimodalInput({
   append,
   handleSubmit,
   className,
+  availableModels,
+  currentModel,
+  onModelChange,
+  isReadonly,
 }: {
   chatId: string;
   agentId: string;
@@ -66,6 +78,10 @@ function PureMultimodalInput({
     chatRequestOptions?: ChatRequestOptions,
   ) => void;
   className?: string;
+  availableModels: ModelWithDefault[];
+  currentModel: string;
+  onModelChange: (modelId: string) => void;
+  isReadonly: boolean;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -213,6 +229,30 @@ function PureMultimodalInput({
         tabIndex={-1}
       />
 
+      {/* Model Selector - only show if we have models and not in readonly mode */}
+      {!isReadonly && availableModels.length > 1 && (
+        <div className="w-full">
+          <Select
+            value={currentModel}
+            onValueChange={onModelChange}
+          >
+            <SelectTrigger className="h-8 w-full md:w-48 text-xs">
+              <SelectValue placeholder="Select model" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableModels.map((model) => (
+                <SelectItem key={model.id} value={model.id}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>{model.model_display_name}</span>
+                    {model.isDefault && <span className="text-xs text-muted-foreground ml-2">(Default)</span>}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {(attachments.length > 0 || uploadQueue.length > 0) && (
         <div className="flex flex-row gap-2 overflow-x-scroll items-end">
           {attachments.map((attachment) => (
@@ -282,6 +322,7 @@ export const MultimodalInput = memo(
     if (prevProps.input !== nextProps.input) return false;
     if (prevProps.isLoading !== nextProps.isLoading) return false;
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
+    if (prevProps.currentModel !== nextProps.currentModel) return false;
 
     return true;
   },

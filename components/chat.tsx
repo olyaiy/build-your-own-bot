@@ -16,7 +16,7 @@ import { Messages } from './messages';
 import { VisibilityType } from './visibility-selector';
 import { useArtifactSelector } from '@/hooks/use-artifact';
 import { toast } from 'sonner';
-import { ChatModelSelector, type ModelWithDefault } from '@/components/chat-model-selector';
+import { type ModelWithDefault } from '@/components/chat-model-selector';
 
 export function Chat({
   id,
@@ -112,14 +112,6 @@ export function Chat({
         </div>
 
         <form className="flex flex-col mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
-          {/* Model Selector */}
-          <ChatModelSelector
-            isReadonly={isReadonly}
-            availableModels={availableModels}
-            currentModel={currentModel}
-            onModelChange={handleModelChange}
-          />
-
           {!isReadonly && (
             <MultimodalInput
               agentId={agent.id}
@@ -134,6 +126,10 @@ export function Chat({
               messages={messages}
               setMessages={setMessages}
               append={append}
+              availableModels={availableModels}
+              currentModel={currentModel}
+              onModelChange={handleModelChange}
+              isReadonly={isReadonly}
             />
           )}
         </form>
