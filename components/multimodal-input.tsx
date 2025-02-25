@@ -236,7 +236,7 @@ function PureMultimodalInput({
             value={currentModel}
             onValueChange={onModelChange}
           >
-            <SelectTrigger className="h-8 w-full md:w-48 text-xs">
+            <SelectTrigger className="h-8 w-full md:w-52 text-xs">
               <SelectValue placeholder="Select model" />
             </SelectTrigger>
             <SelectContent>
@@ -244,7 +244,7 @@ function PureMultimodalInput({
                 <SelectItem key={model.id} value={model.id}>
                   <div className="flex items-center justify-between w-full">
                     <span>{model.model_display_name}</span>
-                    {model.isDefault && <span className="text-xs text-muted-foreground ml-2">(Default)</span>}
+                    {model.isDefault && <span className="text-xxs text-muted-foreground ml-2">(Default)</span>}
                   </div>
                 </SelectItem>
               ))}

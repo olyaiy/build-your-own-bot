@@ -4,6 +4,7 @@ import { genSaltSync, hashSync } from 'bcrypt-ts';
 import { and, asc, desc, eq, gt, gte, inArray, or } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
+import { generateSlug } from '@/lib/utils';
 
 import {
   user,
@@ -472,8 +473,12 @@ export async function createAgent({
   imageUrl?: string | null;
 }) {
   try {
+    // Generate slug from display name
+    const slug = generateSlug(agentDisplayName);
+
     // First create the agent without a model
     const [result] = await db.insert(agents).values({
+      agent: slug, // Use the generated slug
       agent_display_name: agentDisplayName,
       system_prompt: systemPrompt,
       description,
@@ -565,9 +570,13 @@ export async function updateAgentById({
   imageUrl?: string | null;
 }) {
   try {
+    // Generate slug from display name
+    const slug = generateSlug(agentDisplayName);
+
     // Update the agent
     await db.update(agents)
       .set({
+        agent: slug, // Use the generated slug
         agent_display_name: agentDisplayName,
         system_prompt: systemPrompt,
         description,
