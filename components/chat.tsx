@@ -16,19 +16,7 @@ import { Messages } from './messages';
 import { VisibilityType } from './visibility-selector';
 import { useArtifactSelector } from '@/hooks/use-artifact';
 import { toast } from 'sonner';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-
-// Extend the Model type to include the isDefault flag
-type ModelWithDefault = Model & {
-  isDefault: boolean | null;
-};
+import { ChatModelSelector, type ModelWithDefault } from '@/components/chat-model-selector';
 
 export function Chat({
   id,
@@ -125,31 +113,12 @@ export function Chat({
 
         <form className="flex flex-col mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
           {/* Model Selector */}
-          {!isReadonly && availableModels.length > 1 && (
-            <div className="flex flex-col md:flex-row items-center gap-2 mb-2">
-              <Label htmlFor="model-selector" className="text-sm whitespace-nowrap">
-                Model:
-              </Label>
-              <Select
-                value={currentModel}
-                onValueChange={handleModelChange}
-              >
-                <SelectTrigger id="model-selector" className="h-8 w-full md:w-60">
-                  <SelectValue placeholder="Select model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableModels.map((model) => (
-                    <SelectItem key={model.id} value={model.id}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>{model.model_display_name}</span>
-                        {model.isDefault && <span className="text-xs text-muted-foreground ml-2">(Default)</span>}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          <ChatModelSelector
+            isReadonly={isReadonly}
+            availableModels={availableModels}
+            currentModel={currentModel}
+            onModelChange={handleModelChange}
+          />
 
           {!isReadonly && (
             <MultimodalInput
