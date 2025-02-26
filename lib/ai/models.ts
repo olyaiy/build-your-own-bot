@@ -37,77 +37,92 @@ export const myProvider = customProvider({
   },
 });
 
-interface ChatModel {
+export interface ChatModel {
   id: string;
   name: string;
   description: string;
+  provider: string;
 }
+
 
 export const chatModels: Array<ChatModel> = [
   {
     id: 'gpt-4o-mini',
     name: 'GPT 4o mini',
     description: 'GPT-4o-mini model',
+    provider: 'OpenAI'
   },
   {
     id: 'gpt-4o',
     name: 'GPT 4o',
     description: 'GPT-4o model',
+    provider: 'OpenAI'
   },
   {
     id: 'sonar-pro',
     name: 'Sonar Pro',
     description: 'Perplexity Sonar Pro model',
+    provider: 'Perplexity'
   },
   {
     id: 'sonar',
     name: 'Sonar',
     description: 'Perplexity Sonar model',
+    provider: 'Perplexity'
   },
   {
     id: 'pixtral-large-latest',
     name: 'Pixtral Large (Latest)',
     description: 'Mistral Pixtral Large model',
+    provider: 'Mistral'
   },
   {
     id: 'mistral-small-latest',
     name: 'Mistral Small (Latest)',
     description: 'Mistral Small model',
+    provider: 'Mistral'
   },
   {
     id: 'mistral-large-latest',
     name: 'Mistral Large (Latest)',
     description: 'Mistral Large model',
+    provider: 'Mistral'
   },
   {
     id: 'llama-3.3-70b-versatile',
     name: 'Llama 3.3 70B',
     description: 'Groq Llama 3.3 70B model',
+    provider: 'Groq'
   },
   {
     id: 'llama-3.1-8b-instant',
     name: 'Llama 3.1 8B',
     description: 'Groq Llama 3.1 8B model',
+    provider: 'Groq'
   },
   {
     id: 'deepseek-chat',
     name: 'Deepseek v3',
     description: 'Deepseek v3 Chat model',
+    provider: 'Deepseek'
   },
   {
     id: 'claude-3-5-sonnet-20241022',
     name: 'Claude 3.5 Sonnet',
     description: 'Anthropic Claude 3.5 Sonnet',
+    provider: 'Anthropic'
   },
   {
     id: 'claude-3-5-haiku-20241022',
     name: 'Claude 3.5 Haiku',
     description: 'Anthropic Claude 3.5 Haiku',
+    provider: 'Anthropic'
   },
   {
     id: 'deepseek-reasoner',
     name: 'DeepSeek R1',
     description: 'Deepseek R1 Reasoning Model',
+    provider: 'DeepSeek'
   },
   
 ];

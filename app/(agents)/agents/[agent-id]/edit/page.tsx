@@ -3,7 +3,6 @@ import { auth } from "@/app/(auth)/auth";
 import { db, getAgentWithAllModels } from "@/lib/db/queries";
 import { models, agents } from "@/lib/db/schema";
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
 
 export default async function EditAgentPage({
   params: paramsPromise,
@@ -20,7 +19,8 @@ export default async function EditAgentPage({
       id: models.id,
       displayName: models.model_display_name,
       modelType: models.model_type,
-      description: models.description
+      description: models.description,
+      provider: models.provider
     }).from(models),
   ]);
 

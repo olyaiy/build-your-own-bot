@@ -28,12 +28,14 @@ import {
   CardDescription,
   CardFooter
 } from "@/components/ui/card";
+import { ModelSelector } from "./grouped-model-select";
 
-type ModelInfo = {
+export type ModelInfo = {
   id: string;
   displayName: string;
   modelType?: string | null;
   description?: string | null;
+  provider?: string | null;
 };
 
 interface AgentFormProps {
@@ -61,6 +63,8 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
   const [primaryModelId, setPrimaryModelId] = useState<string>(initialData?.modelId || "");
   const [alternateModelIds, setAlternateModelIds] = useState<string[]>(initialData?.alternateModelIds || []);
   const router = useRouter();
+
+  console.log(models)
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     accept: {
@@ -308,82 +312,62 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
 
           {/* Models Section */}
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="primaryModel" className="text-lg font-semibold">Primary Model</Label>
-              <Select 
-                value={primaryModelId}
-                onValueChange={handlePrimaryModelChange}
-                required
-              >
-                <SelectTrigger id="primaryModel" className="mt-2">
-                  <SelectValue placeholder="Select a primary model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {models.map((model) => (
-                    <SelectItem key={model.id} value={model.id} className="flex flex-col justify-start items-start">
-                      <div className="flex flex-col justify-start items-start">
-                        <span className="font-medium">{model.displayName}</span>
-                        <span className="text-xs text-muted-foreground">{model.modelType}</span>
-                        <span className="text-xs text-muted-foreground">{model.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+  <Label htmlFor="primaryModel" className="text-lg font-semibold">Primary Model</Label>
+  <ModelSelector
+    id="primaryModel"
+    models={models}
+    value={primaryModelId}
+    onValueChange={handlePrimaryModelChange}
+    placeholder="Select a primary model"
+    className="mt-2"
+    required
+  />
+</div>
 
             {/* Alternate Models Section */}
             <div>
-              <Label className="text-lg font-semibold">Alternate Models</Label>
-              <div className="flex flex-wrap gap-2 mt-2 mb-4">
-                {alternateModelIds.map(modelId => {
-                  const model = getModelById(modelId);
-                  return model ? (
-                    <Badge key={modelId} variant="secondary" className="py-1 px-2 flex items-center gap-1">
-                      {model.displayName}
-                      <button 
-                        type="button" 
-                        onClick={() => handleRemoveAlternateModel(modelId)}
-                        className="ml-1 text-muted-foreground hover:text-foreground"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ) : null;
-                })}
-                {alternateModelIds.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No alternate models selected</p>
-                )}
-              </div>
-              
-              <div className="flex gap-2">
-                <Select onValueChange={handleAddAlternateModel}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Add alternate model" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {models
-                      .filter(model => model.id !== primaryModelId && !alternateModelIds.includes(model.id))
-                      .map((model) => (
-                        <SelectItem 
-                          key={model.id} 
-                          value={model.id} 
-                          className="flex flex-col justify-start items-start"
-                        >
-                          <div className="flex flex-col justify-start items-start">
-                            <span className="font-medium">{model.displayName}</span>
-                            <span className="text-xs text-muted-foreground">{model.modelType}</span>
-                            <span className="text-xs text-muted-foreground">{model.description}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Add alternate models that this agent can use in addition to the primary model.
-              </p>
-            </div>
+  <Label className="text-lg font-semibold">Alternate Models</Label>
+  <div className="flex flex-wrap gap-2 mt-2 mb-4">
+    {alternateModelIds.map(modelId => {
+      const model = getModelById(modelId);
+      return model ? (
+        <Badge key={modelId} variant="secondary" className="py-1 px-2 flex items-center gap-1">
+          {model.displayName}
+          <button 
+            type="button" 
+            onClick={() => handleRemoveAlternateModel(modelId)}
+            className="ml-1 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </Badge>
+      ) : null;
+    })}
+    {alternateModelIds.length === 0 && (
+      <p className="text-sm text-muted-foreground">No alternate models selected</p>
+    )}
+  </div>
+  
+  <div className="flex gap-2">
+    <ModelSelector
+      id="alternateModel"
+      models={models.filter(model => 
+        model.id !== primaryModelId && 
+        !alternateModelIds.includes(model.id)
+      )}
+      value=""
+      onValueChange={handleAddAlternateModel}
+      placeholder="Add alternate model"
+      className="w-full"
+    />
+  </div>
+  <p className="text-xs text-muted-foreground mt-1">
+    Add alternate models that this agent can use in addition to the primary model.
+  </p>
+</div>
+
+
 
             {/* Other Settings Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 gap-y-6 mt-4">

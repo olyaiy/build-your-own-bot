@@ -10,6 +10,7 @@ export default async function CreateAgentPage() {
     displayName: models.model_display_name,
     modelType: models.model_type,
     description: models.description ,
+    provider: models.provider
 
   }).from(models);
 
