@@ -351,6 +351,10 @@ function PureArtifact({
                     append={append}
                     className="bg-background dark:bg-muted"
                     setMessages={setMessages}
+                    availableModels={[]}
+                    currentModel=""
+                    onModelChange={() => {}}
+                    isReadonly={isReadonly}
                   />
                 </form>
               </div>
