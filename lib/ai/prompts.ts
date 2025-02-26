@@ -43,7 +43,7 @@ export const systemPrompt = ({
 }) => {
   const basePrompt = agentSystemPrompt || regularPrompt;
   
-  if (selectedChatModel.includes('deepseek-r1')) {
+  if (selectedChatModel.includes('deepseek-reasoner')) {
     return `${agentSystemPrompt || ''}
     
     You are an AI assistant that helps users with complex reasoning tasks.
@@ -63,7 +63,7 @@ export const systemPrompt = ({
     15 * 17 = 255`;
   }
   
-  if (selectedChatModel === 'chat-model-reasoning') {
+  if (selectedChatModel === 'deepseek-reasoner') {
     return basePrompt;
   } else {
     return `${basePrompt}\n\n${artifactsPrompt}`;

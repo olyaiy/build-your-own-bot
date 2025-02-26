@@ -2,6 +2,7 @@
 
 import { generateText, Message } from 'ai';
 import { cookies } from 'next/headers';
+import { groq } from '@ai-sdk/groq';
 
 import {
   deleteMessagesByChatIdAfterTimestamp,
