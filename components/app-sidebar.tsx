@@ -24,6 +24,10 @@ export function AppSidebar({ user }: { user: User | undefined }) {
   const params = useParams();
   const agentId = params.agent ?? 'fb4a1d96-bd42-46cb-a153-4aac537f3720';
 
+  const conversationId = params.conversationId as string | undefined;
+
+  
+
   return (
     <Sidebar className="group-data-[side=left]:border-r-0">
       <SidebarHeader>
@@ -61,7 +65,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarHistory user={user} />
+        <SidebarHistory user={user} currentConversationId={conversationId} />
       </SidebarContent>
       <SidebarFooter>{user && <SidebarUserNav user={user} />}</SidebarFooter>
     </Sidebar>

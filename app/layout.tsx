@@ -8,7 +8,6 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 import { auth } from './(auth)/auth';
-import { MainHeader } from '@/components/main-header';
 
 export const experimental_ppr = true;
 

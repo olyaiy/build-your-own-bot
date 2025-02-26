@@ -1,9 +1,6 @@
 import { openai } from '@ai-sdk/openai';
-import { fireworks } from '@ai-sdk/fireworks';
 import {
   customProvider,
-  extractReasoningMiddleware,
-  wrapLanguageModel,
 } from 'ai';
 import { perplexity } from '@ai-sdk/perplexity';
 import { mistral } from '@ai-sdk/mistral';

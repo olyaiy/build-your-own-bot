@@ -31,7 +31,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuPortal,
-  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -47,7 +46,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import type { ExtendedChat as Chat } from '@/lib/db/schema';
-import { fetcher } from '@/lib/utils';
+import { cn, fetcher } from '@/lib/utils';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 
 type GroupedChats = {
@@ -77,7 +76,10 @@ const PureChatItem = ({
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild isActive={isActive}>
+      <SidebarMenuButton asChild isActive={isActive}   className={cn({
+    'border-2 border-primary bg-red-500': isActive,
+  })}
+>
         <Link href={`/${chat.agentId}/${chat.id}`} onClick={() => setOpenMobile(false)}>
           <div className="flex flex-col gap-0.5 items-start w-full">
             <span className="text-sm font-medium truncate w-full">{chat.title}</span>
@@ -153,7 +155,14 @@ export const ChatItem = memo(PureChatItem, (prevProps, nextProps) => {
   return true;
 });
 
-export function SidebarHistory({ user }: { user: User | undefined }) {
+export function SidebarHistory({ 
+  user,
+  currentConversationId
+
+}: { 
+  user: User | undefined,
+  currentConversationId?: string 
+}) {
   const { setOpenMobile } = useSidebar();
   const { id } = useParams();
   const pathname = usePathname();

@@ -180,3 +180,26 @@ export const vote = pgTable(
 export type Vote = InferSelectModel<typeof vote>;
 
 
+export const tools = pgTable("tools", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tool_display_name: varchar("tool_display_name", { length: 255 }).notNull(),
+  tool: varchar("tool", { length: 255 }).notNull().unique(),
+  provider: varchar("provider", { length: 255 }).notNull(),
+  description: text("description"),
+  parameter_schema: json("parameter_schema"), // Stores the Zod/JSON schema for tool parameters
+  config: json("config"), // Optional: extra configuration for the tool
+});
+
+export const agentTools = pgTable("agent_tools", {
+  agentId: uuid("agent_id")
+    .notNull()
+    .references(() => agents.id, { onDelete: "cascade" }),
+  toolId: uuid("tool_id")
+    .notNull()
+    .references(() => tools.id, { onDelete: "cascade" }),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.agentId, table.toolId] }),
+  };
+});
+
