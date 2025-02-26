@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@ai-sdk/provider': 1.0.9
+
 importers:
 
   .:
@@ -356,10 +359,6 @@ packages:
     peerDependenciesMeta:
       zod:
         optional: true
-
-  '@ai-sdk/provider@1.0.8':
-    resolution: {integrity: sha512-f9jSYwKMdXvm44Dmab1vUBnfCDSFfI5rOtvV1W9oKB7WYHR5dGvCC6x68Mk3NUfrdmNoMVHGoh6JT9HCVMlMow==}
-    engines: {node: '>=18'}
 
   '@ai-sdk/provider@1.0.9':
     resolution: {integrity: sha512-jie6ZJT2ZR0uVOVCDc9R2xCX5I/Dum/wEK28lx21PJx6ZnFAN9EzD2WsPhcDWfCgGx3OAZZ0GyM3CEobXpa9LA==}
@@ -4433,16 +4432,12 @@ snapshots:
 
   '@ai-sdk/provider-utils@2.1.9(zod@3.24.2)':
     dependencies:
-      '@ai-sdk/provider': 1.0.8
+      '@ai-sdk/provider': 1.0.9
       eventsource-parser: 3.0.0
       nanoid: 3.3.8
       secure-json-parse: 2.7.0
     optionalDependencies:
       zod: 3.24.2
-
-  '@ai-sdk/provider@1.0.8':
-    dependencies:
-      json-schema: 0.4.0
 
   '@ai-sdk/provider@1.0.9':
     dependencies:
@@ -4460,7 +4455,7 @@ snapshots:
 
   '@ai-sdk/ui-utils@1.1.15(zod@3.24.2)':
     dependencies:
-      '@ai-sdk/provider': 1.0.8
+      '@ai-sdk/provider': 1.0.9
       '@ai-sdk/provider-utils': 2.1.9(zod@3.24.2)
       zod-to-json-schema: 3.24.3(zod@3.24.2)
     optionalDependencies:
@@ -6405,7 +6400,7 @@ snapshots:
 
   ai@4.1.44(react@19.0.0-rc-45804af1-20241021)(zod@3.24.2):
     dependencies:
-      '@ai-sdk/provider': 1.0.8
+      '@ai-sdk/provider': 1.0.9
       '@ai-sdk/provider-utils': 2.1.9(zod@3.24.2)
       '@ai-sdk/react': 1.1.17(react@19.0.0-rc-45804af1-20241021)(zod@3.24.2)
       '@ai-sdk/ui-utils': 1.1.15(zod@3.24.2)
