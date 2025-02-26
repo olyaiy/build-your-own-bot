@@ -43,7 +43,6 @@ export async function POST(request: Request) {
     agentSystemPrompt?: string;
   } = await request.json();
 
-  console.log("SELECTED MODEL IS", selectedChatModel)
 
   
   const session = await auth();

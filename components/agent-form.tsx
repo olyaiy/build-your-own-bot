@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useTransition, useState } from "react";
+import React, { useTransition, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,16 +18,8 @@ import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { Loader2, Trash2, Plus, X } from "lucide-react";
+import { Loader2, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Card, 
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter
-} from "@/components/ui/card";
 import { ModelSelector } from "./grouped-model-select";
 
 export type ModelInfo = {
@@ -198,7 +190,60 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6">
+      
+        
+              {/* Action Buttons at Top Right */}
+      <div className="flex justify-end gap-4">
+        {mode === 'edit' && (
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={isPending}
+            onClick={() => {
+              if (confirm("Are you sure you want to delete this agent? This action cannot be undone.")) {
+                startTransition(async () => {
+                  try {
+                    if (initialData?.id) {
+                      if (imageUrl) {
+                        try {
+                          await deleteAgentImage(initialData.id, imageUrl);
+                        } catch (error) {
+                          toast.error('Failed to delete image, but proceeding with agent deletion');
+                        }
+                      }
+                      await deleteAgent(initialData.id);
+                      toast.success('Agent deleted successfully');
+                      router.push('/');
+                    }
+                  } catch (error) {
+                    toast.error('Failed to delete agent. Please try again.');
+                  }
+                });
+              }
+            }}
+          >
+            {isPending ? 'Deleting...' : 'Delete Agent'}
+          </Button>
+        )}
+        <Button 
+          type="submit" 
+          disabled={isPending || !primaryModelId}
+        >
+          {isPending ? `${mode === 'create' ? 'Creating' : 'Updating'}...` : `${mode === 'create' ? 'Create' : 'Update'} Agent`}
+        </Button>
+      </div>
       <div className="flex flex-col md:flex-row gap-8">
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         {/* Image Upload Area - Full width on mobile, 1/4 width on desktop */}
         <div className="w-full md:w-1/4 relative mb-6 md:mb-0">
           <div className="w-full h-0 pb-[75%] relative bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
@@ -421,60 +466,7 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
 
       <input type="hidden" name="userId" value={userId || ''} />
       
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t">
-        <Button 
-          type="submit" 
-          disabled={isPending || !primaryModelId}
-          className="w-full sm:w-auto"
-        >
-          {isPending ? `${mode === 'create' ? 'Creating' : 'Updating'}...` : `${mode === 'create' ? 'Create' : 'Update'} Agent`}
-        </Button>
-        {mode === 'edit' && (
-          <Button
-            type="button"
-            variant="destructive"
-            disabled={isPending}
-            className="w-full sm:w-auto"
-            onClick={() => {
-              if (confirm("Are you sure you want to delete this agent? This action cannot be undone.")) {
-                startTransition(async () => {
-                  try {
-                    if (initialData?.id) {
-                      // If the agent has an image, delete it first
-                      if (imageUrl) {
-                        console.log("Agent has image URL:", imageUrl);
-                        try {
-                          console.log("Attempting to delete agent image first");
-                          const result = await deleteAgentImage(initialData.id, imageUrl);
-                          console.log("Image deletion result:", result);
-                        } catch (error) {
-                          console.error('Error deleting agent image:', error);
-                          toast.error('Failed to delete image, but proceeding with agent deletion');
-                          // Continue with agent deletion even if image deletion fails
-                        }
-                      } else {
-                        console.log("Agent has no image URL to delete");
-                      }
-                      
-                      console.log("Now deleting agent:", initialData.id);
-                      // Then delete the agent
-                      await deleteAgent(initialData.id);
-                      toast.success('Agent deleted successfully');
-                      router.push('/');
-                    }
-                  } catch (error) {
-                    console.error('Error deleting agent:', error);
-                    toast.error('Failed to delete agent. Please try again.');
-                  }
-                });
-              }
-            }}
-          >
-            {isPending ? 'Deleting...' : 'Delete Agent'}
-          </Button>
-        )}
-      </div>
+      
     </form>
   );
 } 
