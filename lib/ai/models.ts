@@ -27,6 +27,7 @@ export const myProvider = customProvider({
     'deepseek-reasoner': deepseek('deepseek-reasoner'),
     'claude-3-5-sonnet-20241022': anthropic('claude-3-5-sonnet-20241022'),
     'claude-3-5-haiku-20241022': anthropic('claude-3-5-haiku-20241022'),
+    'claude-3-7-sonnet-20250219': anthropic('claude-3-7-sonnet-20250219'),
     'o1-mini': openai('o1-mini'), 
     'o1': openai('o1'),
   },
@@ -104,6 +105,12 @@ export const chatModels: Array<ChatModel> = [
     name: 'Deepseek v3',
     description: 'Deepseek v3 Chat model',
     provider: 'Deepseek'
+  },
+  {
+    id: 'claude-3-7-sonnet-20250219',
+    name: 'Claude 3.7 Sonnet',
+    description: 'Anthropic Claude 3.7 Sonnet',
+    provider: 'Anthropic'
   },
   {
     id: 'claude-3-5-sonnet-20241022',
