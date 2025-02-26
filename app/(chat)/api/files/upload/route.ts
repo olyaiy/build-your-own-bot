@@ -82,14 +82,14 @@ export async function POST(request: Request) {
       });
 
       // Create a signed URL that expires in 1 hour (3600 seconds)
-      const url = await getSignedUrl(s3Client, getCommand, { expiresIn: 3600 });
+      const publicUrl = `https://pub-8ddd283c539f458b8f9ee190cb5cbbdd.r2.dev/${filename}`;
 
       return NextResponse.json({
-        url,
+        url: publicUrl,
         pathname: filename,
         contentType: file.type,
       });
-    } catch (error) {
+          } catch (error) {
       console.error('R2 upload error:', error);
       return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
     }
