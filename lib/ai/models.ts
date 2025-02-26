@@ -11,12 +11,10 @@ import { groq } from '@ai-sdk/groq';
 import { deepseek } from '@ai-sdk/deepseek';
 import { anthropic } from '@ai-sdk/anthropic';
 
-export const DEFAULT_CHAT_MODEL: string = 'chat-model-large';
+export const DEFAULT_CHAT_MODEL: string = 'gpt-4o';
 
 export const myProvider = customProvider({
   languageModels: {
-    'chat-model-small': openai('gpt-4o-mini'),
-    'chat-model-large': openai('gpt-4o'),
     'title-model': groq('llama-3.1-8b-instant'),
     'artifact-model': openai('gpt-4o-mini'),
     'gpt-4o-mini': openai('gpt-4o-mini'),
@@ -46,17 +44,6 @@ interface ChatModel {
 }
 
 export const chatModels: Array<ChatModel> = [
-  {
-    id: 'chat-model-small',
-    name: 'Small model',
-    description: 'Small model for fast, lightweight tasks',
-  },
-  {
-    id: 'chat-model-large',
-    name: 'Large model',
-    description: 'Large model for complex, multi-step tasks',
-  },
-
   {
     id: 'gpt-4o-mini',
     name: 'GPT 4o mini',
