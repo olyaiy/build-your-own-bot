@@ -81,7 +81,7 @@ export async function POST(request: Request) {
         messages,
         maxSteps: 5,
         experimental_activeTools:
-          selectedChatModel === 'chat-model-reasoning'
+          selectedChatModel === 'deepseek-reasoner'
             ? []
             : [
                 'getWeather',

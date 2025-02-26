@@ -16,9 +16,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'build-your-own-bot.d619751979aaf828d617a645de8d8b1c.r2.cloudflarestorage.com',
+      },
+      {
+        // Added the domain from the deprecated config
+        hostname: 'pub-8ddd283c539f458b8f9ee190cb5cbbdd.r2.dev',
       }
     ],
-    domains: ['pub-8ddd283c539f458b8f9ee190cb5cbbdd.r2.dev'],
   },
   // Add headers for CORS in GitHub Codespaces
   async headers() {

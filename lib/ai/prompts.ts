@@ -43,6 +43,26 @@ export const systemPrompt = ({
 }) => {
   const basePrompt = agentSystemPrompt || regularPrompt;
   
+  if (selectedChatModel.includes('deepseek-r1')) {
+    return `${agentSystemPrompt || ''}
+    
+    You are an AI assistant that helps users with complex reasoning tasks.
+    When answering difficult questions, use <think> tags to reason through the problem step by step.
+    Then provide your final answer without the reasoning steps.
+    
+    Example:
+    User: What's 15 * 17?
+    Assistant: <think>
+    To calculate 15 * 17, I'll break it down:
+    15 * 17 = 15 * 10 + 15 * 7
+    15 * 10 = 150
+    15 * 7 = 105
+    150 + 105 = 255
+    </think>
+    
+    15 * 17 = 255`;
+  }
+  
   if (selectedChatModel === 'chat-model-reasoning') {
     return basePrompt;
   } else {

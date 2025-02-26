@@ -33,6 +33,7 @@ export const myProvider = customProvider({
     'llama-3.3-70b-versatile': groq('llama-3.3-70b-versatile'),
     'llama-3.1-8b-instant': groq('llama-3.1-8b-instant'),
     'deepseek-chat': deepseek('deepseek-chat'),
+    'deepseek-reasoner': deepseek('deepseek-reasoner'),
     'claude-3-5-sonnet-20241022': anthropic('claude-3-5-sonnet-20241022'),
     'claude-3-5-haiku-20241022': anthropic('claude-3-5-haiku-20241022'),
   },
@@ -112,7 +113,7 @@ export const chatModels: Array<ChatModel> = [
   {
     id: 'deepseek-chat',
     name: 'Deepseek v3',
-    description: 'Deepseek Chat model',
+    description: 'Deepseek v3 Chat model',
   },
   {
     id: 'claude-3-5-sonnet-20241022',
@@ -124,4 +125,10 @@ export const chatModels: Array<ChatModel> = [
     name: 'Claude 3.5 Haiku',
     description: 'Anthropic Claude 3.5 Haiku',
   },
+  {
+    id: 'deepseek-reasoner',
+    name: 'DeepSeek R1',
+    description: 'Deepseek R1 Reasoning Model',
+  },
+  
 ];
