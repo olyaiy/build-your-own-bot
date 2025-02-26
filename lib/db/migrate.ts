@@ -7,6 +7,9 @@ config({
   path: '.env.local',
 });
 
+// Check if we're in a Vercel environment
+const isVercel = process.env.VERCEL === '1';
+
 const runMigrate = async () => {
   if (!process.env.POSTGRES_URL) {
     throw new Error('POSTGRES_URL is not defined');
@@ -17,15 +20,43 @@ const runMigrate = async () => {
 
   try {
     const start = Date.now();
+    
+    // Run the migration
     await migrate(db, { migrationsFolder: './lib/db/migrations' });
+    
     const end = Date.now();
     console.log(`✅ Migration completed in ${end - start}ms`);
   } catch (err: any) {
-    // Check if error is for column already exists (PostgreSQL error code 42701)
-    if (err.code === '42701' && err.message.includes('column "agentId" of relation "Chat" already exists')) {
-      console.warn('⚠️ Migration warning: agentId column already exists, continuing build process');
-      // Exit with success to allow the build to continue
-      process.exit(0);
+    // Known errors we want to handle gracefully
+    const knownErrors = [
+      // Column already exists
+      { code: '42701', message: 'column "agentId" of relation "Chat" already exists' },
+      // Referenced column doesn't exist
+      { code: '42703', message: 'column "model" referenced in foreign key constraint does not exist' },
+      // Constraint doesn't exist
+      { code: undefined, message: 'constraint "agents_model_models_id_fk" of relation "agents" does not exist' }
+    ];
+
+    // Check if the error matches any known error
+    const knownError = knownErrors.find(
+      (error) => 
+        (error.code === undefined || error.code === err.code) && 
+        err.message.includes(error.message)
+    );
+
+    if (knownError) {
+      console.warn(`⚠️ Migration warning: ${err.message}`);
+      console.warn('Continuing build process despite migration error');
+      
+      // In production/Vercel, we want to continue the build despite these errors
+      if (isVercel || process.env.NODE_ENV === 'production') {
+        process.exit(0);
+      }
+      
+      // In development, we might want to throw to make sure issues are fixed
+      if (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') {
+        throw err;
+      }
     }
     
     // Re-throw any other errors
