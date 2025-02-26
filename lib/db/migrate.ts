@@ -9,6 +9,8 @@ config({
 
 // Check if we're in a Vercel environment
 const isVercel = process.env.VERCEL === '1';
+// For local development, we want migrations to fail if there's an issue
+const shouldIgnoreErrors = isVercel || process.env.NODE_ENV === 'production';
 
 const runMigrate = async () => {
   if (!process.env.POSTGRES_URL) {
@@ -34,29 +36,20 @@ const runMigrate = async () => {
       // Referenced column doesn't exist
       { code: '42703', message: 'column "model" referenced in foreign key constraint does not exist' },
       // Constraint doesn't exist
-      { code: undefined, message: 'constraint "agents_model_models_id_fk" of relation "agents" does not exist' }
+      { code: '0A000', message: 'constraint "agents_model_models_id_fk" of relation "agents" does not exist' }
     ];
 
     // Check if the error matches any known error
     const knownError = knownErrors.find(
       (error) => 
-        (error.code === undefined || error.code === err.code) && 
-        err.message.includes(error.message)
+        (error.code === err.code || error.message === err.message) || 
+        (typeof err.message === 'string' && err.message.includes(error.message))
     );
 
-    if (knownError) {
+    if (knownError && shouldIgnoreErrors) {
       console.warn(`⚠️ Migration warning: ${err.message}`);
       console.warn('Continuing build process despite migration error');
-      
-      // In production/Vercel, we want to continue the build despite these errors
-      if (isVercel || process.env.NODE_ENV === 'production') {
-        process.exit(0);
-      }
-      
-      // In development, we might want to throw to make sure issues are fixed
-      if (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') {
-        throw err;
-      }
+      process.exit(0);
     }
     
     // Re-throw any other errors

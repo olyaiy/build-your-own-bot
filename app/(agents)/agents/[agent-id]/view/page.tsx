@@ -52,7 +52,7 @@ export default async function ViewAgentPage({
     agentDisplayName: agentData[0].agent_display_name,
     systemPrompt: agentData[0].system_prompt,
     description: agentData[0].description ?? undefined,
-    modelId: agentData[0].model || '',
+    modelId: agentData[0].agent || '',
     visibility: agentData[0].visibility || 'public',
     artifactsEnabled: agentData[0].artifacts_enabled,
   };
