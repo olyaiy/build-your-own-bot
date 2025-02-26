@@ -1,38 +1,51 @@
 import { ArtifactKind } from '@/components/artifact';
+import { isReasoningModel } from './models';
 
 export const artifactsPrompt = `
-Artifacts is a special user interface mode that helps users with writing, editing, and other content creation tasks. When artifact is open, it is on the right side of the screen, while the conversation is on the left side. When creating or updating documents, changes are reflected in real-time on the artifacts and visible to the user.
-
-When asked to write code, always use artifacts. When writing code, specify the language in the backticks, e.g. \`\`\`python\`code here\`\`\`. The default language is Python. Other languages are not yet supported, so let the user know if they request a different language.
-
-DO NOT UPDATE DOCUMENTS IMMEDIATELY AFTER CREATING THEM. WAIT FOR USER FEEDBACK OR REQUEST TO UPDATE IT.
-
-This is a guide for using artifacts tools: \`createDocument\` and \`updateDocument\`, which render content on a artifacts beside the conversation.
-
-**When to use \`createDocument\`:**
-- For substantial content (>10 lines) or code
-- For content users will likely save/reuse (emails, code, essays, etc.)
-- When explicitly requested to create a document
-- For when content contains a single code snippet
-
-**When NOT to use \`createDocument\`:**
-- For informational/explanatory content
-- For conversational responses
-- When asked to keep it in chat
-
-**Using \`updateDocument\`:**
-- Default to full document rewrites for major changes
-- Use targeted updates only for specific, isolated changes
-- Follow user instructions for which parts to modify
-
-**When NOT to use \`updateDocument\`:**
-- Immediately after creating a document
-
-Do not update document right after creating it. Wait for user feedback or request to update it.
+// Your existing artifactsPrompt
 `;
 
 export const regularPrompt =
   'You are a friendly assistant! Keep your responses concise and helpful.';
+
+// New function to get model-specific reasoning instructions
+export const getReasoningInstructions = (modelId: string): string => {
+  // Base reasoning instructions that work for all reasoning models
+  const baseInstructions = `
+  You are an AI assistant that helps users with complex reasoning tasks.
+  When answering difficult questions, use <think> tags to reason through the problem step by step.
+  Then provide your final answer without the reasoning steps.
+  
+  Example:
+  User: What's 15 * 17?
+  Assistant: <think>
+  To calculate 15 * 17, I'll break it down:
+  15 * 17 = 15 * 10 + 15 * 7
+  15 * 10 = 150
+  15 * 7 = 105
+  150 + 105 = 255
+  </think>
+  
+  15 * 17 = 255`;
+
+  // Model-specific instructions
+  if (modelId.startsWith('o1') || modelId.startsWith('o3')) {
+    return `${baseInstructions}
+    
+    Additional instructions for OpenAI reasoning models:
+    - Keep prompts simple and direct
+    - Avoid chain-of-thought within your responses as you already do internal reasoning
+    - Focus on providing clear, concise answers after your reasoning process
+    ${artifactsPrompt}
+    
+    `;
+  } else if (modelId === 'deepseek-reasoner') {
+    return baseInstructions;
+  }
+
+  // Default case
+  return baseInstructions;
+};
 
 export const systemPrompt = ({
   selectedChatModel,
@@ -43,32 +56,18 @@ export const systemPrompt = ({
 }) => {
   const basePrompt = agentSystemPrompt || regularPrompt;
   
-  if (selectedChatModel.includes('deepseek-reasoner')) {
+  if (isReasoningModel(selectedChatModel)) {
+    // Get model-specific reasoning instructions
+    const reasoningInstructions = getReasoningInstructions(selectedChatModel);
+    
     return `${agentSystemPrompt || ''}
     
-    You are an AI assistant that helps users with complex reasoning tasks.
-    When answering difficult questions, use <think> tags to reason through the problem step by step.
-    Then provide your final answer without the reasoning steps.
-    
-    Example:
-    User: What's 15 * 17?
-    Assistant: <think>
-    To calculate 15 * 17, I'll break it down:
-    15 * 17 = 15 * 10 + 15 * 7
-    15 * 10 = 150
-    15 * 7 = 105
-    150 + 105 = 255
-    </think>
-    
-    15 * 17 = 255`;
-  }
-  
-  if (selectedChatModel === 'deepseek-reasoner') {
-    return basePrompt;
+    ${reasoningInstructions}`;
   } else {
     return `${basePrompt}\n\n${artifactsPrompt}`;
   }
 };
+
 
 export const codePrompt = `
 You are a Python code generator that creates self-contained, executable code snippets. When writing code:

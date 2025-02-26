@@ -30,6 +30,8 @@ export const myProvider = customProvider({
     'deepseek-reasoner': deepseek('deepseek-reasoner'),
     'claude-3-5-sonnet-20241022': anthropic('claude-3-5-sonnet-20241022'),
     'claude-3-5-haiku-20241022': anthropic('claude-3-5-haiku-20241022'),
+    'o1-mini': openai('o1-mini'), 
+    'o1': openai('o1'),
   },
   imageModels: {
     'small-model': openai.image('dall-e-2'),
@@ -124,5 +126,55 @@ export const chatModels: Array<ChatModel> = [
     description: 'Deepseek R1 Reasoning Model',
     provider: 'DeepSeek'
   },
+  {
+    id: 'o1-mini',
+    name: 'OpenAI o1 Mini',
+    description: 'Openai o1 Mini Reasoning Model',
+    provider: 'Openai'
+  },
+  {
+    id: 'o1',
+    name: 'O1',
+    description: 'OpenAI O1 reasoning model',
+    provider: 'OpenAI'
+  },
   
 ];
+
+
+// Different reasoning models have different capabilities
+export const REASONING_MODEL_IDS = [
+  'deepseek-reasoner',
+  'o3-mini',
+  'o1',
+  'o1-mini'
+];
+
+// Models that support tools
+export const TOOLS_SUPPORTED_MODEL_IDS = [
+  'o1',  // o1 supports tools according to the docs
+  // Other non-reasoning models that support tools
+];
+
+// Models that support structured object generation
+export const OBJECT_GENERATION_MODEL_IDS = [
+  'o1',  // o1 supports object generation according to the docs
+  // Other non-reasoning models that support object generation
+];
+
+export const isReasoningModel = (modelId: string): boolean => {
+  return REASONING_MODEL_IDS.includes(modelId);
+};
+
+export const supportsTools = (modelId: string): boolean => {
+  return !isReasoningModel(modelId) || TOOLS_SUPPORTED_MODEL_IDS.includes(modelId);
+};
+
+export const supportsObjectGeneration = (modelId: string): boolean => {
+  return !isReasoningModel(modelId) || OBJECT_GENERATION_MODEL_IDS.includes(modelId);
+};
+
+export const supportsReasoningEffort = (modelId: string): boolean => {
+  return ['o1', 'o1-mini', 'o3-mini'].includes(modelId);
+};
+

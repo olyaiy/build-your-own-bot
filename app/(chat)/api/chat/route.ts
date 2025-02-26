@@ -4,7 +4,7 @@ import {
   smoothStream,
   streamText,
 } from 'ai';
-
+import { supportsTools } from '@/lib/ai/models';
 import { auth } from '@/app/(auth)/auth';
 import { myProvider } from '@/lib/ai/models';
 import { systemPrompt } from '@/lib/ai/prompts';
@@ -42,6 +42,8 @@ export async function POST(request: Request) {
     agentId: string;
     agentSystemPrompt?: string;
   } = await request.json();
+
+  console.log("SELECTED MODEL IS", selectedChatModel)
 
   
   const session = await auth();
@@ -81,14 +83,15 @@ export async function POST(request: Request) {
         messages,
         maxSteps: 5,
         experimental_activeTools:
-          selectedChatModel === 'deepseek-reasoner'
-            ? []
-            : [
-                'getWeather',
-                'createDocument',
-                'updateDocument',
-                'requestSuggestions',
-              ],
+        supportsTools(selectedChatModel)
+          ? [
+              'getWeather',
+              'createDocument',
+              'updateDocument',
+              'requestSuggestions',
+            ]
+          : [],
+
         experimental_transform: smoothStream({ chunking: 'word' }),
         experimental_generateMessageId: generateUUID,
         tools: {
