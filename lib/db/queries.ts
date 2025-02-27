@@ -21,6 +21,11 @@ import {
   agentModels,
   type Agent,
   type Model,
+  toolGroups,
+  type ToolGroup,
+  agentToolGroups,
+  tools,
+  toolGroupTools,
 } from './schema';  
 import { ArtifactKind } from '@/components/artifact/artifact';
 
@@ -652,6 +657,13 @@ export async function getAgentWithAllModels(id: string) {
     .leftJoin(models, eq(agentModels.modelId, models.id))
     .where(eq(agentModels.agentId, id));
 
+    // Get all tool groups for this agent
+    const agentToolGroupsResults = await db.select({
+      toolGroupId: agentToolGroups.toolGroupId
+    })
+    .from(agentToolGroups)
+    .where(eq(agentToolGroups.agentId, id));
+
     // Extract primary model and alternate models
     const defaultModel = agentModelResults.find(m => m.isDefault === true);
     const alternateModels = agentModelResults.filter(m => m.isDefault !== true);
@@ -659,7 +671,8 @@ export async function getAgentWithAllModels(id: string) {
     return {
       ...agent,
       modelId: defaultModel?.modelId || '',
-      alternateModelIds: alternateModels.map(m => m.modelId)
+      alternateModelIds: alternateModels.map(m => m.modelId),
+      toolGroupIds: agentToolGroupsResults.map(tg => tg.toolGroupId)
     };
   } catch (error) {
     console.error('Failed to get agent with models from database');
@@ -717,6 +730,66 @@ export async function getAgentWithAvailableModels(id: string) {
     };
   } catch (error) {
     console.error('Failed to get agent with available models from database');
+    throw error;
+  }
+}
+
+// Get all tool groups
+export async function getAllToolGroups() {
+  try {
+    return await db.select({
+      id: toolGroups.id,
+      name: toolGroups.name,
+      displayName: toolGroups.display_name,
+      description: toolGroups.description,
+    })
+    .from(toolGroups)
+    .orderBy(asc(toolGroups.display_name));
+  } catch (error) {
+    console.error('Failed to get tool groups from database');
+    throw error;
+  }
+}
+
+// Get tool groups for a specific agent
+export async function getToolGroupsByAgentId(agentId: string) {
+  try {
+    const result = await db.select({
+      id: toolGroups.id,
+      name: toolGroups.name,
+      displayName: toolGroups.display_name,
+      description: toolGroups.description,
+    })
+    .from(agentToolGroups)
+    .innerJoin(toolGroups, eq(agentToolGroups.toolGroupId, toolGroups.id))
+    .where(eq(agentToolGroups.agentId, agentId));
+    
+    return result;
+  } catch (error) {
+    console.error('Failed to get tool groups for agent from database');
+    throw error;
+  }
+}
+
+// Get tools by tool group id
+export async function getToolsByToolGroupId(toolGroupId: string) {
+  try {
+    const result = await db.select({
+      id: tools.id,
+      displayName: tools.tool_display_name,
+      tool: tools.tool,
+      description: tools.description,
+    })
+    .from(tools)
+    .innerJoin(
+      toolGroupTools, 
+      eq(tools.id, toolGroupTools.toolId)
+    )
+    .where(eq(toolGroupTools.toolGroupId, toolGroupId));
+    
+    return result;
+  } catch (error) {
+    console.error('Failed to get tools by tool group id from database');
     throw error;
   }
 }

@@ -2,7 +2,7 @@
 
 import { useChat } from 'ai/react';
 import { useEffect, useRef } from 'react';
-import { artifactDefinitions, ArtifactKind } from '@/components/artifact/artifact';
+import { artifactDefinitions, ArtifactKind, UIArtifact } from '@/components/artifact/artifact';
 import { Suggestion } from '@/lib/db/schema';
 import { initialArtifactData, useArtifact } from '@/hooks/use-artifact';
 
@@ -45,7 +45,7 @@ export function DataStreamHandler({ id }: { id: string }) {
         });
       }
 
-      setArtifact((draftArtifact) => {
+      setArtifact((draftArtifact: UIArtifact) => {
         if (!draftArtifact) {
           return { ...initialArtifactData, status: 'streaming' };
         }

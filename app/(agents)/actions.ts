@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAgent as createAgentQuery, deleteAgentQuery, getAgentById, updateAgentById } from '@/lib/db/queries';
-import { agents, agentModels } from '@/lib/db/schema';
+import { agents, agentModels, agentToolGroups } from '@/lib/db/schema';
 import { type AgentVisibility } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { generateSlug } from '@/lib/utils';
@@ -17,7 +17,8 @@ export async function createAgent({
   creatorId,
   artifactsEnabled,
   imageUrl,
-  alternateModelIds = []
+  alternateModelIds = [],
+  toolGroupIds = []
 }: {
   agentDisplayName: string;
   systemPrompt: string;
@@ -28,6 +29,7 @@ export async function createAgent({
   artifactsEnabled?: boolean;
   imageUrl?: string | null;
   alternateModelIds?: string[];
+  toolGroupIds?: string[];
 }) {
   try {
     // Create agent with primary model
@@ -53,6 +55,16 @@ export async function createAgent({
       await db.insert(agentModels).values(alternateModelsData);
     }
     
+    // If tool groups were provided, add them to the agent
+    if (toolGroupIds.length > 0 && result?.id) {
+      const toolGroupsData = toolGroupIds.map(toolGroupId => ({
+        agentId: result.id,
+        toolGroupId
+      }));
+      
+      await db.insert(agentToolGroups).values(toolGroupsData);
+    }
+    
     revalidatePath('/');
     return result;
   } catch (error) {
@@ -70,7 +82,8 @@ export async function updateAgent({
   visibility,
   artifactsEnabled,
   imageUrl,
-  alternateModelIds = []
+  alternateModelIds = [],
+  toolGroupIds = []
 }: {
   id: string;
   agentDisplayName: string;
@@ -81,6 +94,7 @@ export async function updateAgent({
   artifactsEnabled?: boolean;
   imageUrl?: string | null;
   alternateModelIds?: string[];
+  toolGroupIds?: string[];
 }) {
   try {
     const agent = await getAgentById(id);
@@ -142,6 +156,45 @@ export async function updateAgent({
       }));
       
       await db.insert(agentModels).values(newModelsData);
+    }
+    
+    // Handle tool groups
+    // Get existing tool groups
+    const existingToolGroups = await db.select({
+      toolGroupId: agentToolGroups.toolGroupId
+    })
+    .from(agentToolGroups)
+    .where(eq(agentToolGroups.agentId, id));
+    
+    const existingToolGroupIds = existingToolGroups.map(tg => tg.toolGroupId);
+    
+    // Tool groups to remove
+    const toolGroupIdsToRemove = existingToolGroupIds
+      .filter(existingId => !toolGroupIds.includes(existingId));
+      
+    // Tool groups to add
+    const toolGroupIdsToAdd = toolGroupIds
+      .filter(newId => !existingToolGroupIds.includes(newId));
+      
+    // Remove tool groups that are no longer needed
+    if (toolGroupIdsToRemove.length > 0) {
+      await Promise.all(toolGroupIdsToRemove.map(toolGroupId => 
+        db.delete(agentToolGroups)
+          .where(and(
+            eq(agentToolGroups.agentId, id),
+            eq(agentToolGroups.toolGroupId, toolGroupId)
+          ))
+      ));
+    }
+    
+    // Add new tool groups
+    if (toolGroupIdsToAdd.length > 0) {
+      const newToolGroupsData = toolGroupIdsToAdd.map(toolGroupId => ({
+        agentId: id,
+        toolGroupId
+      }));
+      
+      await db.insert(agentToolGroups).values(newToolGroupsData);
     }
     
     revalidatePath('/');
