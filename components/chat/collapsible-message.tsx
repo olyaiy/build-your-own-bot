@@ -32,17 +32,7 @@ export function CollapsibleMessage({
   const content = <div className="py-2 flex-1">{children}</div>
 
   return (
-    <div className="flex gap-3">
-      <div className="relative flex flex-col items-center">
-        <div className={cn('mt-[10px] w-5', role === 'assistant' && 'mt-4')}>
-          {showIcon &&
-            (role === 'user' ? (
-              <UserCircle2 size={20} className="text-muted-foreground" />
-            ) : (
-              <IconLogo className="size-5" />
-            ))}
-        </div>
-      </div>
+    <div className="flex gap-3 ">
 
       {isCollapsible ? (
         <div
@@ -54,7 +44,7 @@ export function CollapsibleMessage({
           <Collapsible
             open={isOpen}
             onOpenChange={onOpenChange}
-            className="w-full"
+            className="w-full "
           >
             <CollapsibleTrigger className="flex items-center justify-between w-full group">
               <div className="flex items-center justify-between w-full gap-2">
