@@ -21,13 +21,7 @@ import Image from "next/image";
 import { Loader2, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ModelSelector } from "../util/grouped-model-select";
-
-export type ToolGroupInfo = {
-  id: string;
-  name: string;
-  displayName: string;
-  description?: string | null;
-};
+import { ToolGroupSelector, ToolGroupInfo } from "./tool-group-selector";
 
 export type ModelInfo = {
   id: string;
@@ -163,24 +157,6 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
     return models.find(model => model.id === id);
   };
 
-  const handleAddToolGroup = (value: string) => {
-    // Don't add if it's already in the list
-    if (selectedToolGroupIds.includes(value)) {
-      toast.error("This tool group is already added");
-      return;
-    }
-    
-    setSelectedToolGroupIds([...selectedToolGroupIds, value]);
-  };
-
-  const handleRemoveToolGroup = (id: string) => {
-    setSelectedToolGroupIds(selectedToolGroupIds.filter(groupId => groupId !== id));
-  };
-  
-  const getToolGroupById = (id: string): ToolGroupInfo | undefined => {
-    return toolGroups.find(group => group.id === id);
-  };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -262,16 +238,6 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
       </div>
       <div className="flex flex-col md:flex-row gap-8">
 
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         {/* Image Upload Area - Full width on mobile, 1/4 width on desktop */}
         <div className="w-full md:w-1/4 relative mb-6 md:mb-0">
           <div className="w-full h-0 pb-[75%] relative bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
@@ -385,73 +351,31 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
 
           {/* Models Section */}
           <div className="space-y-4">
-          <div>
-  <Label htmlFor="primaryModel" className="text-lg font-semibold">Primary Model</Label>
-  <ModelSelector
-    id="primaryModel"
-    models={models}
-    value={primaryModelId}
-    onValueChange={handlePrimaryModelChange}
-    placeholder="Select a primary model"
-    className="mt-2"
-    required
-  />
-</div>
+            <div>
+              <Label htmlFor="primaryModel" className="text-lg font-semibold">Primary Model</Label>
+              <ModelSelector
+                id="primaryModel"
+                models={models}
+                value={primaryModelId}
+                onValueChange={handlePrimaryModelChange}
+                placeholder="Select a primary model"
+                className="mt-2"
+                required
+              />
+            </div>
 
             {/* Alternate Models Section */}
             <div>
-  <Label className="text-lg font-semibold">Alternate Models</Label>
-  <div className="flex flex-wrap gap-2 mt-2 mb-4">
-    {alternateModelIds.map(modelId => {
-      const model = getModelById(modelId);
-      return model ? (
-        <Badge key={modelId} variant="secondary" className="py-1 px-2 flex items-center gap-1">
-          {model.displayName}
-          <button 
-            type="button" 
-            onClick={() => handleRemoveAlternateModel(modelId)}
-            className="ml-1 text-muted-foreground hover:text-foreground"
-          >
-            <X className="h-3 w-3" />
-          </button>
-        </Badge>
-      ) : null;
-    })}
-    {alternateModelIds.length === 0 && (
-      <p className="text-sm text-muted-foreground">No alternate models selected</p>
-    )}
-  </div>
-  
-  <div className="flex gap-2">
-    <ModelSelector
-      id="alternateModel"
-      models={models.filter(model => 
-        model.id !== primaryModelId && 
-        !alternateModelIds.includes(model.id)
-      )}
-      value=""
-      onValueChange={handleAddAlternateModel}
-      placeholder="Add alternate model"
-      className="w-full"
-    />
-  </div>
-  <p className="text-xs text-muted-foreground mt-1">
-    Add alternate models that this agent can use in addition to the primary model.
-  </p>
-</div>
-
-            {/* Tool Groups Section */}
-            <div>
-              <Label className="text-lg font-semibold">Tool Groups</Label>
+              <Label className="text-lg font-semibold">Alternate Models</Label>
               <div className="flex flex-wrap gap-2 mt-2 mb-4">
-                {selectedToolGroupIds.map(groupId => {
-                  const group = getToolGroupById(groupId);
-                  return group ? (
-                    <Badge key={groupId} variant="secondary" className="py-1 px-2 flex items-center gap-1">
-                      {group.displayName}
+                {alternateModelIds.map(modelId => {
+                  const model = getModelById(modelId);
+                  return model ? (
+                    <Badge key={modelId} variant="secondary" className="py-1 px-2 flex items-center gap-1">
+                      {model.displayName}
                       <button 
                         type="button" 
-                        onClick={() => handleRemoveToolGroup(groupId)}
+                        onClick={() => handleRemoveAlternateModel(modelId)}
                         className="ml-1 text-muted-foreground hover:text-foreground"
                       >
                         <X className="h-3 w-3" />
@@ -459,35 +383,35 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                     </Badge>
                   ) : null;
                 })}
-                {selectedToolGroupIds.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No tool groups selected</p>
+                {alternateModelIds.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No alternate models selected</p>
                 )}
               </div>
               
               <div className="flex gap-2">
-                <Select 
-                  value="" 
-                  onValueChange={handleAddToolGroup}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Add tool group" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {toolGroups
-                      .filter(group => !selectedToolGroupIds.includes(group.id))
-                      .map(group => (
-                        <SelectItem key={group.id} value={group.id}>
-                          {group.displayName}
-                        </SelectItem>
-                      ))
-                    }
-                  </SelectContent>
-                </Select>
+                <ModelSelector
+                  id="alternateModel"
+                  models={models.filter(model => 
+                    model.id !== primaryModelId && 
+                    !alternateModelIds.includes(model.id)
+                  )}
+                  value=""
+                  onValueChange={handleAddAlternateModel}
+                  placeholder="Add alternate model"
+                  className="w-full"
+                />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Add tool groups that this agent can use.
+                Add alternate models that this agent can use in addition to the primary model.
               </p>
             </div>
+
+            {/* Tool Groups Section - Using the new component */}
+            <ToolGroupSelector
+              toolGroups={toolGroups}
+              selectedToolGroupIds={selectedToolGroupIds}
+              onChange={setSelectedToolGroupIds}
+            />
 
             {/* Other Settings Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 gap-y-6 mt-4">
