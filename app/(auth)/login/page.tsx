@@ -5,10 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { AuthForm } from '@/components/auth-form';
-import { SubmitButton } from '@/components/submit-button';
-
 import { login, type LoginActionState } from '../actions';
+import { SubmitButton } from '@/components/util/submit-button';
+import { AuthForm } from '@/components/auth/auth-form';
 
 export default function Page() {
   const router = useRouter();
