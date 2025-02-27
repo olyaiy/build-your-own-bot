@@ -1,7 +1,7 @@
 // import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { auth } from '@/app/(auth)/auth';
-import { Chat } from '@/components/chat';
+import { Chat } from '@/components/chat/chat';
 import { 
   getChatById, 
   getMessagesByChatId, 
@@ -9,9 +9,9 @@ import {
   getAgentWithAvailableModels
 } from '@/lib/db/queries';
 import { convertToUIMessages } from '@/lib/utils';
-import { DataStreamHandler } from '@/components/data-stream-handler';
+
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
-import type { Model } from '@/lib/db/schema';
+import { DataStreamHandler } from '@/components/util/data-stream-handler';
 
 export default async function Page(props: { 
   params: Promise<{ 
