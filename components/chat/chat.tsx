@@ -111,7 +111,7 @@ export function Chat({
           />
         </div>
 
-        <form className="flex flex-col mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
+        <form className="flex flex-col mx-auto px-2 sm:px-4 bg-background pb-2 sm:pb-4 md:pb-6 gap-1 sm:gap-2 w-full md:max-w-3xl">
           {!isReadonly && (
             <MultimodalInput
               agentId={agent.id}
