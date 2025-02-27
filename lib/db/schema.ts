@@ -190,33 +190,6 @@ export const tools = pgTable("tools", {
   config: json("config"), 
 });
 
-export type Tool = typeof tools.$inferSelect;
-
-export const toolGroups = pgTable("tool_groups", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull().unique(),
-  description: text("description"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
-export type ToolGroup = typeof toolGroups.$inferSelect;
-
-export const toolGroupTools = pgTable("tool_group_tools", {
-  toolGroupId: uuid("tool_group_id")
-    .notNull()
-    .references(() => toolGroups.id, { onDelete: "cascade" }),
-  toolId: uuid("tool_id")
-    .notNull()
-    .references(() => tools.id, { onDelete: "cascade" }),
-}, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.toolGroupId, table.toolId] }),
-  };
-});
-
-export type ToolGroupTool = typeof toolGroupTools.$inferSelect;
-
 export const agentTools = pgTable("agent_tools", {
   agentId: uuid("agent_id")
     .notNull()
