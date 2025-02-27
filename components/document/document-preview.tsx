@@ -48,7 +48,7 @@ export function DocumentPreview({
     const boundingBox = hitboxRef.current?.getBoundingClientRect();
 
     if (artifact.documentId && boundingBox) {
-      setArtifact((artifact) => ({
+      setArtifact((artifact: UIArtifact) => ({
         ...artifact,
         boundingBox: {
           left: boundingBox.x,
@@ -158,7 +158,7 @@ const PureHitboxLayer = ({
     (event: MouseEvent<HTMLElement>) => {
       const boundingBox = event.currentTarget.getBoundingClientRect();
 
-      setArtifact((artifact) =>
+      setArtifact((artifact: UIArtifact) =>
         artifact.status === 'streaming'
           ? { ...artifact, isVisible: true }
           : {
