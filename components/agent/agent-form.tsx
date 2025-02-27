@@ -22,6 +22,12 @@ import { Loader2, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ModelSelector } from "../util/grouped-model-select";
 
+export type ToolGroupInfo = {
+  id: string;
+  name: string;
+  displayName: string;
+  description?: string | null;
+};
 
 export type ModelInfo = {
   id: string;
@@ -35,6 +41,7 @@ interface AgentFormProps {
   mode: "create" | "edit";
   userId?: string;
   models: ModelInfo[];
+  toolGroups: ToolGroupInfo[];
   initialData?: {
     id: string;
     agentDisplayName: string;
@@ -44,17 +51,19 @@ interface AgentFormProps {
     visibility: "public" | "private" | "link";
     artifactsEnabled: boolean | null;
     imageUrl?: string | null;
-    alternateModelIds?: string[]; // New field for alternate models
+    alternateModelIds?: string[]; // Field for alternate models
+    toolGroupIds?: string[]; // Field for tool groups
   };
 }
 
-export default function AgentForm({ mode, userId, models, initialData }: AgentFormProps) {
+export default function AgentForm({ mode, userId, models, toolGroups, initialData }: AgentFormProps) {
   const [isPending, startTransition] = useTransition();
   const [imageUrl, setImageUrl] = useState<string | null>(initialData?.imageUrl || null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeletingImage, setIsDeletingImage] = useState(false);
   const [primaryModelId, setPrimaryModelId] = useState<string>(initialData?.modelId || "");
   const [alternateModelIds, setAlternateModelIds] = useState<string[]>(initialData?.alternateModelIds || []);
+  const [selectedToolGroupIds, setSelectedToolGroupIds] = useState<string[]>(initialData?.toolGroupIds || []);
   const router = useRouter();
 
 
@@ -154,6 +163,24 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
     return models.find(model => model.id === id);
   };
 
+  const handleAddToolGroup = (value: string) => {
+    // Don't add if it's already in the list
+    if (selectedToolGroupIds.includes(value)) {
+      toast.error("This tool group is already added");
+      return;
+    }
+    
+    setSelectedToolGroupIds([...selectedToolGroupIds, value]);
+  };
+
+  const handleRemoveToolGroup = (id: string) => {
+    setSelectedToolGroupIds(selectedToolGroupIds.filter(groupId => groupId !== id));
+  };
+  
+  const getToolGroupById = (id: string): ToolGroupInfo | undefined => {
+    return toolGroups.find(group => group.id === id);
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -171,6 +198,7 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
           artifactsEnabled: formData.get("artifactsEnabled") === "on",
           imageUrl: imageUrl,
           alternateModelIds: alternateModelIds, // Include alternate models
+          toolGroupIds: selectedToolGroupIds, // Include tool groups
         };
 
         if (mode === "edit") {
@@ -412,7 +440,54 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
   </p>
 </div>
 
-
+            {/* Tool Groups Section */}
+            <div>
+              <Label className="text-lg font-semibold">Tool Groups</Label>
+              <div className="flex flex-wrap gap-2 mt-2 mb-4">
+                {selectedToolGroupIds.map(groupId => {
+                  const group = getToolGroupById(groupId);
+                  return group ? (
+                    <Badge key={groupId} variant="secondary" className="py-1 px-2 flex items-center gap-1">
+                      {group.displayName}
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveToolGroup(groupId)}
+                        className="ml-1 text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ) : null;
+                })}
+                {selectedToolGroupIds.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No tool groups selected</p>
+                )}
+              </div>
+              
+              <div className="flex gap-2">
+                <Select 
+                  value="" 
+                  onValueChange={handleAddToolGroup}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Add tool group" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {toolGroups
+                      .filter(group => !selectedToolGroupIds.includes(group.id))
+                      .map(group => (
+                        <SelectItem key={group.id} value={group.id}>
+                          {group.displayName}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Add tool groups that this agent can use.
+              </p>
+            </div>
 
             {/* Other Settings Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 gap-y-6 mt-4">

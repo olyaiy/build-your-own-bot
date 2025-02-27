@@ -1,6 +1,6 @@
 import AgentForm from "@/components/agent/agent-form";
 import { auth } from "@/app/(auth)/auth";
-import { db, getAgentWithAllModels } from "@/lib/db/queries";
+import { db, getAgentWithAllModels, getAllToolGroups } from "@/lib/db/queries";
 import { models, agents } from "@/lib/db/schema";
 import { notFound } from "next/navigation";
 
@@ -13,7 +13,7 @@ export default async function EditAgentPage({
   const params = await paramsPromise;
   const agentId = params["agent-id"];
 
-  const [agentWithModels, modelsList] = await Promise.all([
+  const [agentWithModels, modelsList, toolGroups] = await Promise.all([
     getAgentWithAllModels(agentId),
     db.select({
       id: models.id,
@@ -22,6 +22,7 @@ export default async function EditAgentPage({
       description: models.description,
       provider: models.provider
     }).from(models),
+    getAllToolGroups(),
   ]);
 
   if (!agentWithModels) {
@@ -35,6 +36,7 @@ export default async function EditAgentPage({
     description: agentWithModels.description ?? undefined,
     modelId: agentWithModels.modelId,
     alternateModelIds: agentWithModels.alternateModelIds,
+    toolGroupIds: agentWithModels.toolGroupIds || [],
     visibility: agentWithModels.visibility || 'public',
     artifactsEnabled: agentWithModels.artifacts_enabled,
     imageUrl: agentWithModels.image_url ?? undefined,
@@ -47,6 +49,7 @@ export default async function EditAgentPage({
         mode="edit"
         userId={session?.user?.id}
         models={modelsList}
+        toolGroups={toolGroups}
         initialData={initialData}
       />
     </div>
