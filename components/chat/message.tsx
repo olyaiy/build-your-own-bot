@@ -27,6 +27,7 @@ import { PreviewAttachment } from '../util/preview-attachment';
 import { DocumentToolCall, DocumentToolResult } from '../document/document';
 import { DocumentPreview } from '../document/document-preview';
 import { Weather } from '../util/weather';
+import { RetrieveSection } from '../agent/retrieve-section';
 
 const PurePreviewMessage = ({
   chatId,
@@ -143,6 +144,7 @@ const PurePreviewMessage = ({
               <div className="flex flex-col gap-4">
                 {message.toolInvocations.map((toolInvocation) => {
                   const { toolName, toolCallId, state, args } = toolInvocation;
+                  const [isToolOpen, setIsToolOpen] = useState(true);
 
                   if (state === 'result') {
                     const { result } = toolInvocation;
@@ -168,6 +170,12 @@ const PurePreviewMessage = ({
                             result={result}
                             isReadonly={isReadonly}
                           />
+                        ) : toolName === 'retrieveTool' ? (
+                          <RetrieveSection 
+                            tool={toolInvocation}
+                            isOpen={isToolOpen}
+                            onOpenChange={setIsToolOpen}
+                          />
                         ) : (
                           <pre>{JSON.stringify(result, null, 2)}</pre>
                         )}
@@ -178,7 +186,7 @@ const PurePreviewMessage = ({
                     <div
                       key={toolCallId}
                       className={cx({
-                        skeleton: ['getWeather'].includes(toolName),
+                        skeleton: ['getWeather', 'retrieveTool'].includes(toolName),
                       })}
                     >
                       {toolName === 'getWeather' ? (
@@ -196,6 +204,12 @@ const PurePreviewMessage = ({
                           type="request-suggestions"
                           args={args}
                           isReadonly={isReadonly}
+                        />
+                      ) : toolName === 'retrieveTool' ? (
+                        <RetrieveSection 
+                          tool={toolInvocation}
+                          isOpen={isToolOpen}
+                          onOpenChange={setIsToolOpen}
                         />
                       ) : null}
                     </div>

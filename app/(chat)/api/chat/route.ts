@@ -29,6 +29,9 @@ import { updateDocument } from '@/lib/ai/tools/update-document';
 import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
 import { getWeather } from '@/lib/ai/tools/get-weather';
 import { Session } from 'next-auth';
+import { retrieveTool } from '@/lib/ai/tools/retrieve';
+import { toolRegistry } from '@/lib/ai/tools/registry';
+
 
 export const maxDuration = 60;
 
@@ -96,31 +99,18 @@ export async function POST(request: Request) {
           .map(tool => tool.tool)
       )];
       
-      console.log(`Available tools for agent ${agentId}:`, availableToolNames);
+      // console.log(`Available tools for agent ${agentId}:`, availableToolNames);
 
       // Create tools object with the appropriate tools
-      const tools: Record<string, any> = {};
-      
-      // Only add tools that are available for this agent
-      if (availableToolNames.includes('getWeather')) {
-        tools.getWeather = getWeather;
-      }
-      
-      if (availableToolNames.includes('createDocument')) {
-        tools.createDocument = createDocument({ session, dataStream });
-      }
-      
-      if (availableToolNames.includes('updateDocument')) {
-        tools.updateDocument = updateDocument({ session, dataStream });
-      }
-      
-      if (availableToolNames.includes('requestSuggestions')) {
-        tools.requestSuggestions = requestSuggestions({ 
-          session, 
-          dataStream 
-        });
-      }
-      
+      const registry = toolRegistry({ session, dataStream });
+
+const tools: Record<string, any> = {};
+for (const toolName of availableToolNames) {
+  if (toolName in registry && registry[toolName as keyof typeof registry]) {
+    tools[toolName] = registry[toolName as keyof typeof registry];
+  }
+}
+
       // Get the list of tool names that are actually available
       const activeToolNames = Object.keys(tools);
 

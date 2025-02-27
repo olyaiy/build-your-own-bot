@@ -38,6 +38,62 @@ import {
 } from '@/components/ui/select';
 import { PreviewAttachment } from '../util/preview-attachment';
 
+// URL regex pattern for detecting links
+const URL_REGEX = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}\/[^\s]*)/g;
+
+// Component that renders the input text with stylized links
+const StylizedLinkOverlay = memo(({ text, textareaRef }: { text: string; textareaRef: React.RefObject<HTMLTextAreaElement> }) => {
+  if (!text) return null;
+
+  // Split text by URLs and create an array of text and link elements
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+
+  // Reset the regex
+  URL_REGEX.lastIndex = 0;
+  
+  while ((match = URL_REGEX.exec(text)) !== null) {
+    const url = match[0];
+    const index = match.index;
+    
+    // Add text before the URL
+    if (index > lastIndex) {
+      parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex, index)}</span>);
+    }
+    
+    // Add the URL as a styled span
+    parts.push(
+      <span 
+        key={`link-${index}`} 
+        className="text-blue-500 underline"
+      >
+        {url}
+      </span>
+    );
+    
+    lastIndex = index + url.length;
+  }
+  
+  // Add remaining text after the last URL
+  if (lastIndex < text.length) {
+    parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex)}</span>);
+  }
+
+  return (
+    <div 
+      className="absolute inset-0 pointer-events-none whitespace-pre-wrap break-words p-3 pb-8 sm:pb-10 text-base overflow-hidden"
+      style={{
+        // Match the textarea's styling
+        fontFamily: 'inherit',
+        lineHeight: 'inherit',
+      }}
+    >
+      {parts}
+    </div>
+  );
+});
+
 function PureMultimodalInput({
   chatId,
   agentId,
@@ -273,44 +329,50 @@ function PureMultimodalInput({
         </div>
       )}
 
-      <Textarea
-        ref={textareaRef}
-        placeholder="Send a message..."
-        value={input}
-        onChange={handleInput}
-        className={cx(
-          'min-h-[24px] max-h-[calc(50vh)] sm:max-h-[calc(75dvh)] overflow-hidden resize-none rounded-2xl !text-base bg-muted pb-8 sm:pb-10 dark:border-zinc-700',
-          className,
-        )}
-        rows={2}
-        autoFocus
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
+      <div className="relative">
+        <Textarea
+          ref={textareaRef}
+          placeholder="Send a message..."
+          value={input}
+          onChange={handleInput}
+          className={cx(
+            'min-h-[24px] max-h-[calc(50vh)] sm:max-h-[calc(75dvh)] overflow-hidden resize-none rounded-2xl !text-base bg-muted pb-8 sm:pb-10 dark:border-zinc-700',
+            className,
+            'text-transparent caret-foreground'
+          )}
+          rows={2}
+          autoFocus
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault();
 
-            if (isLoading) {
-              toast.error('Please wait for the model to finish its response!');
-            } else {
-              submitForm();
+              if (isLoading) {
+                toast.error('Please wait for the model to finish its response!');
+              } else {
+                submitForm();
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
 
-      <div className="absolute bottom-0 p-1 sm:p-2 w-fit flex flex-row justify-start">
-        <AttachmentsButton fileInputRef={fileInputRef} isLoading={isLoading} />
-      </div>
+        {/* URL Styling Overlay */}
+        <StylizedLinkOverlay text={input} textareaRef={textareaRef} />
 
-      <div className="absolute bottom-0 right-0 p-1 sm:p-2 w-fit flex flex-row justify-end">
-        {isLoading ? (
-          <StopButton stop={stop} setMessages={setMessages} />
-        ) : (
-          <SendButton
-            input={input}
-            submitForm={submitForm}
-            uploadQueue={uploadQueue}
-          />
-        )}
+        <div className="absolute bottom-0 p-1 sm:p-2 w-fit flex flex-row justify-start">
+          <AttachmentsButton fileInputRef={fileInputRef} isLoading={isLoading} />
+        </div>
+
+        <div className="absolute bottom-0 right-0 p-1 sm:p-2 w-fit flex flex-row justify-end">
+          {isLoading ? (
+            <StopButton stop={stop} setMessages={setMessages} />
+          ) : (
+            <SendButton
+              input={input}
+              submitForm={submitForm}
+              uploadQueue={uploadQueue}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
