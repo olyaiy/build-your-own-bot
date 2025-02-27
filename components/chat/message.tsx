@@ -28,6 +28,7 @@ import { DocumentToolCall, DocumentToolResult } from '../document/document';
 import { DocumentPreview } from '../document/document-preview';
 import { Weather } from '../util/weather';
 import { RetrieveSection } from '../agent/retrieve-section';
+import { SearchSection } from '../agent/search-section';
 
 const PurePreviewMessage = ({
   chatId,
@@ -132,6 +133,12 @@ const PurePreviewMessage = ({
                             isOpen={isToolOpen}
                             onOpenChange={setIsToolOpen}
                           />
+                        ) : toolName === 'searchTool' ? (
+                          <SearchSection 
+                            tool={toolInvocation}
+                            isOpen={isToolOpen}
+                            onOpenChange={setIsToolOpen}
+                          />
                         ) : (
                           <pre>{JSON.stringify(result, null, 2)}</pre>
                         )}
@@ -142,7 +149,7 @@ const PurePreviewMessage = ({
                     <div
                       key={toolCallId}
                       className={cx({
-                        skeleton: ['getWeather', 'retrieveTool'].includes(toolName),
+                        skeleton: ['getWeather', 'retrieveTool', 'searchTool'].includes(toolName),
                       })}
                     >
                       {toolName === 'getWeather' ? (
@@ -163,6 +170,12 @@ const PurePreviewMessage = ({
                         />
                       ) : toolName === 'retrieveTool' ? (
                         <RetrieveSection 
+                          tool={toolInvocation}
+                          isOpen={isToolOpen}
+                          onOpenChange={setIsToolOpen}
+                        />
+                      ) : toolName === 'searchTool' ? (
+                        <SearchSection 
                           tool={toolInvocation}
                           isOpen={isToolOpen}
                           onOpenChange={setIsToolOpen}

@@ -69,8 +69,8 @@ export function ToolGroupSelector({
       
       <p className="text-xs text-muted-foreground mt-2">
         {selectedToolGroupIds.length === 0
-          ? "No tool groups selected"
-          : `${selectedToolGroupIds.length} tool group${selectedToolGroupIds.length === 1 ? "" : "s"} selected`}
+          ? "No Tools selected"
+          : `${selectedToolGroupIds.length} Tool${selectedToolGroupIds.length === 1 ? "" : "s"} selected`}
       </p>
     </div>
   );

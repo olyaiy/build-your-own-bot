@@ -4,6 +4,7 @@ import { createDocument } from './create-document';
 import { updateDocument } from './update-document';
 import { requestSuggestions } from './request-suggestions';
 import { retrieveTool } from './retrieve';
+import { searchTool } from './search';
 import { Session } from 'next-auth';
 import { DataStreamWriter } from 'ai';
 
@@ -18,4 +19,5 @@ export const toolRegistry = ({ session, dataStream }: ToolRegistryProps = {}) =>
   updateDocument: session && dataStream ? updateDocument({ session, dataStream }) : undefined,
   requestSuggestions: session && dataStream ? requestSuggestions({ session, dataStream }) : undefined,
   retrieveTool,
+  searchTool,
 });

@@ -238,3 +238,7 @@ export function generateSlug(name: string): string {
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
 }
+
+export function sanitizeUrl(url: string): string {
+  return url.replace(/\s+/g, '%20')
+}
