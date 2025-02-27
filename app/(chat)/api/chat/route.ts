@@ -13,6 +13,8 @@ import {
   getChatById,
   saveChat,
   saveMessages,
+  getToolGroupsByAgentId,
+  getToolsByToolGroupId,
 } from '@/lib/db/queries';
 import {
   generateUUID,
@@ -25,6 +27,14 @@ import { createDocument } from '@/lib/ai/tools/create-document';
 import { updateDocument } from '@/lib/ai/tools/update-document';
 import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
 import { getWeather } from '@/lib/ai/tools/get-weather';
+
+// Map of tool names to their factory functions or direct implementations
+const toolImplementations = {
+  getWeather,
+  createDocument: (params) => createDocument(params),
+  updateDocument: (params) => updateDocument(params),
+  requestSuggestions: (params) => requestSuggestions(params),
+};
 
 export const maxDuration = 60;
 
@@ -73,7 +83,44 @@ export async function POST(request: Request) {
     messages: [{ ...userMessage, createdAt: new Date(), chatId: id }],
   });
 
+  // Fetch the tool groups for this agent
+  const agentToolGroups = await getToolGroupsByAgentId(agentId);
+  
+  // If no tool groups, use an empty array of tools
+  if (!agentToolGroups || agentToolGroups.length === 0) {
+    console.log(`No tool groups found for agent ${agentId}`);
+  }
+  
+  // Get all the tools from the agent's tool groups
+  const toolsPromises = agentToolGroups.map(toolGroup => 
+    getToolsByToolGroupId(toolGroup.id)
+  );
+  
+  const toolsResults = await Promise.all(toolsPromises);
+  
+  // Flatten the array of arrays and get unique tool names
+  const availableTools = [...new Set(
+    toolsResults
+      .flat()
+      .map(tool => tool.tool)
+      .filter(toolName => toolImplementations[toolName])
+  )];
+  
+  console.log(`Available tools for agent ${agentId}:`, availableTools);
 
+  // Build a map of tools to use
+  const activeTools = {};
+  availableTools.forEach(toolName => {
+    if (toolName === 'getWeather') {
+      activeTools[toolName] = toolImplementations[toolName];
+    } else if (toolName === 'createDocument') {
+      activeTools[toolName] = createDocument({ session, dataStream });
+    } else if (toolName === 'updateDocument') {
+      activeTools[toolName] = updateDocument({ session, dataStream });
+    } else if (toolName === 'requestSuggestions') {
+      activeTools[toolName] = requestSuggestions({ session, dataStream });
+    }
+  });
 
   return createDataStreamResponse({
     execute: (dataStream) => {
@@ -83,26 +130,13 @@ export async function POST(request: Request) {
         messages,
         maxSteps: 5,
         experimental_activeTools:
-        supportsTools(selectedChatModel)
-          ? [
-              'getWeather',
-              'createDocument',
-              'updateDocument',
-              'requestSuggestions',
-            ]
+        supportsTools(selectedChatModel) && availableTools.length > 0
+          ? availableTools
           : [],
 
         experimental_transform: smoothStream({ chunking: 'word' }),
         experimental_generateMessageId: generateUUID,
-        tools: {
-          getWeather,
-          createDocument: createDocument({ session, dataStream }),
-          updateDocument: updateDocument({ session, dataStream }),
-          requestSuggestions: requestSuggestions({
-            session,
-            dataStream,
-          }),
-        },
+        tools: activeTools,
         onFinish: async ({ response, reasoning }) => {
           if (session.user?.id) {
             try {
