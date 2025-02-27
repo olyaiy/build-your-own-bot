@@ -1,4 +1,4 @@
-import { ArtifactKind } from '@/components/artifact';
+import { ArtifactKind } from '@/components/artifact/artifact';
 import { isReasoningModel } from './models';
 
 export const artifactsPrompt = `

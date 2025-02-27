@@ -194,7 +194,6 @@ export const tools = pgTable("tools", {
   id: uuid("id").defaultRandom().primaryKey(),
   tool_display_name: varchar("tool_display_name", { length: 255 }).notNull(),
   tool: varchar("tool", { length: 255 }).notNull().unique(),
-  provider: varchar("provider", { length: 255 }).notNull(),
   description: text("description"),
   parameter_schema: json("parameter_schema"), // Stores the Zod/JSON schema for tool parameters
   config: json("config"), 
@@ -218,16 +217,19 @@ export const toolGroupTools = pgTable("tool_group_tools", {
 
 export type ToolGroupTool = typeof toolGroupTools.$inferSelect;
 
-export const agentTools = pgTable("agent_tools", {
+// Many-to-many relationship between agents and tool groups
+export const agentToolGroups = pgTable("agent_tool_groups", {
   agentId: uuid("agent_id")
     .notNull()
     .references(() => agents.id, { onDelete: "cascade" }),
-  toolId: uuid("tool_id")
+  toolGroupId: uuid("tool_group_id")
     .notNull()
-    .references(() => tools.id, { onDelete: "cascade" }),
+    .references(() => toolGroups.id, { onDelete: "cascade" }),
 }, (table) => {
   return {
-    pk: primaryKey({ columns: [table.agentId, table.toolId] }),
+    pk: primaryKey({ columns: [table.agentId, table.toolGroupId] }),
   };
 });
+
+export type AgentToolGroup = typeof agentToolGroups.$inferSelect;
 

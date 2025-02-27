@@ -21,8 +21,8 @@ import {
   agentModels,
   type Agent,
   type Model,
-} from './schema';
-import { ArtifactKind } from '@/components/artifact';
+} from './schema';  
+import { ArtifactKind } from '@/components/artifact/artifact';
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
