@@ -1,9 +1,10 @@
 import { db } from "@/lib/db/queries";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
-import AgentView from "@/components/agent-view";
+
 import { models, agents } from "@/lib/db/schema";
 import { auth } from "@/app/(auth)/auth";
+import AgentView from "@/components/agent/agent-view";
 
 export default async function ViewAgentPage({
   params: paramsPromise,
@@ -65,7 +66,7 @@ export default async function ViewAgentPage({
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold mb-4">View Agent</h1>
-      <AgentView 
+      <AgentView
         agentData={agentViewData}
         models={modelsList}
       />

@@ -1,4 +1,4 @@
-import AgentForm from "@/components/agent-form";
+import AgentForm from "@/components/agent/agent-form";
 import { auth } from "@/app/(auth)/auth";
 import { db } from "@/lib/db/queries";
 import { models } from "@/lib/db/schema";
