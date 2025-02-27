@@ -20,7 +20,8 @@ import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import { Loader2, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { ModelSelector } from "./grouped-model-select";
+import { ModelSelector } from "../util/grouped-model-select";
+
 
 export type ModelInfo = {
   id: string;
