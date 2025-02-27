@@ -1,9 +1,9 @@
 'use client';
 
 import { ChatRequestOptions, Message } from 'ai';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/button';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { Textarea } from './ui/textarea';
+import { Textarea } from '@/components/ui/textarea';
 import { deleteTrailingMessages } from '@/app/(chat)/actions';
 import { toast } from 'sonner';
 

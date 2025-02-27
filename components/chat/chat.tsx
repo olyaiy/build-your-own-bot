@@ -6,17 +6,17 @@ import { useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import type { Agent, Model } from '@/lib/db/schema';
 
-import { ChatHeader } from '@/components/chat-header';
+import { ChatHeader } from '@/components/chat/chat-header';
 import type { Vote } from '@/lib/db/schema';
 import { fetcher, generateUUID } from '@/lib/utils';
-
-import { Artifact } from './artifact';
-import { MultimodalInput } from './multimodal-input';
-import { Messages } from './messages';
-import { VisibilityType } from './visibility-selector';
+import { MultimodalInput } from '@/components/chat/multimodal-input';
+import { Messages } from '@/components/chat/messages';
 import { useArtifactSelector } from '@/hooks/use-artifact';
 import { toast } from 'sonner';
-import { type ModelWithDefault } from '@/components/chat-model-selector';
+import { ModelWithDefault } from './chat-model-selector';
+import { VisibilityType } from '../util/visibility-selector';
+import { Artifact } from '../artifact/artifact';
+
 
 export function Chat({
   id,

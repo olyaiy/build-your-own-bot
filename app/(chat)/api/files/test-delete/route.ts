@@ -27,8 +27,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Try to delete the object
-    console.log(`Test endpoint: Attempting to delete key "${key}" from bucket "${process.env.CLOUDFLARE_R2_BUCKET_NAME}"`);
     
     const deleteCommand = new DeleteObjectCommand({
       Bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME,

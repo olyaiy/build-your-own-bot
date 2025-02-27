@@ -1,8 +1,9 @@
 'use client';
 
 import { memo } from 'react';
-import { SidebarToggle } from '@/components/sidebar-toggle';
-import { useSidebar } from './ui/sidebar';
+import { SidebarToggle } from '@/components/layout/sidebar-toggle';
+import { useSidebar } from '../ui/sidebar';
+
 
 function PureMainHeader() {
   const { open } = useSidebar();

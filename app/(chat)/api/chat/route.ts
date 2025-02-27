@@ -73,8 +73,6 @@ export async function POST(request: Request) {
     messages: [{ ...userMessage, createdAt: new Date(), chatId: id }],
   });
 
-  console.log("THE SYSTEM PROMPT IS")
-  console.log(systemPrompt({ selectedChatModel, agentSystemPrompt }))
 
 
   return createDataStreamResponse({

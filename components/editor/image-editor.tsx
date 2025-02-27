@@ -1,5 +1,6 @@
-import { LoaderIcon } from './icons';
+
 import cn from 'classnames';
+import { LoaderIcon } from '../util/icons';
 
 interface ImageEditorProps {
   title: string;

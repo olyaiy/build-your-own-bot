@@ -1,7 +1,7 @@
 import { getAgents } from "@/lib/db/queries";
-import { AgentList } from "@/components/agent-list";
-import { MainHeader } from "@/components/main-header";
 import { auth } from "@/app/(auth)/auth";
+import { MainHeader } from "@/components/layout/main-header";
+import { AgentList } from "@/components/agent/agent-list";
 
 export default async function Page() {
     const session = await auth();

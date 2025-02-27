@@ -56,7 +56,6 @@ export default function AgentForm({ mode, userId, models, initialData }: AgentFo
   const [alternateModelIds, setAlternateModelIds] = useState<string[]>(initialData?.alternateModelIds || []);
   const router = useRouter();
 
-  console.log(models)
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     accept: {

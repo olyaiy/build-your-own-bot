@@ -23,13 +23,12 @@ import { useLocalStorage, useWindowSize } from 'usehooks-ts';
 
 import { sanitizeUIMessages } from '@/lib/utils';
 
-import { ArrowUpIcon, PaperclipIcon, StopIcon } from './icons';
-import { PreviewAttachment } from './preview-attachment';
-import { Button } from './ui/button';
-import { Textarea } from './ui/textarea';
-import { SuggestedActions } from './suggested-actions';
+import { ArrowUpIcon, PaperclipIcon, StopIcon } from '@/components/util/icons';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { SuggestedActions } from '@/components/chat/suggested-actions';
 import equal from 'fast-deep-equal';
-import { type ModelWithDefault } from '@/components/chat-model-selector';
+import { type ModelWithDefault } from '@/components/chat/chat-model-selector';
 import {
   Select,
   SelectContent,
@@ -37,6 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { PreviewAttachment } from '../util/preview-attachment';
 
 function PureMultimodalInput({
   chatId,

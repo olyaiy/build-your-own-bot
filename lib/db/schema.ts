@@ -187,7 +187,7 @@ export const tools = pgTable("tools", {
   provider: varchar("provider", { length: 255 }).notNull(),
   description: text("description"),
   parameter_schema: json("parameter_schema"), // Stores the Zod/JSON schema for tool parameters
-  config: json("config"), // Optional: extra configuration for the tool
+  config: json("config"), 
 });
 
 export const agentTools = pgTable("agent_tools", {

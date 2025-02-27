@@ -163,7 +163,6 @@ export async function deleteAgent(id: string) {
 
 export async function deleteAgentImage(id: string, imageUrl: string) {
   try {
-    console.log("DeleteAgentImage called with:", { id, imageUrl });
     
     // Extract the key (filename) from the imageUrl
     // Handle different URL formats more robustly
@@ -178,22 +177,17 @@ export async function deleteAgentImage(id: string, imageUrl: string) {
       const pathParts = pathname.split('/');
       key = pathParts[pathParts.length - 1];
       
-      console.log("URL parsing approach extracted key:", key);
     } catch (parseError) {
       // If URL parsing fails, fall back to string manipulation
-      console.log("URL parsing failed, using string manipulation");
       key = imageUrl.includes('?') 
         ? imageUrl.substring(imageUrl.lastIndexOf('/') + 1, imageUrl.indexOf('?')) 
         : imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
       
-      console.log("String manipulation extracted key:", key);
     }
     
     if (!key) {
       throw new Error('Failed to extract valid key from image URL');
     }
-    
-    console.log("Final extracted key:", key);
     
     // Skip the API route and directly delete from R2
     // This approach avoids authentication issues since we're already in a server action
@@ -210,7 +204,6 @@ export async function deleteAgentImage(id: string, imageUrl: string) {
       },
     });
     
-    console.log('Executing delete command with bucket:', process.env.CLOUDFLARE_R2_BUCKET_NAME);
     
     // Create and send the delete command
     const deleteCommand = new DeleteObjectCommand({
@@ -219,7 +212,6 @@ export async function deleteAgentImage(id: string, imageUrl: string) {
     });
     
     await s3Client.send(deleteCommand);
-    console.log('R2 delete operation completed successfully');
     
     // Get agent details
     const agent = await getAgentById(id);

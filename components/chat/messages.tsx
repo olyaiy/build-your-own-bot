@@ -1,10 +1,11 @@
 import { ChatRequestOptions, Message } from 'ai';
-import { PreviewMessage, ThinkingMessage } from './message';
-import { useScrollToBottom } from './use-scroll-to-bottom';
-import { Overview } from './overview';
+import { PreviewMessage, ThinkingMessage } from '@/components/chat/message';
+import { useScrollToBottom } from '@/components/hooks/use-scroll-to-bottom';
+
 import { memo } from 'react';
 import { Vote } from '@/lib/db/schema';
 import equal from 'fast-deep-equal';
+import { Overview } from '../util/overview';
 
 interface MessagesProps {
   chatId: string;

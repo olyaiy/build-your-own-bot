@@ -1,6 +1,6 @@
 import './globals.css';
 import { cookies } from 'next/headers';
-import { ThemeProvider } from '@/components/theme-provider';
+
 import { Toaster } from 'sonner';
 import Script from 'next/script';
 
@@ -8,6 +8,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 import { auth } from './(auth)/auth';
+import { ThemeProvider } from '@/components/util/theme-provider';
 
 export const experimental_ppr = true;
 

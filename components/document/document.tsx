@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
-import type { ArtifactKind } from './artifact';
-import { FileIcon, LoaderIcon, MessageIcon, PencilEditIcon } from './icons';
+import type { ArtifactKind, UIArtifact } from '@/components/artifact/artifact';
+import { FileIcon, LoaderIcon, MessageIcon, PencilEditIcon } from '@/components/util/icons';
 import { toast } from 'sonner';
 import { useArtifact } from '@/hooks/use-artifact';
 
@@ -120,7 +120,7 @@ function PureDocumentToolCall({
           height: rect.height,
         };
 
-        setArtifact((currentArtifact) => ({
+        setArtifact((currentArtifact: UIArtifact) => ({
           ...currentArtifact,
           isVisible: true,
           boundingBox,

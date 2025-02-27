@@ -8,19 +8,21 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import { ArtifactKind, UIArtifact } from './artifact';
-import { FileIcon, FullscreenIcon, ImageIcon, LoaderIcon } from './icons';
+import { ArtifactKind, UIArtifact } from '@/components/artifact/artifact';
+import { FileIcon, FullscreenIcon, ImageIcon, LoaderIcon } from '@/components/util/icons';
 import { cn, fetcher } from '@/lib/utils';
 import { Document } from '@/lib/db/schema';
-import { InlineDocumentSkeleton } from './document-skeleton';
+import { InlineDocumentSkeleton } from '@/components/document/document-skeleton';
 import useSWR from 'swr';
-import { Editor } from './text-editor';
-import { DocumentToolCall, DocumentToolResult } from './document';
-import { CodeEditor } from './code-editor';
+
+import { DocumentToolCall, DocumentToolResult } from '@/components/document/document';
 import { useArtifact } from '@/hooks/use-artifact';
 import equal from 'fast-deep-equal';
-import { SpreadsheetEditor } from './sheet-editor';
-import { ImageEditor } from './image-editor';
+import { ImageEditor } from '../editor/image-editor';
+import { CodeEditor } from '../editor/code-editor';
+import { SpreadsheetEditor } from '../editor/sheet-editor';
+import { Editor } from '../editor/text-editor';
+
 
 interface DocumentPreviewProps {
   isReadonly: boolean;
@@ -267,7 +269,7 @@ const DocumentContent = ({ document }: { document: Document }) => {
       ) : document.kind === 'sheet' ? (
         <div className="flex flex-1 relative size-full p-4">
           <div className="absolute inset-0">
-            <SpreadsheetEditor {...commonProps} />
+          <SpreadsheetEditor {...commonProps} />
           </div>
         </div>
       ) : document.kind === 'image' ? (

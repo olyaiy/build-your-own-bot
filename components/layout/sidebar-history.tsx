@@ -9,14 +9,6 @@ import { toast } from 'sonner';
 import useSWR from 'swr';
 
 import {
-  CheckCircleFillIcon,
-  GlobeIcon,
-  LockIcon,
-  MoreHorizontalIcon,
-  ShareIcon,
-  TrashIcon,
-} from '@/components/icons';
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -48,6 +40,7 @@ import {
 import type { ExtendedChat as Chat } from '@/lib/db/schema';
 import { cn, fetcher } from '@/lib/utils';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
+import { GlobeIcon, MoreHorizontalIcon, ShareIcon, CheckCircleFillIcon, LockIcon, TrashIcon } from '../util/icons';
 
 type GroupedChats = {
   today: Chat[];

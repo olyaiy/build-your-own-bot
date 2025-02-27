@@ -27,7 +27,6 @@ export async function DELETE(request: Request) {
 
   try {
     const body = await request.json();
-    console.log('Delete API received request body:', body);
     
     const validatedData = DeleteRequestSchema.safeParse(body);
 
@@ -36,12 +35,10 @@ export async function DELETE(request: Request) {
         .map((error) => error.message)
         .join(', ');
       
-      console.log('Delete API validation error:', errorMessage);
       return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
 
     const { key } = validatedData.data;
-    console.log('Delete API attempting to delete key:', key);
 
     try {
       // Delete the file from Cloudflare R2
@@ -50,9 +47,7 @@ export async function DELETE(request: Request) {
         Key: key,
       });
 
-      console.log('Delete API executing delete command with bucket:', process.env.CLOUDFLARE_R2_BUCKET_NAME);
       await s3Client.send(deleteCommand);
-      console.log('Delete API: Delete command executed successfully');
 
       return NextResponse.json({
         success: true,

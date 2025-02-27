@@ -7,24 +7,26 @@ import { memo, useMemo, useState } from 'react';
 
 import type { Vote } from '@/lib/db/schema';
 
-import { DocumentToolCall, DocumentToolResult } from './document';
+
 import {
   ChevronDownIcon,
   LoaderIcon,
   PencilEditIcon,
   SparklesIcon,
-} from './icons';
-import { Markdown } from './markdown';
-import { MessageActions } from './message-actions';
-import { PreviewAttachment } from './preview-attachment';
-import { Weather } from './weather';
+} from '@/components/util/icons';
+import { Markdown } from '@/components/util/markdown';
+import { MessageActions } from '@/components/chat/message-actions';
+
 import equal from 'fast-deep-equal';
 import { cn } from '@/lib/utils';
-import { Button } from './ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
-import { MessageEditor } from './message-editor';
-import { DocumentPreview } from './document-preview';
-import { MessageReasoning } from './message-reasoning';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { MessageEditor } from '@/components/chat/message-editor';
+import { MessageReasoning } from '@/components/chat/message-reasoning';
+import { PreviewAttachment } from '../util/preview-attachment';
+import { DocumentToolCall, DocumentToolResult } from '../document/document';
+import { DocumentPreview } from '../document/document-preview';
+import { Weather } from '../util/weather';
 
 const PurePreviewMessage = ({
   chatId,

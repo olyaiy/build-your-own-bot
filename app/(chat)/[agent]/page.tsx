@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation';
 import { getAgentWithAvailableModels } from '@/lib/db/queries';
-
-import { Chat } from '@/components/chat';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { generateUUID } from '@/lib/utils';
-import { DataStreamHandler } from '@/components/data-stream-handler';
+import { Chat } from '@/components/chat/chat';
+import { DataStreamHandler } from '@/components/util/data-stream-handler';
+
 
 export default async function Page({ params }: { params: Promise<{ agent: string }> }) {
   const { agent: agentId } = await params;
@@ -25,7 +25,7 @@ export default async function Page({ params }: { params: Promise<{ agent: string
       <Chat
         key={id}
         id={id}
-        agent={agentData.agent}
+      agent={agentData.agent}
         availableModels={agentData.availableModels}
         initialMessages={[]}
         selectedChatModel={defaultModelId}

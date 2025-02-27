@@ -18,19 +18,20 @@ import useSWR, { useSWRConfig } from 'swr';
 import { useDebounceCallback, useWindowSize } from 'usehooks-ts';
 import type { Document, Vote } from '@/lib/db/schema';
 import { fetcher } from '@/lib/utils';
-import { MultimodalInput } from './multimodal-input';
-import { Toolbar } from './toolbar';
-import { VersionFooter } from './version-footer';
+
 import { ArtifactActions } from './artifact-actions';
 import { ArtifactCloseButton } from './artifact-close-button';
 import { ArtifactMessages } from './artifact-messages';
-import { useSidebar } from './ui/sidebar';
+import { useSidebar } from '../ui/sidebar';
 import { useArtifact } from '@/hooks/use-artifact';
 import { imageArtifact } from '@/artifacts/image/client';
 import { codeArtifact } from '@/artifacts/code/client';
 import { sheetArtifact } from '@/artifacts/sheet/client';
 import { textArtifact } from '@/artifacts/text/client';
 import equal from 'fast-deep-equal';
+import { MultimodalInput } from '../chat/multimodal-input';
+import { VersionFooter } from '../layout/version-footer';
+import { Toolbar } from '../util/toolbar';
 
 export const artifactDefinitions = [
   textArtifact,
@@ -124,7 +125,7 @@ function PureArtifact({
       if (mostRecentDocument) {
         setDocument(mostRecentDocument);
         setCurrentVersionIndex(documents.length - 1);
-        setArtifact((currentArtifact) => ({
+        setArtifact((currentArtifact: UIArtifact) => ({
           ...currentArtifact,
           content: mostRecentDocument.content ?? '',
         }));

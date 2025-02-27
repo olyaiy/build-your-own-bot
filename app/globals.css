@@ -20,6 +20,89 @@
     .text-balance {
         text-wrap: balance;
     }
+
+    /* For Webkit browsers (Chrome, Safari, etc.) */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-muted-foreground/30 rounded-full transition-colors;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-muted-foreground/50;
+    }
+
+    /* Specifically target sidebar content scrollbar */
+    [data-sidebar="content"]::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+
+    [data-sidebar="content"]::-webkit-scrollbar-thumb {
+        @apply bg-muted-foreground/20 rounded-full transition-colors;
+    }
+
+    [data-sidebar="content"]::-webkit-scrollbar-thumb:hover {
+        @apply bg-muted-foreground/40;
+    }
+
+    /* For Firefox */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: hsl(var(--muted-foreground)/0.3) transparent;
+    }
+
+    /* Specifically target sidebar content scrollbar for Firefox */
+    [data-sidebar="content"] {
+        scrollbar-width: thin;
+        scrollbar-color: hsl(var(--muted-foreground)/0.2) transparent;
+    }
+
+    /* Hide scrollbar when not in use but maintain functionality */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Custom scrollbar for specific elements if needed */
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        @apply bg-primary/30 hover:bg-primary/50;
+    }
+    
+    /* Custom sidebar scrollbar - even more subtle */
+    .custom-sidebar-scrollbar::-webkit-scrollbar {
+        width: 3px;
+        height: 3px;
+    }
+    
+    .custom-sidebar-scrollbar::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+    
+    .custom-sidebar-scrollbar::-webkit-scrollbar-thumb {
+        @apply bg-muted-foreground/15 rounded-full transition-colors;
+    }
+    
+    .custom-sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+        @apply bg-muted-foreground/30;
+    }
+    
+    /* Firefox version */
+    .custom-sidebar-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: hsl(var(--muted-foreground)/0.15) transparent;
+    }
 }
 
 @layer base {
@@ -176,8 +259,6 @@
 .suggestion-highlight {
     @apply bg-blue-200 hover:bg-blue-300 dark:hover:bg-blue-400/50 dark:text-blue-50 dark:bg-blue-500/40;
 }
-
-
 
 @layer base {
   * {
