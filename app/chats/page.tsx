@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
-import { getChatsByUserId } from '@/lib/db/queries';
+import { getChatsByUserId, searchChatsByContent } from '@/lib/db/queries';
 import { auth } from '@/app/(auth)/auth';
 import EmptyState from './components/empty-state';
 import ChatHistoryView from './components/chat-history-view';
@@ -35,8 +35,9 @@ export default async function ChatsPage({
   }
   
   // Get the current page from search params or default to 1
-  const page = searchParams.page ? parseInt(searchParams.page) : 1;
-  const searchQuery = searchParams.search || '';
+  const pageParam = searchParams?.page;
+  const page = pageParam ? parseInt(pageParam) : 1;
+  const searchQuery = searchParams?.search || '';
   
   // Make sure we have a user ID
   const userId = session.user.id;
@@ -44,33 +45,44 @@ export default async function ChatsPage({
     redirect('/login');
   }
   
-  // Fetch all chats - we'll handle pagination in the component
-  // In a real-world app with many chats, you'd want to paginate at the database level
-  const chats = await getChatsByUserId({ id: userId });
+  // Fetch chats with or without search
+  let chats;
+  if (searchQuery.trim()) {
+    // Use the content search for non-empty search queries
+    chats = await searchChatsByContent({ userId, searchTerm: searchQuery });
+  } else {
+    // Get all chats without searching
+    chats = await getChatsByUserId({ id: userId });
+  }
   
   if (!chats || chats.length === 0) {
     return <EmptyState />;
   }
 
-  // Filter chats if search query exists
-  const filteredChats = searchQuery 
-    ? chats.filter(chat => 
-        chat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (chat.agentDisplayName && chat.agentDisplayName.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
-    : chats;
+  // If searching, we don't paginate the results
+  const totalChats = chats.length;
   
-  // Calculate pagination details
-  const totalChats = filteredChats.length;
-  const totalPages = Math.ceil(totalChats / CHATS_PER_PAGE);
+  let paginatedChats;
+  let totalPages = 1;
   
-  // Get the chats for the current page
-  const startIndex = (page - 1) * CHATS_PER_PAGE;
-  const paginatedChats = filteredChats.slice(startIndex, startIndex + CHATS_PER_PAGE);
+  if (searchQuery.trim()) {
+    // For search results, we don't paginate
+    paginatedChats = chats;
+    totalPages = 1;
+  } else {
+    // Calculate pagination details
+    totalPages = Math.ceil(totalChats / CHATS_PER_PAGE);
+    
+    // Get the chats for the current page
+    const startIndex = (page - 1) * CHATS_PER_PAGE;
+    paginatedChats = chats.slice(startIndex, startIndex + CHATS_PER_PAGE);
+  }
   
   return (
     <div className="container max-w-6xl py-8 mx-auto ">
+        <div className="px-6">
         <MainHeader />
+        </div>
       <div className="space-y-8 px-8 mt-2">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
           <div>
@@ -104,6 +116,7 @@ export default async function ChatsPage({
             currentPage={page} 
             totalPages={totalPages} 
             totalChats={totalChats}
+            searchQuery={searchQuery}
           />
         </div>
       </div>

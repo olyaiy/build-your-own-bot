@@ -14,15 +14,80 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { PaginationButton } from './pagination-button';
-import { GlobeIcon, LockIcon, MessageIcon } from '@/components/util/icons';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { GlobeIcon, LockIcon, MessageSquare as MessageIcon, Search as SearchIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Simple pagination button component
+interface PaginationButtonProps {
+  direction: 'previous' | 'next';
+  isDisabled: boolean;
+  currentPage: number;
+}
+
+function PaginationButton({ direction, isDisabled, currentPage }: PaginationButtonProps) {
+  const pageNumber = direction === 'next' ? currentPage + 1 : currentPage - 1;
+  const Icon = direction === 'next' ? ChevronRight : ChevronLeft;
+  
+  if (isDisabled) {
+    return (
+      <Button 
+        variant="outline" 
+        size="icon" 
+        className="h-8 w-8" 
+        disabled
+      >
+        <Icon className="h-4 w-4" />
+      </Button>
+    );
+  }
+  
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      className={cn(
+        "h-8 w-8 hover:bg-muted-foreground/10",
+        direction === 'next' ? "rounded-r-md" : "rounded-l-md"
+      )}
+      asChild
+    >
+      <Link href={`/chats?page=${pageNumber}`}>
+        <Icon className="h-4 w-4" />
+      </Link>
+    </Button>
+  );
+}
+
+// Extended type for chat with search results
+interface SearchResultChat extends ExtendedChat {
+  matchCount?: number;
+  matchSnippets?: Array<{ text: string; messageId: string }>;
+}
+
 interface ChatHistoryViewProps {
-  chats: ExtendedChat[];
+  chats: SearchResultChat[];
   currentPage: number;
   totalPages: number;
   totalChats: number;
+  searchQuery?: string;
+}
+
+// Function to highlight the search term in a text snippet
+function HighlightText({ text, searchTerm }: { text: string; searchTerm: string }) {
+  if (!searchTerm) return <span>{text}</span>;
+  
+  const parts = text.split(new RegExp(`(${searchTerm})`, 'gi'));
+  
+  return (
+    <>
+      {parts.map((part, i) => 
+        part.toLowerCase() === searchTerm.toLowerCase() 
+          ? <mark key={i} className="bg-yellow-200 text-black px-0.5 rounded">{part}</mark> 
+          : part
+      )}
+    </>
+  );
 }
 
 export default function ChatHistoryView({
@@ -30,6 +95,7 @@ export default function ChatHistoryView({
   currentPage,
   totalPages,
   totalChats,
+  searchQuery = '',
 }: ChatHistoryViewProps) {
   const router = useRouter();
 
@@ -38,9 +104,11 @@ export default function ChatHistoryView({
     return format(date, 'MMM d, yyyy • h:mm a');
   };
 
+  const isSearchResult = searchQuery && chats.some(chat => chat.matchCount && chat.matchCount > 0);
+
   // Group chats by date (same day)
-  const groupChatsByDate = (chats: ExtendedChat[]) => {
-    const groups: Record<string, ExtendedChat[]> = {};
+  const groupChatsByDate = (chats: SearchResultChat[]) => {
+    const groups: Record<string, SearchResultChat[]> = {};
     
     chats.forEach((chat) => {
       const date = new Date(chat.createdAt);
@@ -60,17 +128,21 @@ export default function ChatHistoryView({
     }));
   };
 
-  const groupedChats = groupChatsByDate(chats);
+  const groupedChats = isSearchResult 
+    ? [{ date: 'search-results', formattedDate: 'Search Results', chats }] 
+    : groupChatsByDate(chats);
 
   return (
     <div className="space-y-6">
       {totalChats > 0 && (
         <div className="flex justify-between items-center px-4 pt-3">
           <p className="text-sm text-muted-foreground">
-            Showing {chats.length} of {totalChats} conversations
+            {isSearchResult 
+              ? `Found ${totalChats} conversation${totalChats !== 1 ? 's' : ''} matching "${searchQuery}"` 
+              : `Showing ${chats.length} of ${totalChats} conversations`}
           </p>
           
-          {totalPages > 1 && (
+          {!isSearchResult && totalPages > 1 && (
             <div className="flex space-x-2">
               <PaginationButton
                 direction="previous"
@@ -104,25 +176,33 @@ export default function ChatHistoryView({
                 key={chat.id} 
                 className={cn(
                   "overflow-hidden transition-all duration-200 hover:shadow-md hover:border-primary/50",
-                  "flex flex-col group"
+                  "flex flex-col group",
+                  chat.matchCount && chat.matchCount > 0 ? "border-yellow-300/50" : ""
                 )}
               >
                 <Link href={`/${chat.agentId}/${chat.id}`} className="flex-1 flex flex-col h-full">
                   <CardHeader className="p-4 pb-2">
                     <div className="flex justify-between items-start gap-2">
-                      <CardTitle className="text-lg line-clamp-1">{chat.title}</CardTitle>
+                      <CardTitle className="text-lg line-clamp-1">
+                        {chat.title}
+                        {chat.matchCount && chat.matchCount > 0 && (
+                          <Badge variant="secondary" className="ml-2">
+                            {chat.matchCount} match{chat.matchCount !== 1 ? 'es' : ''}
+                          </Badge>
+                        )}
+                      </CardTitle>
                       <Badge 
                         variant={chat.visibility === 'public' ? 'secondary' : 'outline'}
                         className="shrink-0"
                       >
                         {chat.visibility === 'public' ? (
                           <div className="flex items-center space-x-1">
-                            <GlobeIcon size={12} />
+                            <GlobeIcon className="h-3 w-3" />
                             <span>Public</span>
                           </div>
                         ) : (
                           <div className="flex items-center space-x-1">
-                            <LockIcon size={12} />
+                            <LockIcon className="h-3 w-3" />
                             <span>Private</span>
                           </div>
                         )}
@@ -132,11 +212,27 @@ export default function ChatHistoryView({
                       <span className="font-medium">{chat.agentDisplayName || 'Unknown Agent'}</span>
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="p-4 pt-0 flex-1">
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <MessageIcon size={12} />
-                      <span className="ml-1.5 truncate">{formatDate(chat.createdAt)}</span>
-                    </div>
+                  <CardContent className="p-4 pt-2 flex-1">
+                    {chat.matchSnippets && chat.matchSnippets.length > 0 ? (
+                      <div className="space-y-2 text-xs">
+                        {chat.matchSnippets.map((snippet, i) => (
+                          <div key={i} className="bg-muted p-2 rounded-md overflow-hidden">
+                            <div className="flex items-center text-xs mb-1">
+                              <SearchIcon className="h-3 w-3 text-muted-foreground" />
+                              <span className="ml-1.5 text-muted-foreground">Match {i + 1}</span>
+                            </div>
+                            <p className="line-clamp-2">
+                              <HighlightText text={snippet.text} searchTerm={searchQuery} />
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <MessageIcon className="h-3 w-3" />
+                        <span className="ml-1.5 truncate">{formatDate(chat.createdAt)}</span>
+                      </div>
+                    )}
                   </CardContent>
                 </Link>
                 <CardFooter className="p-4 pt-1 border-t bg-muted/20">
@@ -159,7 +255,7 @@ export default function ChatHistoryView({
         </div>
       ))}
 
-      {totalPages > 1 && (
+      {!isSearchResult && totalPages > 1 && (
         <div className="flex justify-center pt-6 pb-2 border-t">
           <div className="flex space-x-4 items-center">
             <PaginationButton
