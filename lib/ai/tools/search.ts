@@ -1,7 +1,10 @@
+import { SearchResults } from '@/components/agent/search-section'
 import { searchSchema } from '@/lib/schema/search'
+import {
+  SearchResultImage,
+} from '@/lib/ai/tools/retrieve'
 import { sanitizeUrl } from '@/lib/utils'
 import { tool } from 'ai'
-import { SearchResultImage, SearchResultsType } from './retrieve'
 
 export const searchTool = tool({
   description: 'Search the web for information',
@@ -16,7 +19,7 @@ export const searchTool = tool({
     // Tavily API requires a minimum of 5 characters in the query
     const filledQuery =
       query.length < 5 ? query + ' '.repeat(5 - query.length) : query
-    let searchResult: SearchResultsType
+    let searchResult: SearchResults
 
     console.log(`Using Tavily search API, Search Depth: ${search_depth || 'basic'}`)
 
@@ -29,7 +32,7 @@ export const searchTool = tool({
         exclude_domains
       )
     } catch (error) {
-      console.error('Tavily Search API error:', error)
+      console.error('Tavily API error:', error)
       searchResult = {
         results: [],
         query: filledQuery,
@@ -49,7 +52,7 @@ export async function search(
   searchDepth: 'basic' | 'advanced' = 'basic',
   includeDomains: string[] = [],
   excludeDomains: string[] = []
-): Promise<SearchResultsType> {
+): Promise<SearchResults> {
   return searchTool.execute(
     {
       query,
@@ -71,7 +74,7 @@ async function tavilySearch(
   searchDepth: 'basic' | 'advanced' = 'basic',
   includeDomains: string[] = [],
   excludeDomains: string[] = []
-): Promise<SearchResultsType> {
+): Promise<SearchResults> {
   const apiKey = process.env.TAVILY_API_KEY
   if (!apiKey) {
     throw new Error('TAVILY_API_KEY is not set in the environment variables')

@@ -20,7 +20,15 @@ import {
 } from '@/components/ui/carousel'
 import { useEffect, useState } from 'react'
 import { PlusCircle } from 'lucide-react'
-import { SearchResultImage } from '@/lib/types'
+
+
+export type SearchResultImage =
+  | string
+  | {
+      url: string
+      description: string
+      number_of_results?: number
+    }
 
 interface SearchResultsImageSectionProps {
   images: SearchResultImage[]

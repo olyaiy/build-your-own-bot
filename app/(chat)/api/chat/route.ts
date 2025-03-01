@@ -155,6 +155,8 @@ for (const toolName of availableToolNames) {
           isEnabled: true,
           functionId: 'stream-text',
         },
+        toolCallStreaming: true,
+
       });
 
       result.consumeStream();

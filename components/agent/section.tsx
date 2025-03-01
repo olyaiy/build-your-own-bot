@@ -12,10 +12,10 @@ import {
   Search
 } from 'lucide-react'
 import React from 'react'
-import { ToolBadge } from '@/components/agent/tool-badge'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { StatusIndicator } from '@/components/agent/status-indicator'
+import { ToolBadge } from './tool-badge'
+import { Badge } from '../ui/badge'
+import { Separator } from '../ui/separator'
+import { StatusIndicator } from '../agent/status-indicator'
 
 type SectionProps = {
   children: React.ReactNode

@@ -24,11 +24,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { MessageEditor } from '@/components/chat/message-editor';
 import { MessageReasoning } from '@/components/chat/message-reasoning';
 import { PreviewAttachment } from '../util/preview-attachment';
-import { DocumentToolCall, DocumentToolResult } from '../document/document';
-import { DocumentPreview } from '../document/document-preview';
-import { Weather } from '../util/weather';
-import { RetrieveSection } from '../agent/retrieve-section';
-import { SearchSection } from '../agent/search-section';
+import { ToolSection } from '../agent/tool-section';
 
 const PurePreviewMessage = ({
   chatId,
@@ -100,87 +96,22 @@ const PurePreviewMessage = ({
             {message.toolInvocations && message.toolInvocations.length > 0 && (
               <div className="flex flex-col gap-4">
                 {message.toolInvocations.map((toolInvocation) => {
-                  const { toolName, toolCallId, state, args } = toolInvocation;
+                  const { toolCallId } = toolInvocation;
                   const [isToolOpen, setIsToolOpen] = useState(false);
 
-                  if (state === 'result') {
-                    const { result } = toolInvocation;
-
-                    return (
-                      <div key={toolCallId}>
-                        {toolName === 'getWeather' ? (
-                          <Weather weatherAtLocation={result} />
-                        ) : toolName === 'createDocument' ? (
-                          <DocumentPreview
-                            isReadonly={isReadonly}
-                            result={result}
-                          />
-                        ) : toolName === 'updateDocument' ? (
-                          <DocumentToolResult
-                            type="update"
-                            result={result}
-                            isReadonly={isReadonly}
-                          />
-                        ) : toolName === 'requestSuggestions' ? (
-                          <DocumentToolResult
-                            type="request-suggestions"
-                            result={result}
-                            isReadonly={isReadonly}
-                          />
-                        ) : toolName === 'retrieveTool' ? (
-                          <RetrieveSection 
-                            tool={toolInvocation}
-                            isOpen={isToolOpen}
-                            onOpenChange={setIsToolOpen}
-                          />
-                        ) : toolName === 'searchTool' ? (
-                          <SearchSection 
-                            tool={toolInvocation}
-                            isOpen={isToolOpen}
-                            onOpenChange={setIsToolOpen}
-                          />
-                        ) : (
-                          <pre>{JSON.stringify(result, null, 2)}</pre>
-                        )}
-                      </div>
-                    );
-                  }
                   return (
                     <div
                       key={toolCallId}
                       className={cx({
-                        skeleton: ['getWeather', 'retrieveTool', 'searchTool'].includes(toolName),
+                        skeleton: ['getWeather', 'retrieveTool', 'searchTool'].includes(toolInvocation.toolName),
                       })}
                     >
-                      {toolName === 'getWeather' ? (
-                        <Weather />
-                      ) : toolName === 'createDocument' ? (
-                        <DocumentPreview isReadonly={isReadonly} args={args} />
-                      ) : toolName === 'updateDocument' ? (
-                        <DocumentToolCall
-                          type="update"
-                          args={args}
-                          isReadonly={isReadonly}
-                        />
-                      ) : toolName === 'requestSuggestions' ? (
-                        <DocumentToolCall
-                          type="request-suggestions"
-                          args={args}
-                          isReadonly={isReadonly}
-                        />
-                      ) : toolName === 'retrieveTool' ? (
-                        <RetrieveSection 
-                          tool={toolInvocation}
-                          isOpen={isToolOpen}
-                          onOpenChange={setIsToolOpen}
-                        />
-                      ) : toolName === 'searchTool' ? (
-                        <SearchSection 
-                          tool={toolInvocation}
-                          isOpen={isToolOpen}
-                          onOpenChange={setIsToolOpen}
-                        />
-                      ) : null}
+                      <ToolSection
+                        tool={toolInvocation}
+                        isOpen={isToolOpen}
+                        onOpenChange={setIsToolOpen}
+                        isReadonly={isReadonly}
+                      />
                     </div>
                   );
                 })}
