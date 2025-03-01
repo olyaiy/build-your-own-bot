@@ -26,6 +26,27 @@ import { MessageReasoning } from '@/components/chat/message-reasoning';
 import { PreviewAttachment } from '../util/preview-attachment';
 import { ToolSection } from '../agent/tool-section';
 
+const ToolInvocationItem = memo(({ 
+  toolInvocation, 
+  isReadonly 
+}: { 
+  toolInvocation: any; 
+  isReadonly: boolean;
+}) => {
+  const [isToolOpen, setIsToolOpen] = useState(false);
+  
+  return (
+    <div key={toolInvocation.toolCallId}>
+      <ToolSection
+        tool={toolInvocation}
+        isOpen={isToolOpen}
+        onOpenChange={setIsToolOpen}
+        isReadonly={isReadonly}
+      />
+    </div>
+  );
+});
+
 const PurePreviewMessage = ({
   chatId,
   message,
@@ -95,26 +116,13 @@ const PurePreviewMessage = ({
 
             {message.toolInvocations && message.toolInvocations.length > 0 && (
               <div className="flex flex-col gap-4">
-                {message.toolInvocations.map((toolInvocation) => {
-                  const { toolCallId } = toolInvocation;
-                  const [isToolOpen, setIsToolOpen] = useState(false);
-
-                  return (
-                    <div
-                      key={toolCallId}
-                      className={cx({
-                        // skeleton: ['getWeather', 'retrieveTool', 'searchTool'].includes(toolInvocation.toolName),
-                      })}
-                    >
-                      <ToolSection
-                        tool={toolInvocation}
-                        isOpen={isToolOpen}
-                        onOpenChange={setIsToolOpen}
-                        isReadonly={isReadonly}
-                      />
-                    </div>
-                  );
-                })}
+                {message.toolInvocations.map((toolInvocation) => (
+                  <ToolInvocationItem 
+                    key={toolInvocation.toolCallId} 
+                    toolInvocation={toolInvocation} 
+                    isReadonly={isReadonly} 
+                  />
+                ))}
               </div>
             )}
 

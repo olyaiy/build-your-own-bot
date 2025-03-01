@@ -74,9 +74,17 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
     case 'createDocument':
       return <DocumentPreview isReadonly={isReadonly} args={args} />;
     case 'updateDocument':
-      return <DocumentToolCall type="update" args={args} isReadonly={isReadonly} />;
+      return <DocumentToolCall 
+        type="update" 
+        args={{ title: args?.title || 'Untitled Document' }} 
+        isReadonly={isReadonly} 
+      />;
     case 'requestSuggestions':
-      return <DocumentToolCall type="request-suggestions" args={args} isReadonly={isReadonly} />;
+      return <DocumentToolCall 
+        type="request-suggestions" 
+        args={{ title: args?.title || 'Untitled Document' }} 
+        isReadonly={isReadonly} 
+      />;
     case 'retrieveTool':
       return (
         <RetrieveSection 
@@ -86,8 +94,6 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
         />
       );
     case 'searchTool':
-
- 
       return (
         <SearchSection 
           tool={tool}
