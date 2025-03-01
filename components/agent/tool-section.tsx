@@ -58,7 +58,8 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
         return (
           <SearchSection 
             tool={tool}
-            state={state}
+            isOpen={effectiveIsOpen}
+            onOpenChange={effectiveOnOpenChange}
           />
         );
       default:
@@ -90,7 +91,8 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
       return (
         <SearchSection 
           tool={tool}
-          state={state}
+          isOpen={effectiveIsOpen}
+          onOpenChange={effectiveOnOpenChange}
         />
       );
     default:
