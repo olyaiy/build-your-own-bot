@@ -55,13 +55,10 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
           />
         );
       case 'searchTool':
-        console.log('THE TOOL RESULT IS DONE, STATE == RESULT')
-        console.log('TOOL STATE:', state)
         return (
           <SearchSection 
             tool={tool}
-            isOpen={effectiveIsOpen}
-            onOpenChange={effectiveOnOpenChange}
+            state={state}
           />
         );
       default:
@@ -89,13 +86,11 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
       );
     case 'searchTool':
 
-    console.log('THE USER NEEDS INTERACTION??')
-    console.log('TOOL STATE:', state)
+ 
       return (
         <SearchSection 
           tool={tool}
-          isOpen={effectiveIsOpen}
-          onOpenChange={effectiveOnOpenChange}
+          state={state}
         />
       );
     default:

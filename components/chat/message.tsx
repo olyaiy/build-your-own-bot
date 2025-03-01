@@ -103,7 +103,7 @@ const PurePreviewMessage = ({
                     <div
                       key={toolCallId}
                       className={cx({
-                        skeleton: ['getWeather', 'retrieveTool', 'searchTool'].includes(toolInvocation.toolName),
+                        // skeleton: ['getWeather', 'retrieveTool', 'searchTool'].includes(toolInvocation.toolName),
                       })}
                     >
                       <ToolSection
