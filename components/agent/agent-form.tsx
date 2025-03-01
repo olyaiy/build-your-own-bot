@@ -359,7 +359,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                 value={primaryModelId}
                 onValueChange={handlePrimaryModelChange}
                 placeholder="Select a primary model"
-                className="mt-2"
+                className="mt-2 text-start py-2 h-12"
                 required
               />
             </div>
