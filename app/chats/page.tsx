@@ -26,7 +26,7 @@ const CHATS_PER_PAGE = 10;
 export default async function ChatsPage({
   searchParams,
 }: {
-  searchParams: { page?: string; search?: string };
+  searchParams: Promise<{ page?: string; search?: string }>;
 }) {
   const session = await auth();
   
@@ -34,10 +34,13 @@ export default async function ChatsPage({
     redirect('/login');
   }
   
+  // Await the searchParams Promise before accessing its properties
+  const resolvedParams = await searchParams;
+  
   // Get the current page from search params or default to 1
-  const pageParam = searchParams?.page;
+  const pageParam = resolvedParams?.page;
   const page = pageParam ? parseInt(pageParam) : 1;
-  const searchQuery = searchParams?.search || '';
+  const searchQuery = resolvedParams?.search || '';
   
   // Make sure we have a user ID
   const userId = session.user.id;
