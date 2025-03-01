@@ -90,7 +90,7 @@ function PureChatHeader({
               className="size-8"
               asChild
             >
-              <Link href={`/agents/edit/${agentId}`}>
+              <Link href={`/agents/${agentId}/edit`}>
                 
                 <SettingsIcon />
                 <span className="sr-only">Agent Settings</span>
