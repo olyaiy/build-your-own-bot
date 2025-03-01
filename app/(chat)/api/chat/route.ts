@@ -3,7 +3,6 @@ import {
   createDataStreamResponse,
   smoothStream,
   streamText,
-  type DataStreamWriter,
 } from 'ai';
 import { supportsTools } from '@/lib/ai/models';
 import { auth } from '@/app/(auth)/auth';
@@ -116,7 +115,11 @@ for (const toolName of availableToolNames) {
 
       const result = streamText({
         model: myProvider.languageModel(selectedChatModel),
-        system: systemPrompt({ selectedChatModel, agentSystemPrompt }),
+        system: systemPrompt({ 
+          selectedChatModel, 
+          agentSystemPrompt,
+          hasSearchTool: activeToolNames.includes('searchTool')
+        }),
         messages,
         maxSteps: 5,
         experimental_activeTools:
@@ -156,7 +159,7 @@ for (const toolName of availableToolNames) {
           functionId: 'stream-text',
         },
         toolCallStreaming: true,
-
+        
       });
 
       result.consumeStream();

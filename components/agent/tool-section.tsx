@@ -13,9 +13,10 @@ interface ToolSectionProps {
   isOpen?: boolean
   onOpenChange?: (open: boolean) => void
   isReadonly?: boolean
+  addToolResult?: (result: { toolCallId: string; result: string }) => void
 }
 
-export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: ToolSectionProps) {
+export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, addToolResult }: ToolSectionProps) {
   const { toolName, state, args } = tool;
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   
@@ -23,6 +24,16 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
   const effectiveIsOpen = isOpen !== undefined ? isOpen : internalIsOpen;
   const effectiveOnOpenChange = onOpenChange || setInternalIsOpen;
 
+  // Helper function to submit tool results when needed
+  const handleToolResult = (result: string) => {
+    if (addToolResult && tool.state === 'call' && tool.toolCallId) {
+      addToolResult({
+        toolCallId: tool.toolCallId,
+        result
+      });
+    }
+  };
+  
   if (state === 'result') {
     const { result } = tool;
     
@@ -44,6 +55,8 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
           />
         );
       case 'searchTool':
+        console.log('THE TOOL RESULT IS DONE, STATE == RESULT')
+        console.log('TOOL STATE:', state)
         return (
           <SearchSection 
             tool={tool}
@@ -56,7 +69,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
     }
   }
   
-  // Handle non-result state
+  // Handle non-result state (tool calls that need user interaction)
   switch (toolName) {
     case 'getWeather':
       return <Weather />;
@@ -75,6 +88,9 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
         />
       );
     case 'searchTool':
+
+    console.log('THE USER NEEDS INTERACTION??')
+    console.log('TOOL STATE:', state)
       return (
         <SearchSection 
           tool={tool}
@@ -83,6 +99,17 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
         />
       );
     default:
-      return null;
+      // For other tools, provide a basic submit button if not readonly
+      return !isReadonly ? (
+        <div className="p-4 border rounded-md">
+          <pre className="mb-4">{JSON.stringify(args, null, 2)}</pre>
+          <button 
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-md"
+            onClick={() => handleToolResult(JSON.stringify({ success: true }))}
+          >
+            Submit Result
+          </button>
+        </div>
+      ) : null;
   }
 } 

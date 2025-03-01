@@ -52,6 +52,8 @@ export function Chat({
     isLoading,
     stop,
     reload,
+    data: toolCallData,
+    addToolResult
   } = useChat({
     id,
     body: { 
@@ -87,6 +89,7 @@ export function Chat({
     // We don't need to update the chat - next message will use the new model
   };
 
+
   return (
     <>
       <div className="flex flex-col min-w-0 h-dvh overflow-hidden bg-background">
@@ -108,6 +111,8 @@ export function Chat({
             reload={reload}
             isReadonly={isReadonly}
             isArtifactVisible={isArtifactVisible}
+            toolCallData={toolCallData}
+            addToolResult={addToolResult}
           />
         </div>
 

@@ -1,11 +1,11 @@
 import { ChatRequestOptions, Message } from 'ai';
 import { PreviewMessage, ThinkingMessage } from '@/components/chat/message';
 import { useScrollToBottom } from '@/components/hooks/use-scroll-to-bottom';
-
-import { memo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { Vote } from '@/lib/db/schema';
 import equal from 'fast-deep-equal';
 import { Overview } from '../util/overview';
+import { ToolSection } from '../agent/tool-section';
 
 /**
  * Interface defining the props for the Messages component
@@ -17,6 +17,8 @@ import { Overview } from '../util/overview';
  * @property {Function} reload - Function to reload/regenerate the chat conversation
  * @property {boolean} isReadonly - Flag to prevent message interaction when true
  * @property {boolean} isArtifactVisible - Flag for artifact visibility that affects render optimization
+ * @property {Array<any>} toolCallData - Optional array of tool invocation data
+ * @property {Function} addToolResult - Function to add a tool result to the chat
  */
 interface MessagesProps {
   chatId: string;
@@ -31,6 +33,8 @@ interface MessagesProps {
   ) => Promise<string | null | undefined>;
   isReadonly: boolean;
   isArtifactVisible: boolean;
+  toolCallData?: Array<any>;
+  addToolResult?: (result: { toolCallId: string; result: string }) => void;
 }
 
 /**
@@ -41,6 +45,7 @@ interface MessagesProps {
  * - List of messages with their voting state
  * - Loading/thinking indicators
  * - Auto-scrolling to the latest message
+ * - Tool sections for AI interactions
  * 
  * The component is designed to be memoized for performance optimization.
  */
@@ -52,11 +57,45 @@ function PureMessages({
   setMessages,
   reload,
   isReadonly,
+  toolCallData,
+  addToolResult,
 }: MessagesProps) {
   // Custom hook that provides refs for container and end element
   // to enable automatic scrolling to the bottom when new messages arrive
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
+  
+  // State to track open/closed state of tool sections
+  const [openStates, setOpenStates] = useState<Record<string, boolean>>({});
+  
+  // Process the last tool data from the provided data array for conditional rendering
+  const lastToolData = useMemo(() => {
+    if (!toolCallData || !Array.isArray(toolCallData) || toolCallData.length === 0) return null;
+
+    const lastItem = toolCallData[toolCallData.length - 1];
+    
+    // Ensure the item has the expected format
+    if (!lastItem || typeof lastItem !== 'object' || !('type' in lastItem)) return null;
+    
+    if (lastItem.type !== 'tool_call') return null;
+
+    const toolCallDetails = lastItem.data;
+    return {
+      state: 'call' as const,
+      toolCallId: toolCallDetails.toolCallId,
+      toolName: toolCallDetails.toolName,
+      args: toolCallDetails.args ? JSON.parse(toolCallDetails.args) : undefined
+    };
+  }, [toolCallData]);
+
+  // Handler for tool section open state changes
+  const handleOpenChange = (id: string, open: boolean) => {
+    setOpenStates(prev => ({
+      ...prev,
+      [id]: open
+    }));
+  };
+
 
   return (
     <div
@@ -86,10 +125,22 @@ function PureMessages({
         />
       ))}
 
-      {/* Show the thinking/loading indicator when waiting for AI response */}
+      {/* Show either a tool section or the thinking message based on context */}
       {isLoading &&
         messages.length > 0 &&
-        messages[messages.length - 1].role === 'user' && <ThinkingMessage />}
+        messages[messages.length - 1].role === 'user' && 
+        (lastToolData ? (
+          <ToolSection
+            tool={lastToolData}
+            isOpen={openStates[lastToolData.toolCallId] ?? true}
+            onOpenChange={(open) => handleOpenChange(lastToolData.toolCallId, open)}
+            isReadonly={isReadonly}
+            addToolResult={addToolResult}
+          />
+        ) : (
+          <ThinkingMessage />
+        ))
+      }
 
       {/* Empty div at the end for scroll targeting */}
       <div
@@ -113,8 +164,11 @@ function PureMessages({
  * 4. Re-render when message count changes
  * 5. Re-render when message content changes (using deep equality)
  * 6. Re-render when votes change (using deep equality)
+ * 7. Re-render when tool data changes (using deep equality)
  */
-export const Messages = memo(PureMessages, (prevProps, nextProps) => {
+export const Messages = memo(PureMessages, (prevProps: MessagesProps, nextProps: MessagesProps) => {
+  // console.log('Next props tool call data:', nextProps.toolCallData)
+
   // Skip re-render if artifact is visible in both states
   if (prevProps.isArtifactVisible && nextProps.isArtifactVisible) return true;
 
@@ -128,6 +182,8 @@ export const Messages = memo(PureMessages, (prevProps, nextProps) => {
   if (!equal(prevProps.messages, nextProps.messages)) return false;
   // Re-render if votes change
   if (!equal(prevProps.votes, nextProps.votes)) return false;
+  // Re-render if tool data changes
+  if (!equal(prevProps.toolCallData, nextProps.toolCallData)) return false;
 
   // Skip re-render if none of the above conditions are met
   return true;

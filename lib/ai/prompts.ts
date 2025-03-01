@@ -8,6 +8,17 @@ export const artifactsPrompt = `
 export const regularPrompt =
   'You are a friendly assistant! Keep your responses concise and helpful.';
 
+// Search-specific instructions to add when search tool is available
+export const searchPrompt = `
+When you need to find current or specific information that might not be in your training data:
+1. Use the search tool to look up recent information or verify facts
+2. Formulate specific, targeted search queries
+3. Extract the most relevant information from search results
+4. Cite sources when providing information from search results
+5. If search results are incomplete or unclear, consider refining your search query
+6. Be transparent about limitations of search results
+`;
+
 // New function to get model-specific reasoning instructions
 export const getReasoningInstructions = (modelId: string): string => {
   // Base reasoning instructions that work for all reasoning models
@@ -50,21 +61,29 @@ export const getReasoningInstructions = (modelId: string): string => {
 export const systemPrompt = ({
   selectedChatModel,
   agentSystemPrompt,
+  hasSearchTool = false,
 }: {
   selectedChatModel: string;
   agentSystemPrompt?: string;
+  hasSearchTool?: boolean;
 }) => {
   const basePrompt = agentSystemPrompt || regularPrompt;
+  let finalPrompt = basePrompt;
+  
+  // Add search instructions if the search tool is available
+  if (hasSearchTool) {
+    finalPrompt = `${finalPrompt}\n\n${searchPrompt}`;
+  }
   
   if (isReasoningModel(selectedChatModel)) {
     // Get model-specific reasoning instructions
     const reasoningInstructions = getReasoningInstructions(selectedChatModel);
     
-    return `${agentSystemPrompt || ''}
+    return `${finalPrompt}
     
     ${reasoningInstructions}`;
   } else {
-    return `${basePrompt}\n\n${artifactsPrompt}`;
+    return `${finalPrompt}\n\n${artifactsPrompt}`;
   }
 };
 
