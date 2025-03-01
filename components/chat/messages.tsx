@@ -167,7 +167,6 @@ function PureMessages({
  * 7. Re-render when tool data changes (using deep equality)
  */
 export const Messages = memo(PureMessages, (prevProps: MessagesProps, nextProps: MessagesProps) => {
-  // console.log('Next props tool call data:', nextProps.toolCallData)
 
   // Skip re-render if artifact is visible in both states
   if (prevProps.isArtifactVisible && nextProps.isArtifactVisible) return true;

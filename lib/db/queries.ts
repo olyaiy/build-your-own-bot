@@ -806,7 +806,6 @@ export async function searchChatsByContent({
   }
 
   try {
-    console.log(`Searching messages for user ${userId} with term "${searchTerm}"`);
     
     // STEP 1: DIRECTLY search in the message content column
     // This query specifically targets the message.content column, which is JSON
@@ -835,11 +834,9 @@ export async function searchChatsByContent({
         )
       );
 
-    console.log(`Found ${matchingMessages.length} matching messages`);
 
     // If no message matches, fallback to chat title and agent name search
     if (matchingMessages.length === 0) {
-      console.log("No message matches found, falling back to chat title search");
       return await db
         .select({
           id: chat.id,
@@ -939,11 +936,9 @@ export async function searchChatsByContent({
     const matchingChatIds = Object.keys(chatMatches);
     
     if (matchingChatIds.length === 0) {
-      console.log("No chats matched after processing");
       return [];
     }
 
-    console.log(`Found matches in ${matchingChatIds.length} chats`);
 
     const chatsWithAgents = await db
       .select({
@@ -966,7 +961,6 @@ export async function searchChatsByContent({
       matchSnippets: chatMatches[chat.id]?.snippets || []
     })).sort((a, b) => b.matchCount - a.matchCount);
 
-    console.log(`Returning ${result.length} search results sorted by match count`);
     return result;
   } catch (error) {
     console.error('Failed to search messages by content', error);

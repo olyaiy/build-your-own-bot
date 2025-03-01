@@ -27,7 +27,6 @@ const runMigrate = async () => {
     await migrate(db, { migrationsFolder: './lib/db/migrations' });
     
     const end = Date.now();
-    console.log(`✅ Migration completed in ${end - start}ms`);
   } catch (err: any) {
     // Known errors we want to handle gracefully
     const knownErrors = [

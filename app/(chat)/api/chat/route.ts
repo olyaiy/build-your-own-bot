@@ -100,7 +100,6 @@ export async function POST(request: Request) {
           .map(tool => tool.tool)
       )];
       
-      // console.log(`Available tools for agent ${agentId}:`, availableToolNames);
 
       // Create tools object with the appropriate tools
       const registry = toolRegistry({ session, dataStream });
@@ -110,7 +109,6 @@ for (const toolName of availableToolNames) {
   // Special handling for searchTool based on the searchEnabled flag
   // Only exclude the search tool if searchEnabled is explicitly false
   if (toolName === 'searchTool' && searchEnabled === false) {
-    console.log('Search tool disabled by user preference');
     continue; // Skip adding the search tool if searchEnabled is false
   }
   

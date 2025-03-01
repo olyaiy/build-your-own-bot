@@ -21,7 +21,6 @@ export const searchTool = tool({
       query.length < 5 ? query + ' '.repeat(5 - query.length) : query
     let searchResult: SearchResults
 
-    console.log(`Using Tavily search API, Search Depth: ${search_depth || 'basic'}`)
 
     try {
       searchResult = await tavilySearch(
@@ -41,7 +40,6 @@ export const searchTool = tool({
       }
     }
 
-    console.log('completed search')
     return searchResult
   }
 })
