@@ -330,7 +330,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
               name="agentDisplayName"
               type="text"
               placeholder="Enter agent display name"
-              className="mt-2 text-xl h-12 sm:h-16 px-4 sm:px-6 font-medium"
+              className="mt-2 text-xl h-12 sm:h-12  font-medium  mx-0 px-2"
               required
               defaultValue={initialData?.agentDisplayName}
             />
