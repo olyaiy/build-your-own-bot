@@ -21,7 +21,7 @@ export function RetrieveSection({
   const isLoading = tool.state === 'call'
   const data: SearchResultsType =
     tool.state === 'result' ? tool.result : undefined
-  const url = tool.args.url as string | undefined
+  const url = tool.args?.url as string | undefined
 
   const header = <ToolArgsSection tool="retrieveTool">{url}</ToolArgsSection>
 
