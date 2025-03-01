@@ -24,6 +24,7 @@ import { useLocalStorage, useWindowSize } from 'usehooks-ts';
 import { sanitizeUIMessages } from '@/lib/utils';
 
 import { ArrowUpIcon, PaperclipIcon, StopIcon } from '@/components/util/icons';
+import { Search as SearchIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { SuggestedActions } from '@/components/chat/suggested-actions';
@@ -36,6 +37,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { PreviewAttachment } from '../util/preview-attachment';
 
 // URL regex pattern for detecting links
@@ -112,6 +115,8 @@ function PureMultimodalInput({
   currentModel,
   onModelChange,
   isReadonly,
+  searchEnabled,
+  setSearchEnabled,
 }: {
   chatId: string;
   agentId: string;
@@ -138,6 +143,8 @@ function PureMultimodalInput({
   currentModel: string;
   onModelChange: (modelId: string) => void;
   isReadonly: boolean;
+  searchEnabled: boolean;
+  setSearchEnabled: Dispatch<SetStateAction<boolean>>;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -166,6 +173,11 @@ function PureMultimodalInput({
     'input',
     '',
   );
+
+  // Handler for toggling search
+  const handleSearchToggle = useCallback((checked: boolean) => {
+    setSearchEnabled(checked);
+  }, [setSearchEnabled]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -285,27 +297,49 @@ function PureMultimodalInput({
         tabIndex={-1}
       />
 
-      {/* Model Selector - only show if we have models and not in readonly mode */}
-      {!isReadonly && availableModels.length > 1 && (
-        <div className="w-full">
-          <Select
-            value={currentModel}
-            onValueChange={onModelChange}
-          >
-            <SelectTrigger className="h-8 w-full md:w-52 text-xs">
-              <SelectValue placeholder="Select model" />
-            </SelectTrigger>
-            <SelectContent position="popper" className="max-w-[90vw] md:max-w-none">
-              {availableModels.map((model) => (
-                <SelectItem key={model.id} value={model.id}>
-                  <div className="flex items-center justify-between w-full">
-                    <span className="truncate">{model.model_display_name}</span>
-                    {model.isDefault && <span className="text-xxs text-muted-foreground ml-2 shrink-0">(Default)</span>}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* Model Selector and Search Toggle */}
+      {!isReadonly && (
+        <div className="w-full flex flex-wrap justify-between items-center gap-2">
+          {/* Model Selector - only show if we have models */}
+          {availableModels.length > 1 && (
+            <Select
+              value={currentModel}
+              onValueChange={onModelChange}
+            >
+              <SelectTrigger className="h-8 w-full md:w-52 text-xs">
+                <SelectValue placeholder="Select model" />
+              </SelectTrigger>
+              <SelectContent position="popper" className="max-w-[90vw] md:max-w-none">
+                {availableModels.map((model) => (
+                  <SelectItem key={model.id} value={model.id}>
+                    <div className="flex items-center justify-between w-full">
+                      <span className="truncate">{model.model_display_name}</span>
+                      {model.isDefault && <span className="text-xxs text-muted-foreground ml-2 shrink-0">(Default)</span>}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          
+          {/* Search Toggle */}
+          <div className="flex items-center space-x-2 cursor-pointer">
+            <Switch
+              id="search-toggle"
+              checked={searchEnabled}
+              onCheckedChange={handleSearchToggle}
+              disabled={isLoading}
+              className="cursor-pointer"
+            />
+            <Label 
+              htmlFor="search-toggle" 
+              className="text-xs flex items-center gap-1 cursor-pointer"
+              onClick={() => !isLoading && setSearchEnabled(!searchEnabled)}
+            >
+              <SearchIcon size={12} />
+              <span>Web Search {searchEnabled ? 'On' : 'Off'}</span>
+            </Label>
+          </div>
         </div>
       )}
 
@@ -385,6 +419,7 @@ export const MultimodalInput = memo(
     if (prevProps.isLoading !== nextProps.isLoading) return false;
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
     if (prevProps.currentModel !== nextProps.currentModel) return false;
+    if (prevProps.searchEnabled !== nextProps.searchEnabled) return false;
 
     return true;
   },

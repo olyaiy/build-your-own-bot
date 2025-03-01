@@ -41,12 +41,14 @@ export async function POST(request: Request) {
     selectedChatModel, // This will now be the ID of either the default model or a user-selected alternate model
     agentId,
     agentSystemPrompt,
+    searchEnabled,
   }: { 
     id: string; 
     messages: Array<Message>; 
     selectedChatModel: string; 
     agentId: string;
     agentSystemPrompt?: string;
+    searchEnabled?: boolean;
   } = await request.json();
 
 
@@ -105,6 +107,13 @@ export async function POST(request: Request) {
 
 const tools: Record<string, any> = {};
 for (const toolName of availableToolNames) {
+  // Special handling for searchTool based on the searchEnabled flag
+  // Only exclude the search tool if searchEnabled is explicitly false
+  if (toolName === 'searchTool' && searchEnabled === false) {
+    console.log('Search tool disabled by user preference');
+    continue; // Skip adding the search tool if searchEnabled is false
+  }
+  
   if (toolName in registry && registry[toolName as keyof typeof registry]) {
     tools[toolName] = registry[toolName as keyof typeof registry];
   }

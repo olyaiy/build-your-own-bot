@@ -2,9 +2,10 @@
 
 import type { Attachment, Message } from 'ai';
 import { useChat } from 'ai/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import type { Agent, Model } from '@/lib/db/schema';
+import { useLocalStorage } from 'usehooks-ts';
 
 import { ChatHeader } from '@/components/chat/chat-header';
 import type { Vote } from '@/lib/db/schema';
@@ -37,6 +38,15 @@ export function Chat({
 }) {
   const { mutate } = useSWRConfig();
   const [currentModel, setCurrentModel] = useState<string>(selectedChatModel);
+  
+  // Use localStorage to persist search enabled state
+  const [searchEnabledStorage, setSearchEnabledStorage] = useLocalStorage<boolean>('search-enabled', false);
+  const [searchEnabled, setSearchEnabled] = useState<boolean>(searchEnabledStorage);
+  
+  // Update localStorage when searchEnabled changes
+  useEffect(() => {
+    setSearchEnabledStorage(searchEnabled);
+  }, [searchEnabled, setSearchEnabledStorage]);
 
   // Find the selected model details
   const selectedModelDetails = availableModels.find(model => model.id === currentModel);
@@ -60,7 +70,8 @@ export function Chat({
       id, 
       selectedChatModel: modelIdentifier, // Send the actual model identifier to the API
       agentId: agent.id,
-      agentSystemPrompt: agent?.system_prompt
+      agentSystemPrompt: agent?.system_prompt,
+      searchEnabled // Pass the search toggle state to the API
     },
     initialMessages,
     experimental_throttle: 100,
@@ -135,6 +146,8 @@ export function Chat({
               currentModel={currentModel}
               onModelChange={handleModelChange}
               isReadonly={isReadonly}
+              searchEnabled={searchEnabled}
+              setSearchEnabled={setSearchEnabled}
             />
           )}
         </form>
