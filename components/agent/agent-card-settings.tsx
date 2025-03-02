@@ -14,7 +14,7 @@ export function AgentCardSettings({ agentId, userId, creatorId }: AgentCardSetti
 
   return (
     <button
-      className="p-1.5 hover:bg-accent rounded-md"
+      className="p-1 hover:bg-accent rounded-md"
       onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();

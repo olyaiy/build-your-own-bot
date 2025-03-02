@@ -13,7 +13,8 @@ import { useRouter } from "next/navigation";
 
 interface AgentListProps {
   agents: (Omit<InferSelectModel<typeof agents>, 'model'> & {
-    models?: InferSelectModel<typeof models>[] | null
+    models?: InferSelectModel<typeof models>[] | null;
+    toolGroups?: { id: string; name: string; display_name: string; description: string | null }[] | null;
   })[];
   userId?: string;
 }
@@ -117,7 +118,7 @@ export function AgentList({ agents: initialAgents, userId }: AgentListProps) {
                     alt={agent.agent_display_name}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover"
+                    className="object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>
               ) : (
@@ -130,39 +131,69 @@ export function AgentList({ agents: initialAgents, userId }: AgentListProps) {
               {agent.description}
             </p>
             
-            <div className="flex items-center justify-between mt-auto">
-              <div className="flex items-center gap-1 max-w-[80%] overflow-hidden">
-                {agent.models && agent.models.length > 0 ? (
-                  <>
-                    {/* Display first two models */}
-                    {agent.models.slice(0, 2).map((model) => (
-                      <Badge 
-                        key={model.id} 
-                        variant="secondary" 
-                        className="text-[10px] px-2 py-0 h-5 truncate max-w-28"
-                      >
-                        {model.model_display_name}
-                      </Badge>
-                    ))}
-                    
-                    {/* If there are more than 2 models, show a +n badge */}
-                    {agent.models.length > 2 && (
-                      <Badge 
-                        variant="secondary" 
-                        className="text-[10px] px-2 py-0 h-5"
-                      >
-                        +{agent.models.length - 2}
-                      </Badge>
-                    )}
-                  </>
-                ) : null}
-              </div>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                <AgentCardSettings 
-                  agentId={agent.id}
-                  userId={userId}
-                  creatorId={agent.creatorId}
-                />
+            <div className="flex flex-col gap-1 mt-auto">
+              {/* Models display */}
+              {agent.models && agent.models.length > 0 && (
+                <div className="flex items-center gap-1 max-w-[100%] overflow-hidden">
+                  <div className="text-xs text-muted-foreground mr-1">Models:</div>
+                  {/* Display first two models */}
+                  {agent.models.slice(0, 2).map((model) => (
+                    <Badge 
+                      key={model.id} 
+                      variant="secondary" 
+                      className="text-[10px] px-2 py-0 h-5 truncate max-w-28"
+                    >
+                      {model.model_display_name}
+                    </Badge>
+                  ))}
+                  
+                  {/* If there are more than 2 models, show a +n badge */}
+                  {agent.models.length > 2 && (
+                    <Badge 
+                      variant="secondary" 
+                      className="text-[10px] px-2 py-0 h-5"
+                    >
+                      +{agent.models.length - 2}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {/* Tool Groups display */}
+              {agent.toolGroups && agent.toolGroups.length > 0 && (
+                <div className="flex items-center gap-1 max-w-[100%] overflow-hidden ">
+                  <div className="text-xs text-muted-foreground mr-1">Tools:</div>
+                  {/* Display first two tool groups */}
+                  {agent.toolGroups.slice(0, 2).map((toolGroup) => (
+                    <Badge 
+                      key={toolGroup.id} 
+                      variant="outline" 
+                      className="text-[10px] px-2 py-0 h-5 truncate max-w-28 border-dashed"
+                    >
+                      {toolGroup.display_name}
+                    </Badge>
+                  ))}
+                  
+                  {/* If there are more than 2 tool groups, show a +n badge */}
+                  {agent.toolGroups.length > 2 && (
+                    <Badge 
+                      variant="outline" 
+                      className="text-[10px] px-2 py-0 h-5 border-dashed"
+                    >
+                      +{agent.toolGroups.length - 2}
+                    </Badge>
+                  )}
+                </div>
+              )}
+              
+              <div className="flex items-center justify-end ">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                  <AgentCardSettings 
+                    agentId={agent.id}
+                    userId={userId}
+                    creatorId={agent.creatorId}
+                  />
+                </div>
               </div>
             </div>
           </Card>

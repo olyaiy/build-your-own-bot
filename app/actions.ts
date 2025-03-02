@@ -2,12 +2,13 @@
 
 import { cookies } from 'next/headers';
 import { InferSelectModel } from 'drizzle-orm';
-import { agents, models } from '@/lib/db/schema';
+import { agents, models, toolGroups } from '@/lib/db/schema';
 
 // Function to sort agents based on recent usage cookie
 export async function sortAgentsByRecentUsage(
   agentsList: (Omit<InferSelectModel<typeof agents>, 'model'> & {
-    models?: InferSelectModel<typeof models>[] | null
+    models?: InferSelectModel<typeof models>[] | null;
+    toolGroups?: { id: string; name: string; display_name: string; description: string | null }[] | null;
   })[]
 ) {
   const cookieStore = await cookies();

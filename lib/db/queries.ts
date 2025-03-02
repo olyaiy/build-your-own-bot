@@ -396,9 +396,10 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean) => 
     ))
     .orderBy(desc(agents.id));
 
-    // For each agent, fetch their models
+    // For each agent, fetch their models and tool groups
     const agentsWithModels = await Promise.all(
       result.map(async (agent) => {
+        // Fetch models
         const agentModelResults = await db.select({
           model: models,
           isDefault: agentModels.isDefault
@@ -413,15 +414,31 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean) => 
           
         const defaultModel = agentModelResults.find(r => r.isDefault)?.model || null;
 
+        // Fetch tool groups
+        const toolGroupResults = await db.select({
+          id: toolGroups.id,
+          name: toolGroups.name,
+          display_name: toolGroups.display_name,
+          description: toolGroups.description,
+        })
+        .from(agentToolGroups)
+        .leftJoin(toolGroups, eq(agentToolGroups.toolGroupId, toolGroups.id))
+        .where(eq(agentToolGroups.agentId, agent.id));
+
+        const toolGroupsArray = toolGroupResults
+          .filter(tg => tg.id !== null);
+
         if (includeAllModels) {
           return {
             ...agent,
-            models: agentModelsArray
+            models: agentModelsArray,
+            toolGroups: toolGroupsArray
           };
         } else {
           return {
             ...agent,
-            model: defaultModel
+            model: defaultModel,
+            toolGroups: toolGroupsArray
           };
         }
       })
