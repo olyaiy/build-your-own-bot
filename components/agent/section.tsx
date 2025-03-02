@@ -93,7 +93,7 @@ export function ToolArgsSection({
   number?: number
 }) {
   return (
-    <Section size="sm" className="py-0 flex items-center justify-between">
+    <Section size="sm" className="py-0 flex items-center justify-between  max-w-xl overflow-hidden">
       <ToolBadge tool={tool}>{children}</ToolBadge>
       {number && (
         <StatusIndicator icon={Check} iconClassName="text-green-500">
