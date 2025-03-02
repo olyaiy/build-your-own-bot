@@ -97,7 +97,7 @@ export const SearchResultsImageSection: React.FC<
                       alt={`Image ${index + 1}`}
                       className="h-full w-full object-cover"
                       onError={e =>
-                        (e.currentTarget.src = '/images/placeholder-image.png')
+                        (e.currentTarget.src = '/images/placeholder-image.jpg')
                       }
                     />
                   ) : (
@@ -132,7 +132,7 @@ export const SearchResultsImageSection: React.FC<
                           className="h-auto w-full object-contain max-h-[60vh]"
                           onError={e =>
                             (e.currentTarget.src =
-                              '/images/placeholder-image.png')
+                              '/images/placeholder-image.jpg')
                           }
                         />
                       </div>

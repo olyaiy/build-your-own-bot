@@ -128,7 +128,7 @@ for (const toolName of availableToolNames) {
           hasSearchTool: activeToolNames.includes('searchTool')
         }),
         messages,
-        maxSteps: 5,
+        maxSteps: 10,
         experimental_activeTools:
           supportsTools(selectedChatModel) && activeToolNames.length > 0
             ? activeToolNames

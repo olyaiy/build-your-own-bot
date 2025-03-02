@@ -61,7 +61,7 @@ export default async function Layout({
           strategy="beforeInteractive"
         />
       </head>
-      <body className="min-h-screen bg-background font-sans antialiased">
+      <body className=" bg-background font-sans antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

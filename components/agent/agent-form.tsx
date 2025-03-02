@@ -193,7 +193,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6">
+    <form onSubmit={handleSubmit} className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6  z-[100] relative">
       
         
               {/* Action Buttons at Top Right */}
