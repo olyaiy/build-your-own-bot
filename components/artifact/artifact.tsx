@@ -325,7 +325,7 @@ function PureArtifact({
                 )}
               </AnimatePresence>
 
-              <div className="flex flex-col h-full justify-between items-center gap-4">
+              <div className="flex flex-col h-full justify-between items-stretch w-full overflow-hidden">
                 <ArtifactMessages
                   chatId={chatId}
                   isLoading={isLoading}

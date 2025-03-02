@@ -33,13 +33,17 @@ export function RetrieveSection({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
     >
-      {!isLoading && data ? (
-        <Section title="Sources">
-          <SearchResults results={data.results} />
-        </Section>
-      ) : (
-        <DefaultSkeleton />
-      )}
+      <div className="w-full max-w-full overflow-hidden">
+        {!isLoading && data ? (
+          <Section title="Sources" className="w-full max-w-full overflow-hidden">
+            <div className="w-full max-w-full overflow-hidden">
+              <SearchResults results={data.results} />
+            </div>
+          </Section>
+        ) : (
+          <DefaultSkeleton />
+        )}
+      </div>
     </CollapsibleMessage>
   )
 }

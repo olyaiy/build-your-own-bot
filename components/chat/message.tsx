@@ -36,7 +36,7 @@ const ToolInvocationItem = memo(({
   const [isToolOpen, setIsToolOpen] = useState(false);
   
   return (
-    <div key={toolInvocation.toolCallId}>
+    <div key={toolInvocation.toolCallId} className="w-full max-w-full overflow-hidden">
       <ToolSection
         tool={toolInvocation}
         isOpen={isToolOpen}

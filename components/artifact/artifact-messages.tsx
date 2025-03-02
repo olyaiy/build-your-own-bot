@@ -1,4 +1,3 @@
-
 import { Vote } from '@/lib/db/schema';
 import { ChatRequestOptions, Message } from 'ai';
 import { memo } from 'react';
@@ -37,24 +36,27 @@ function PureArtifactMessages({
   return (
     <div
       ref={messagesContainerRef}
-      className="flex flex-col gap-4 h-full items-center overflow-y-scroll px-4 pt-20"
+      className="flex flex-col gap-4 h-full w-full overflow-y-scroll overflow-x-hidden px-4 pt-20 min-w-0"
     >
-      {messages.map((message, index) => (
-        <PreviewMessage
-          chatId={chatId}
-          key={message.id}
-          message={message}
-          isLoading={isLoading && index === messages.length - 1}
-          vote={
-            votes
-              ? votes.find((vote) => vote.messageId === message.id)
-              : undefined
-          }
-          setMessages={setMessages}
-          reload={reload}
-          isReadonly={isReadonly}
-        />
-      ))}
+      <div className="w-full flex flex-col items-stretch max-w-full">
+        {messages.map((message, index) => (
+          <div key={message.id} className="w-full overflow-hidden">
+            <PreviewMessage
+              chatId={chatId}
+              message={message}
+              isLoading={isLoading && index === messages.length - 1}
+              vote={
+                votes
+                  ? votes.find((vote) => vote.messageId === message.id)
+                  : undefined
+              }
+              setMessages={setMessages}
+              reload={reload}
+              isReadonly={isReadonly}
+            />
+          </div>
+        ))}
+      </div>
 
       <div
         ref={messagesEndRef}
