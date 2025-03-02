@@ -1,7 +1,7 @@
 import { ChatRequestOptions, Message } from 'ai';
 import { PreviewMessage, ThinkingMessage } from '@/components/chat/message';
 import { useScrollToBottom } from '@/components/hooks/use-scroll-to-bottom';
-import { useState, useMemo, memo } from 'react';
+import { useState, useMemo, memo, useEffect } from 'react';
 import { Vote } from '@/lib/db/schema';
 import equal from 'fast-deep-equal';
 import { Overview } from '../util/overview';
@@ -60,6 +60,7 @@ function PureMessages({
   toolCallData,
   addToolResult,
 }: MessagesProps) {
+
   // Custom hook that provides refs for container and end element
   // to enable automatic scrolling to the bottom when new messages arrive
   const [messagesContainerRef, messagesEndRef] =
@@ -67,6 +68,8 @@ function PureMessages({
   
   // State to track open/closed state of tool sections
   const [openStates, setOpenStates] = useState<Record<string, boolean>>({});
+  
+
   
   // Process the last tool data from the provided data array for conditional rendering
   const lastToolData = useMemo(() => {
@@ -90,10 +93,13 @@ function PureMessages({
 
   // Handler for tool section open state changes
   const handleOpenChange = (id: string, open: boolean) => {
-    setOpenStates(prev => ({
-      ...prev,
-      [id]: open
-    }));
+    setOpenStates(prev => {
+      const newState = {
+        ...prev,
+        [id]: open
+      };
+      return newState;
+    });
   };
 
 
@@ -167,23 +173,28 @@ function PureMessages({
  * 7. Re-render when tool data changes (using deep equality)
  */
 export const Messages = memo(PureMessages, (prevProps: MessagesProps, nextProps: MessagesProps) => {
+  
+  const shouldRerender = (() => {
+    // Skip re-render if artifact is visible in both states
+    if (prevProps.isArtifactVisible && nextProps.isArtifactVisible) return true;
 
-  // Skip re-render if artifact is visible in both states
-  if (prevProps.isArtifactVisible && nextProps.isArtifactVisible) return true;
+    // Force re-render if loading state changes
+    if (prevProps.isLoading !== nextProps.isLoading) return false;
+    // Continue rendering during loading state to show progress
+    if (prevProps.isLoading && nextProps.isLoading) return false;
+    // Re-render if messages are added or removed
+    if (prevProps.messages.length !== nextProps.messages.length) return false;
+    // Deep comparison of messages to detect content changes
+    if (!equal(prevProps.messages, nextProps.messages)) return false;
+    // Re-render if votes change
+    if (!equal(prevProps.votes, nextProps.votes)) return false;
+    // Re-render if tool data changes
+    if (!equal(prevProps.toolCallData, nextProps.toolCallData)) return false;
 
-  // Force re-render if loading state changes
-  if (prevProps.isLoading !== nextProps.isLoading) return false;
-  // Continue rendering during loading state to show progress
-  if (prevProps.isLoading && nextProps.isLoading) return false;
-  // Re-render if messages are added or removed
-  if (prevProps.messages.length !== nextProps.messages.length) return false;
-  // Deep comparison of messages to detect content changes
-  if (!equal(prevProps.messages, nextProps.messages)) return false;
-  // Re-render if votes change
-  if (!equal(prevProps.votes, nextProps.votes)) return false;
-  // Re-render if tool data changes
-  if (!equal(prevProps.toolCallData, nextProps.toolCallData)) return false;
-
-  // Skip re-render if none of the above conditions are met
-  return true;
+    // Skip re-render if none of the above conditions are met
+    return true;
+  })();
+  
+  
+  return shouldRerender;
 });

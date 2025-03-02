@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/collapsible'
 import { Separator } from '@/components/ui/separator'
 import { IconLogo } from '../util/icons'
+import { useEffect } from 'react'
 
 interface CollapsibleMessageProps {
   children: React.ReactNode
@@ -29,6 +30,16 @@ export function CollapsibleMessage({
   showBorder = true,
   showIcon = true
 }: CollapsibleMessageProps) {
+  
+  useEffect(() => {
+  }, [isOpen])
+
+  const handleOpenChange = (open: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(open)
+    }
+  }
+
   const content = <div className="py-2 flex-1">{children}</div>
 
   return (
@@ -43,7 +54,7 @@ export function CollapsibleMessage({
         >
           <Collapsible
             open={isOpen}
-            onOpenChange={onOpenChange}
+            onOpenChange={handleOpenChange}
             className="w-full"
           >
             <CollapsibleTrigger className="flex items-center justify-between w-full group">

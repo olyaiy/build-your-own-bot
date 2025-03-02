@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { ToolInvocation } from 'ai'
 import { SearchSection } from '../search/search-section'
 import { RetrieveSection } from './retrieve-section'
@@ -20,9 +20,17 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
   const { toolName, state, args } = tool;
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   
+  
   // Use provided state management or internal state if not provided
   const effectiveIsOpen = isOpen !== undefined ? isOpen : internalIsOpen;
   const effectiveOnOpenChange = onOpenChange || setInternalIsOpen;
+  
+  const handleOpenChange = (open: boolean) => {
+    effectiveOnOpenChange(open);
+  }
+  
+  useEffect(() => {
+  }, [effectiveIsOpen, tool.toolCallId])
 
   // Helper function to submit tool results when needed
   const handleToolResult = (result: string) => {
@@ -59,7 +67,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
             <RetrieveSection 
               tool={tool}
               isOpen={effectiveIsOpen}
-              onOpenChange={effectiveOnOpenChange}
+              onOpenChange={handleOpenChange}
             />
           </ToolWrapper>
         );
@@ -69,7 +77,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
             <SearchSection 
               tool={tool}
               isOpen={effectiveIsOpen}
-              onOpenChange={effectiveOnOpenChange}
+              onOpenChange={handleOpenChange}
             />
           </ToolWrapper>
         );
@@ -102,7 +110,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
           <RetrieveSection 
             tool={tool}
             isOpen={effectiveIsOpen}
-            onOpenChange={effectiveOnOpenChange}
+            onOpenChange={handleOpenChange}
           />
         </ToolWrapper>
       );
@@ -112,7 +120,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
           <SearchSection 
             tool={tool}
             isOpen={effectiveIsOpen}
-            onOpenChange={effectiveOnOpenChange}
+            onOpenChange={handleOpenChange}
           />
         </ToolWrapper>
       );

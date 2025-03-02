@@ -9,6 +9,7 @@ import { SearchSkeleton } from './default-skeleton'
 import { SearchResults } from './search-results'
 import { SearchResultsImageSection } from './search-results-image'
 import { Section, ToolArgsSection } from '../agent/section'
+import { useEffect } from 'react'
 export const CHAT_ID = 'search' as const
 
 interface SearchSectionProps {
@@ -22,6 +23,14 @@ export function SearchSection({
   isOpen,
   onOpenChange
 }: SearchSectionProps) {
+  
+  const handleOpenChange = (open: boolean) => {
+    onOpenChange(open)
+  }
+  
+  useEffect(() => {
+  }, [isOpen])
+
   const { isLoading } = useChat({
     id: CHAT_ID
   })
@@ -47,7 +56,7 @@ export function SearchSection({
       isCollapsible={true}
       header={header}
       isOpen={isOpen}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
     >
       {searchResults &&
         searchResults.images &&
