@@ -426,7 +426,13 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean) => 
         .where(eq(agentToolGroups.agentId, agent.id));
 
         const toolGroupsArray = toolGroupResults
-          .filter(tg => tg.id !== null);
+          .filter(tg => tg.id !== null && tg.name !== null && tg.display_name !== null)
+          .map(tg => ({
+            ...tg,
+            id: tg.id!,
+            name: tg.name!,
+            display_name: tg.display_name!
+          }));
 
         if (includeAllModels) {
           return {
