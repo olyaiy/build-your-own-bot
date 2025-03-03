@@ -96,10 +96,11 @@ export function useScrollToBottom<T extends HTMLElement>(): [
           
           // Get component information if available (by looking for data-component attribute)
           const componentInfo = ((): string => {
-            let currentElement: HTMLElement | null = targetEl;
+            let currentElement: Node | null = targetEl;
             while (currentElement && currentElement !== document.body) {
-              if (currentElement.hasAttribute('data-component')) {
-                return currentElement.getAttribute('data-component') || '';
+              if (currentElement.nodeType === Node.ELEMENT_NODE && 
+                  (currentElement as HTMLElement).hasAttribute('data-component')) {
+                return (currentElement as HTMLElement).getAttribute('data-component') || '';
               }
               currentElement = currentElement.parentElement;
             }
