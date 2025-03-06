@@ -95,13 +95,13 @@ export const SearchResultsImageSection: React.FC<
                     <img
                       src={image.url}
                       alt={`Image ${index + 1}`}
-                      className="h-full w-full object-cover"
+                      className="size-full object-cover"
                       onError={e =>
                         (e.currentTarget.src = '/images/placeholder-image.jpg')
                       }
                     />
                   ) : (
-                    <div className="w-full h-full bg-muted animate-pulse" />
+                    <div className="size-full bg-muted animate-pulse" />
                   )}
                 </CardContent>
               </Card>
@@ -129,7 +129,7 @@ export const SearchResultsImageSection: React.FC<
                         <img
                           src={img.url}
                           alt={`Image ${idx + 1}`}
-                          className="h-auto w-full object-contain max-h-[60vh]"
+                          className="size-full object-contain max-h-[60vh]"
                           onError={e =>
                             (e.currentTarget.src =
                               '/images/placeholder-image.jpg')
@@ -140,10 +140,10 @@ export const SearchResultsImageSection: React.FC<
                   ))}
                 </CarouselContent>
                 <div className="absolute inset-8 flex items-center justify-between p-4">
-                  <CarouselPrevious className="w-10 h-10 rounded-full shadow focus:outline-none">
+                  <CarouselPrevious className="size-10 rounded-full shadow focus:outline-none">
                     <span className="sr-only">Previous</span>
                   </CarouselPrevious>
-                  <CarouselNext className="w-10 h-10 rounded-full shadow focus:outline-none">
+                  <CarouselNext className="size-10 rounded-full shadow focus:outline-none">
                     <span className="sr-only">Next</span>
                   </CarouselNext>
                 </div>

@@ -1,10 +1,11 @@
-import { SearchResults } from '@/components/agent/search-section'
+
 import { searchSchema } from '@/lib/schema/search'
 import {
   SearchResultImage,
 } from '@/lib/ai/tools/retrieve'
 import { sanitizeUrl } from '@/lib/utils'
 import { tool } from 'ai'
+import { SearchResults } from '@/lib/types'
 
 export const searchTool = tool({
   description: 'Search the web for information',
