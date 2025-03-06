@@ -97,6 +97,9 @@ const StylizedLinkOverlay = memo(({ text, textareaRef }: { text: string; textare
   );
 });
 
+// Add display name for the memoized component
+StylizedLinkOverlay.displayName = "StylizedLinkOverlay";
+
 function PureMultimodalInput({
   chatId,
   agentId,

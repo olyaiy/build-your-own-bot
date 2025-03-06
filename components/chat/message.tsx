@@ -47,6 +47,9 @@ const ToolInvocationItem = memo(({
   );
 });
 
+// Add display name for the memoized component
+ToolInvocationItem.displayName = 'ToolInvocationItem';
+
 const PurePreviewMessage = ({
   chatId,
   message,
