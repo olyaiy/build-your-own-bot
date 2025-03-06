@@ -10,6 +10,7 @@ import {
   foreignKey,
   boolean,
   pgEnum,
+  integer,
 } from 'drizzle-orm/pg-core';
 
 // Enums
@@ -29,6 +30,7 @@ export const user = pgTable('User', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
   email: varchar('email', { length: 64 }).notNull(),
   password: varchar('password', { length: 64 }),
+  user_name: varchar('user_name', { length: 64 }),
 });
 
 export type User = InferSelectModel<typeof user>;
@@ -165,6 +167,7 @@ export const message = pgTable('Message', {
   role: varchar('role').notNull(),
   content: json('content').notNull(),
   createdAt: timestamp('createdAt').notNull(),
+  token_usage: integer('token_usage'),
 });
 
 export type Message = InferSelectModel<typeof message>;
