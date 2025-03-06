@@ -86,15 +86,6 @@ export async function POST(request: Request) {
     }
   }
 
-  await saveMessages({
-    messages: [{ 
-      ...userMessage, 
-      createdAt: new Date(), 
-      chatId: id,
-      token_usage: null // Initial message doesn't have token usage yet
-    }],
-  });
-
   return createDataStreamResponse({
     execute: async (dataStream) => {
       // Fetch the tool groups for this agent
@@ -162,9 +153,17 @@ for (const toolName of availableToolNames) {
               // Wait for the usage promise to resolve
               const tokenUsage = await usage;
               
-              // Save assistant and tool messages with completion token count
-              await saveMessages({
-                messages: sanitizedResponseMessages.map((message) => {
+              // Prepare all messages to save, including the user message with prompt tokens
+              const messagesWithTokenUsage = [
+                // Add the user message first with prompt tokens
+                {
+                  ...userMessage,
+                  chatId: id,
+                  createdAt: new Date(),
+                  token_usage: tokenUsage?.promptTokens || null,
+                },
+                // Then add assistant and tool messages with completion tokens
+                ...sanitizedResponseMessages.map((message) => {
                   return {
                     id: message.id,
                     chatId: id,
@@ -175,25 +174,13 @@ for (const toolName of availableToolNames) {
                       ? tokenUsage?.completionTokens || null 
                       : tokenUsage?.totalTokens || null,
                   };
-                }),
-              });
+                })
+              ];
               
-              // Also update the original user message with prompt token count if available
-              if (tokenUsage?.promptTokens) {
-                try {
-                  // Get the user message by ID
-                  const userMessageFromDb = await getMessageById({ id: userMessage.id });
-                  if (userMessageFromDb) {
-                    // Update the user message with proper token usage
-                    await db
-                      .update(message)
-                      .set({ token_usage: tokenUsage.promptTokens })
-                      .where(eq(message.id, userMessage.id));
-                  }
-                } catch (error) {
-                  console.error('Failed to update user message token usage', error);
-                }
-              }
+              // Save all messages including the user message in one operation
+              await saveMessages({
+                messages: messagesWithTokenUsage,
+              });
             } catch (error) {
               console.error('Failed to save chat');
             }
@@ -215,7 +202,27 @@ for (const toolName of availableToolNames) {
     },
     onError: (error) => {
       console.error('THE MASSIVE Error in chat:', error);
-      return 'Oops, an error occured!';
+      
+      // Save at least the user message if we encounter an error
+      // We'll do this in a fire-and-forget manner to avoid changing the return type
+      if (session.user?.id) {
+        (async () => {
+          try {
+            await saveMessages({
+              messages: [{
+                ...userMessage,
+                chatId: id,
+                createdAt: new Date(),
+                token_usage: null // No token usage available in error case
+              }]
+            });
+          } catch (saveError) {
+            console.error('Failed to save user message on error:', saveError);
+          }
+        })();
+      }
+      
+      return 'Oops, an error occurred!';
     },
   });
 }
