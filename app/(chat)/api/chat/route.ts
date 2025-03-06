@@ -15,29 +15,16 @@ import {
   saveMessages,
   getToolGroupsByAgentId,
   getToolsByToolGroupId,
-  getMessageById,
-  getChatsByUserId,
-  getAgentWithModelById,
 } from '@/lib/db/queries';
 import {
   generateUUID,
   getMostRecentUserMessage,
   sanitizeResponseMessages,
 } from '@/lib/utils';
-import { 
-  User,
-  message,
-} from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
-import { db } from '@/lib/db/queries';
+
 
 import { generateTitleFromUserMessage } from '../../actions';
-import { createDocument } from '@/lib/ai/tools/create-document';
-import { updateDocument } from '@/lib/ai/tools/update-document';
-import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
-import { getWeather } from '@/lib/ai/tools/get-weather';
-import { Session } from 'next-auth';
-import { retrieveTool } from '@/lib/ai/tools/retrieve';
+
 import { toolRegistry } from '@/lib/ai/tools/registry';
 
 
