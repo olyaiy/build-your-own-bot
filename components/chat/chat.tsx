@@ -68,7 +68,8 @@ export function Chat({
     id,
     body: { 
       id, 
-      selectedChatModel: modelIdentifier, // Send the actual model identifier to the API
+      selectedChatModel: modelIdentifier, // The model name/identifier for the AI request
+      selectedModelId: currentModel, // The actual database model ID for saving
       agentId: agent.id,
       agentSystemPrompt: agent?.system_prompt,
       searchEnabled // Pass the search toggle state to the API

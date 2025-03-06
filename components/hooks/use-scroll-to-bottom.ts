@@ -8,7 +8,6 @@ export function useScrollToBottom<T extends HTMLElement>(): [
   const endRef = useRef<T>(null);
 
   useEffect(() => {
-    console.log('[useScrollToBottom] Setting up scroll observer');
     const container = containerRef.current;
     const end = endRef.current;
 
@@ -18,9 +17,6 @@ export function useScrollToBottom<T extends HTMLElement>(): [
         let ignoredCount = 0;
         let unignoredCount = 0;
         const totalCount = mutations.length;
-        
-        // Log all mutations for debugging
-        console.log(`[useScrollToBottom] Mutations detected: ${totalCount}`);
         
         // Enhanced logging for each mutation
         mutations.forEach((mutation, index) => {
@@ -106,15 +102,6 @@ export function useScrollToBottom<T extends HTMLElement>(): [
             }
             return '';
           })();
-          
-          // Log detailed mutation info
-          console.log(
-            `  Mutation #${index + 1}:
-            - Type: ${mutation.type}${attributeDetail}
-            - Target: ${targetSelector}
-            - DOM Path: ${getDomPath(targetEl)}
-            - Component: ${componentInfo || 'unknown'}${nodeDetails}`
-          );
         });
         
         // Check if any mutation is a significant content change that should trigger scrolling
@@ -217,7 +204,6 @@ export function useScrollToBottom<T extends HTMLElement>(): [
                   );
                   
                   if (isUI) {
-                    console.log(`  → Identified UI element: ${tagName}.${className.split(' ')[0]}`);
                     return true;
                   }
                   
@@ -271,7 +257,6 @@ export function useScrollToBottom<T extends HTMLElement>(): [
                 unignoredCount++;
                 return true;
               } else {
-                console.log('  → No content nodes found (all were UI elements)');
                 ignoredCount++;
               }
             } else {
@@ -290,9 +275,6 @@ export function useScrollToBottom<T extends HTMLElement>(): [
         });
         
         if (shouldScroll && triggeringMutation) {
-          console.log(`[useScrollToBottom] Content change detected: ${triggeringReason}`);
-          console.log(`[useScrollToBottom] Mutation stats: ${totalCount} total, ${unignoredCount} triggered scroll, ${ignoredCount} ignored`);
-          
           // Log additional ancestry information
           const triggerTarget = (triggeringMutation as MutationRecord).target as HTMLElement;
           let ancestors = '';
@@ -311,10 +293,8 @@ export function useScrollToBottom<T extends HTMLElement>(): [
             currentEl = currentEl.parentElement;
             depth++;
           }
-          
-          console.log(`  Scrolling ancestry:${ancestors || ' none'}`);
         
-        end.scrollIntoView({ behavior: 'instant', block: 'end' });
+          end.scrollIntoView({ behavior: 'instant', block: 'end' });
         }
       });
 

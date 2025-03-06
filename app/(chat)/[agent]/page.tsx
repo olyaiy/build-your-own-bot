@@ -25,7 +25,7 @@ export default async function Page({ params }: { params: Promise<{ agent: string
       <Chat
         key={id}
         id={id}
-      agent={agentData.agent}
+        agent={agentData.agent}
         availableModels={agentData.availableModels}
         initialMessages={[]}
         selectedChatModel={defaultModelId}

@@ -11,6 +11,7 @@ import {
   boolean,
   pgEnum,
   integer,
+  numeric,
 } from 'drizzle-orm/pg-core';
 
 // Enums
@@ -42,6 +43,8 @@ export const models = pgTable("models", {
   provider: varchar("provider", { length: 255 }).notNull(),
   model_type: modelTypeEnum("model_type").default("text-small"),
   description: text("description"),
+  cost_per_million_input_tokens: numeric("cost_per_million_input_tokens", { precision: 10, scale: 4 }),
+  cost_per_million_output_tokens: numeric("cost_per_million_output_tokens", { precision: 10, scale: 4 }),
 });
 
 export type Model = typeof models.$inferSelect;
@@ -168,6 +171,8 @@ export const message = pgTable('Message', {
   content: json('content').notNull(),
   createdAt: timestamp('createdAt').notNull(),
   token_usage: integer('token_usage'),
+  model_id: uuid("model_id")
+    .references(() => models.id, { onDelete: "cascade" }),
 });
 
 export type Message = InferSelectModel<typeof message>;

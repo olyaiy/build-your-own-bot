@@ -34,7 +34,8 @@ export async function POST(request: Request) {
   const {
     id,
     messages,
-    selectedChatModel, // This will now be the ID of either the default model or a user-selected alternate model
+    selectedChatModel, // The model name/identifier for the AI request
+    selectedModelId, // The actual database model ID for saving
     agentId,
     agentSystemPrompt,
     searchEnabled,
@@ -42,6 +43,7 @@ export async function POST(request: Request) {
     id: string; 
     messages: Array<Message>; 
     selectedChatModel: string; 
+    selectedModelId: string;
     agentId: string;
     agentSystemPrompt?: string;
     searchEnabled?: boolean;
@@ -164,9 +166,15 @@ for (const toolName of availableToolNames) {
                 })
               ];
               
+              // Map the messages to include the model_id for each message
+              const messagesWithTokenUsageAndModel = messagesWithTokenUsage.map(msg => ({
+                ...msg,
+                model_id: selectedModelId, // Use the database model ID for saving
+              }));
+              
               // Save all messages including the user message in one operation
               await saveMessages({
-                messages: messagesWithTokenUsage,
+                messages: messagesWithTokenUsageAndModel
               });
             } catch (error) {
               console.error('Failed to save chat');
@@ -200,7 +208,8 @@ for (const toolName of availableToolNames) {
                 ...userMessage,
                 chatId: id,
                 createdAt: new Date(),
-                token_usage: null // No token usage available in error case
+                token_usage: null, // No token usage available in error case
+                model_id: selectedModelId // Use the database model ID for saving
               }]
             });
           } catch (saveError) {

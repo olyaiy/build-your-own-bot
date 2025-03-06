@@ -128,9 +128,20 @@ export async function getChatById({ id }: { id: string }) {
   }
 }
 
-export async function saveMessages({ messages }: { messages: Array<Message> }) {
+export async function saveMessages({ 
+  messages, 
+  model_id 
+}: { 
+  messages: Array<Message>; 
+  model_id?: string;
+}) {
   try {
-    return await db.insert(message).values(messages);
+    // If model_id is provided, set it for all messages
+    const messagesToSave = model_id 
+      ? messages.map(msg => ({ ...msg, model_id })) 
+      : messages;
+      
+    return await db.insert(message).values(messagesToSave);
   } catch (error) {
     console.error('Failed to save messages in database', error);
     throw error;
@@ -993,9 +1004,9 @@ export async function searchChatsByContent({
 
 export async function getUserTokenUsage(userId: string) {
   try {
-    // Fetch all messages from user's chats with their associated model
+    // Fetch all messages from user's chats with token usage and model information
     const userChats = await db
-      .select({ id: chat.id, agentId: chat.agentId })
+      .select({ id: chat.id })
       .from(chat)
       .where(eq(chat.userId, userId));
     
@@ -1005,12 +1016,12 @@ export async function getUserTokenUsage(userId: string) {
       return [];
     }
     
-    // Get all messages with token usage from these chats
+    // Get all messages with token usage and model_id from these chats
     const messagesWithTokens = await db
       .select({
-        chatId: message.chatId,
         role: message.role,
         tokenUsage: message.token_usage,
+        modelId: message.model_id,
       })
       .from(message)
       .where(
@@ -1025,51 +1036,55 @@ export async function getUserTokenUsage(userId: string) {
       return [];
     }
     
-    // Create a map of chatId to agentId
-    const chatToAgentMap = new Map(
-      userChats.map(chat => [chat.id, chat.agentId])
-    );
+    // Get unique model IDs from messages
+    const modelIds = Array.from(
+      new Set(
+        messagesWithTokens
+          .filter(msg => msg.modelId !== null)
+          .map(msg => msg.modelId)
+      )
+    ) as string[];
     
-    // Get agent model information
-    const agentIds = userChats
-      .filter(c => c.agentId !== null && c.agentId !== undefined)
-      .map(c => c.agentId as string);
-      
-    // If no agent IDs, return empty array or process without agent data
-    let agentModelsData: Array<{
-      agentId: string;
-      modelId: string;
+    // Fetch model information for these model IDs
+    let modelsData: Array<{
+      id: string;
       modelName: string;
       provider: string | null;
+      costPerMillionInputTokens: number | null;
+      costPerMillionOutputTokens: number | null;
     }> = [];
     
-    if (agentIds.length > 0) {
-      agentModelsData = await db
+    if (modelIds.length > 0) {
+      const rawModelsData = await db
         .select({
-          agentId: agentModels.agentId,
-          modelId: agentModels.modelId,
+          id: models.id,
           modelName: models.model_display_name,
-          provider: models.provider
+          provider: models.provider,
+          costPerMillionInputTokens: models.cost_per_million_input_tokens,
+          costPerMillionOutputTokens: models.cost_per_million_output_tokens
         })
-        .from(agentModels)
-        .innerJoin(models, eq(agentModels.modelId, models.id))
-        .where(inArray(agentModels.agentId, agentIds));
+        .from(models)
+        .where(inArray(models.id, modelIds));
+      
+      // Convert string values to numbers
+      modelsData = rawModelsData.map(model => ({
+        id: model.id,
+        modelName: model.modelName,
+        provider: model.provider,
+        costPerMillionInputTokens: model.costPerMillionInputTokens ? Number(model.costPerMillionInputTokens) : null,
+        costPerMillionOutputTokens: model.costPerMillionOutputTokens ? Number(model.costPerMillionOutputTokens) : null
+      }));
     }
     
-    // Create a map of agentId to model info
-    const agentToModelMap = new Map();
-    agentModelsData.forEach(am => {
-      // Prioritize default models
-      if (agentToModelMap.has(am.agentId)) {
-        // Only replace if this is the default model (we'd need additional query for this)
-        // For now, we'll just use the first model we find for each agent
-      } else {
-        agentToModelMap.set(am.agentId, {
-          modelId: am.modelId,
-          modelName: am.modelName,
-          provider: am.provider
-        });
-      }
+    // Create a map of model ID to model info
+    const modelInfoMap = new Map();
+    modelsData.forEach(model => {
+      modelInfoMap.set(model.id, {
+        modelName: model.modelName,
+        provider: model.provider,
+        costPerMillionInputTokens: model.costPerMillionInputTokens,
+        costPerMillionOutputTokens: model.costPerMillionOutputTokens
+      });
     });
     
     // Prepare data structure for token usage by model
@@ -1080,35 +1095,39 @@ export async function getUserTokenUsage(userId: string) {
       modelName: 'Unknown Model',
       provider: '',
       inputTokens: 0,
-      outputTokens: 0
+      outputTokens: 0,
+      costPerMillionInputTokens: null,
+      costPerMillionOutputTokens: null,
+      cost: 0
     });
     
     // Process each message and attribute to the right model
     messagesWithTokens.forEach(message => {
       if (!message.tokenUsage) return;
       
-      const chatId = message.chatId;
-      const agentId = chatToAgentMap.get(chatId);
-      
       let modelKey = 'unknown';
       let modelName = 'Unknown Model';
       let provider = '';
       
       // If we can determine the model, use it
-      if (agentId && agentToModelMap.has(agentId)) {
-        const modelInfo = agentToModelMap.get(agentId);
-        modelKey = modelInfo.modelId;
+      if (message.modelId && modelInfoMap.has(message.modelId)) {
+        modelKey = message.modelId;
+        const modelInfo = modelInfoMap.get(message.modelId);
         modelName = modelInfo.modelName;
         provider = modelInfo.provider;
       }
       
       // Initialize model data if not exists
       if (!tokenUsageByModel.has(modelKey)) {
+        const modelInfo = modelInfoMap.get(modelKey) || {};
         tokenUsageByModel.set(modelKey, {
           modelName,
           provider,
           inputTokens: 0,
-          outputTokens: 0
+          outputTokens: 0,
+          costPerMillionInputTokens: modelInfo.costPerMillionInputTokens || null,
+          costPerMillionOutputTokens: modelInfo.costPerMillionOutputTokens || null,
+          cost: 0
         });
       }
       
@@ -1119,6 +1138,19 @@ export async function getUserTokenUsage(userId: string) {
       } else {
         modelData.outputTokens += message.tokenUsage;
       }
+    });
+    
+    // Calculate costs for each model
+    tokenUsageByModel.forEach((modelData) => {
+      const inputCost = modelData.costPerMillionInputTokens 
+        ? (modelData.inputTokens / 1000000) * Number(modelData.costPerMillionInputTokens) 
+        : 0;
+      
+      const outputCost = modelData.costPerMillionOutputTokens 
+        ? (modelData.outputTokens / 1000000) * Number(modelData.costPerMillionOutputTokens) 
+        : 0;
+      
+      modelData.cost = inputCost + outputCost;
     });
     
     // Convert map to array and sort by total usage

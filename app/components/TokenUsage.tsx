@@ -22,14 +22,20 @@ interface TokenUsageProps {
 }
 
 export async function TokenUsage({ userId }: TokenUsageProps) {
+
+
+
   // Safely fetch token usage data and handle potential errors
   let tokenUsageData = [];
   try {
     tokenUsageData = await getUserTokenUsage(userId) || [];
+    console.log('THE TOKEN USAGE DATA IS .....', tokenUsageData);
   } catch (error) {
     console.error('Error fetching token usage data:', error);
     // Continue with empty array if there's an error
   }
+
+
   
   // Calculate totals only if we have data
   const totalInputTokens = tokenUsageData.length > 0 
@@ -40,10 +46,33 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
     ? tokenUsageData.reduce((sum, model) => sum + model.outputTokens, 0)
     : 0;
     
+  const totalCost = tokenUsageData.length > 0
+    ? tokenUsageData.reduce((sum, model) => sum + (model.cost || 0), 0)
+    : 0;
+    
   const grandTotal = totalInputTokens + totalOutputTokens;
   
   // Format numbers with commas
   const formatNumber = (num: number) => num.toLocaleString();
+  
+  // Format currency
+  const formatCost = (cost: number) => {
+    // For very small amounts (less than 1 cent), show in a more readable format
+    if (cost < 0.01) {
+      // For extremely small amounts, show in scientific notation
+      if (cost < 0.0001) {
+        return `$${cost.toExponential(4)}`;
+      }
+      // For small but not tiny amounts, show more decimal places
+      return `$${cost.toFixed(6)}`;
+    }
+    // For larger amounts (more than 1 cent), standard formatting is fine
+    else if (cost < 1) {
+      return `$${cost.toFixed(4)}`;
+    }
+    // For dollar amounts or more
+    return `$${cost.toFixed(2)}`;
+  };
   
   // Get provider badge color
   const getProviderColor = (provider: string) => {
@@ -81,6 +110,7 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
                 <TableHead className="text-right">Input Tokens</TableHead>
                 <TableHead className="text-right">Output Tokens</TableHead>
                 <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-right">Cost</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -101,6 +131,7 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
                     <TableCell className="text-right">{formatNumber(model.inputTokens)}</TableCell>
                     <TableCell className="text-right">{formatNumber(model.outputTokens)}</TableCell>
                     <TableCell className="text-right">{formatNumber(modelTotal)}</TableCell>
+                    <TableCell className="text-right">{model.cost !== undefined ? formatCost(model.cost) : '-'}</TableCell>
                   </TableRow>
                 );
               })}
@@ -111,6 +142,7 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
                 <TableCell className="text-right font-bold">{formatNumber(totalInputTokens)}</TableCell>
                 <TableCell className="text-right font-bold">{formatNumber(totalOutputTokens)}</TableCell>
                 <TableCell className="text-right font-bold">{formatNumber(grandTotal)}</TableCell>
+                <TableCell className="text-right font-bold">{formatCost(totalCost)}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
