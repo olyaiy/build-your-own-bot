@@ -15,12 +15,21 @@ import {
   saveMessages,
   getToolGroupsByAgentId,
   getToolsByToolGroupId,
+  getMessageById,
+  getChatsByUserId,
+  getAgentWithModelById,
 } from '@/lib/db/queries';
 import {
   generateUUID,
   getMostRecentUserMessage,
   sanitizeResponseMessages,
 } from '@/lib/utils';
+import { 
+  User,
+  message,
+} from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+import { db } from '@/lib/db/queries';
 
 import { generateTitleFromUserMessage } from '../../actions';
 import { createDocument } from '@/lib/ai/tools/create-document';
@@ -78,7 +87,12 @@ export async function POST(request: Request) {
   }
 
   await saveMessages({
-    messages: [{ ...userMessage, createdAt: new Date(), chatId: id }],
+    messages: [{ 
+      ...userMessage, 
+      createdAt: new Date(), 
+      chatId: id,
+      token_usage: null // Initial message doesn't have token usage yet
+    }],
   });
 
   return createDataStreamResponse({
@@ -137,7 +151,7 @@ for (const toolName of availableToolNames) {
         experimental_transform: smoothStream({ chunking: 'word' }),
         experimental_generateMessageId: generateUUID,
         tools,
-        onFinish: async ({ response, reasoning }) => {
+        onFinish: async ({ response, reasoning, usage }) => {
           if (session.user?.id) {
             try {
               const sanitizedResponseMessages = sanitizeResponseMessages({
@@ -145,6 +159,10 @@ for (const toolName of availableToolNames) {
                 reasoning,
               });
 
+              // Wait for the usage promise to resolve
+              const tokenUsage = await usage;
+              
+              // Save assistant and tool messages with completion token count
               await saveMessages({
                 messages: sanitizedResponseMessages.map((message) => {
                   return {
@@ -153,9 +171,29 @@ for (const toolName of availableToolNames) {
                     role: message.role,
                     content: message.content,
                     createdAt: new Date(),
+                    token_usage: message.role === 'assistant' 
+                      ? tokenUsage?.completionTokens || null 
+                      : tokenUsage?.totalTokens || null,
                   };
                 }),
               });
+              
+              // Also update the original user message with prompt token count if available
+              if (tokenUsage?.promptTokens) {
+                try {
+                  // Get the user message by ID
+                  const userMessageFromDb = await getMessageById({ id: userMessage.id });
+                  if (userMessageFromDb) {
+                    // Update the user message with proper token usage
+                    await db
+                      .update(message)
+                      .set({ token_usage: tokenUsage.promptTokens })
+                      .where(eq(message.id, userMessage.id));
+                  }
+                } catch (error) {
+                  console.error('Failed to update user message token usage', error);
+                }
+              }
             } catch (error) {
               console.error('Failed to save chat');
             }

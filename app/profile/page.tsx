@@ -9,6 +9,7 @@ import { EditUsername } from "./edit-username";
 import { auth } from "@/app/(auth)/auth";
 import { AgentList } from "@/components/agent/agent-list";
 import { getAgents } from "@/lib/db/queries";
+import { MainHeader } from "@/components/layout/main-header";
 
 export const metadata: Metadata = {
   title: "Profile",
@@ -36,6 +37,8 @@ export default async function ProfilePage() {
   const agentPreview = userAgents.slice(0, 3);
 
   return (
+    <>
+    <MainHeader />
     <div className="container max-w-5xl mx-auto py-12">
       <div className="grid gap-8">
         {/* Profile Card */}
@@ -82,5 +85,6 @@ export default async function ProfilePage() {
         </Card>
       </div>
     </div>
+    </>
   );
 } 
