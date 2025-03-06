@@ -169,6 +169,8 @@ export function Chat({
         reload={reload}
         votes={votes}
         isReadonly={isReadonly}
+        searchEnabled={searchEnabled}
+        setSearchEnabled={setSearchEnabled}
       />
     </>
   );

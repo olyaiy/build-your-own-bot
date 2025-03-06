@@ -72,6 +72,8 @@ function PureArtifact({
   reload,
   votes,
   isReadonly,
+  searchEnabled,
+  setSearchEnabled,
 }: {
   chatId: string;
   agentId: string;
@@ -98,6 +100,8 @@ function PureArtifact({
     chatRequestOptions?: ChatRequestOptions,
   ) => Promise<string | null | undefined>;
   isReadonly: boolean;
+  searchEnabled: boolean;
+  setSearchEnabled: Dispatch<SetStateAction<boolean>>;
 }) {
   const { artifact, setArtifact, metadata, setMetadata } = useArtifact();
 
@@ -356,6 +360,8 @@ function PureArtifact({
                     currentModel=""
                     onModelChange={() => {}}
                     isReadonly={isReadonly}
+                    searchEnabled={searchEnabled}
+                    setSearchEnabled={setSearchEnabled}
                   />
                 </form>
               </div>
