@@ -1020,29 +1020,41 @@ export async function getUserTokenUsage(userId: string) {
         )
       );
     
+    // If no messages with token usage, return empty array
+    if (messagesWithTokens.length === 0) {
+      return [];
+    }
+    
     // Create a map of chatId to agentId
     const chatToAgentMap = new Map(
       userChats.map(chat => [chat.id, chat.agentId])
     );
     
     // Get agent model information
-    const agentModelsData = await db
-      .select({
-        agentId: agentModels.agentId,
-        modelId: agentModels.modelId,
-        modelName: models.model_display_name,
-        provider: models.provider
-      })
-      .from(agentModels)
-      .innerJoin(models, eq(agentModels.modelId, models.id))
-      .where(
-        inArray(
-          agentModels.agentId,
-          userChats
-            .filter(c => c.agentId !== null && c.agentId !== undefined)
-            .map(c => c.agentId as string)
-        )
-      );
+    const agentIds = userChats
+      .filter(c => c.agentId !== null && c.agentId !== undefined)
+      .map(c => c.agentId as string);
+      
+    // If no agent IDs, return empty array or process without agent data
+    let agentModelsData: Array<{
+      agentId: string;
+      modelId: string;
+      modelName: string;
+      provider: string | null;
+    }> = [];
+    
+    if (agentIds.length > 0) {
+      agentModelsData = await db
+        .select({
+          agentId: agentModels.agentId,
+          modelId: agentModels.modelId,
+          modelName: models.model_display_name,
+          provider: models.provider
+        })
+        .from(agentModels)
+        .innerJoin(models, eq(agentModels.modelId, models.id))
+        .where(inArray(agentModels.agentId, agentIds));
+    }
     
     // Create a map of agentId to model info
     const agentToModelMap = new Map();
@@ -1119,6 +1131,6 @@ export async function getUserTokenUsage(userId: string) {
     return result;
   } catch (error) {
     console.error('Failed to get user token usage from database', error);
-    throw error;
+    return []; // Return empty array instead of throwing
   }
 }

@@ -22,11 +22,24 @@ interface TokenUsageProps {
 }
 
 export async function TokenUsage({ userId }: TokenUsageProps) {
-  const tokenUsageData = await getUserTokenUsage(userId);
+  // Safely fetch token usage data and handle potential errors
+  let tokenUsageData = [];
+  try {
+    tokenUsageData = await getUserTokenUsage(userId) || [];
+  } catch (error) {
+    console.error('Error fetching token usage data:', error);
+    // Continue with empty array if there's an error
+  }
   
-  // Calculate totals
-  const totalInputTokens = tokenUsageData.reduce((sum, model) => sum + model.inputTokens, 0);
-  const totalOutputTokens = tokenUsageData.reduce((sum, model) => sum + model.outputTokens, 0);
+  // Calculate totals only if we have data
+  const totalInputTokens = tokenUsageData.length > 0 
+    ? tokenUsageData.reduce((sum, model) => sum + model.inputTokens, 0)
+    : 0;
+    
+  const totalOutputTokens = tokenUsageData.length > 0
+    ? tokenUsageData.reduce((sum, model) => sum + model.outputTokens, 0)
+    : 0;
+    
   const grandTotal = totalInputTokens + totalOutputTokens;
   
   // Format numbers with commas
@@ -34,7 +47,7 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
   
   // Get provider badge color
   const getProviderColor = (provider: string) => {
-    switch (provider.toLowerCase()) {
+    switch (provider?.toLowerCase() || '') {
       case 'openai':
         return 'bg-green-100 text-green-800';
       case 'anthropic':
@@ -60,48 +73,48 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
         <Coins className="h-6 w-6 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[40%]">Model</TableHead>
-              <TableHead className="text-right">Input Tokens</TableHead>
-              <TableHead className="text-right">Output Tokens</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {tokenUsageData.map((model, index) => {
-              const modelTotal = model.inputTokens + model.outputTokens;
-              return (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">
-                    <div className="flex flex-col">
-                      <span>{model.modelName}</span>
-                      {model.provider && (
-                        <Badge className={`w-fit mt-1 ${getProviderColor(model.provider)}`} variant="outline">
-                          {model.provider}
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">{formatNumber(model.inputTokens)}</TableCell>
-                  <TableCell className="text-right">{formatNumber(model.outputTokens)}</TableCell>
-                  <TableCell className="text-right">{formatNumber(modelTotal)}</TableCell>
-                </TableRow>
-              );
-            })}
-            
-            {/* Totals row */}
-            <TableRow className="border-t-2">
-              <TableCell className="font-bold">Total</TableCell>
-              <TableCell className="text-right font-bold">{formatNumber(totalInputTokens)}</TableCell>
-              <TableCell className="text-right font-bold">{formatNumber(totalOutputTokens)}</TableCell>
-              <TableCell className="text-right font-bold">{formatNumber(grandTotal)}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-        
-        {tokenUsageData.length === 0 && (
+        {tokenUsageData.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[40%]">Model</TableHead>
+                <TableHead className="text-right">Input Tokens</TableHead>
+                <TableHead className="text-right">Output Tokens</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {tokenUsageData.map((model, index) => {
+                const modelTotal = model.inputTokens + model.outputTokens;
+                return (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">
+                      <div className="flex flex-col">
+                        <span>{model.modelName}</span>
+                        {model.provider && (
+                          <Badge className={`w-fit mt-1 ${getProviderColor(model.provider)}`} variant="outline">
+                            {model.provider}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">{formatNumber(model.inputTokens)}</TableCell>
+                    <TableCell className="text-right">{formatNumber(model.outputTokens)}</TableCell>
+                    <TableCell className="text-right">{formatNumber(modelTotal)}</TableCell>
+                  </TableRow>
+                );
+              })}
+              
+              {/* Totals row */}
+              <TableRow className="border-t-2">
+                <TableCell className="font-bold">Total</TableCell>
+                <TableCell className="text-right font-bold">{formatNumber(totalInputTokens)}</TableCell>
+                <TableCell className="text-right font-bold">{formatNumber(totalOutputTokens)}</TableCell>
+                <TableCell className="text-right font-bold">{formatNumber(grandTotal)}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        ) : (
           <div className="flex justify-center items-center h-24 text-muted-foreground">
             No token usage data available
           </div>

@@ -209,7 +209,14 @@ for (const toolName of availableToolNames) {
         })();
       }
       
-      return 'Oops, an error occurred!';
+      // Return a more descriptive error message
+      if (error instanceof Error) {
+        return `Error: ${error.message}`;
+      } else if (typeof error === 'string') {
+        return `Error: ${error}`;
+      } else {
+        return 'Oops, an error occurred! Please try again.';
+      }
     },
   });
 }

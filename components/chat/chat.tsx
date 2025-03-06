@@ -81,7 +81,14 @@ export function Chat({
       mutate('/api/history');
     },
     onError: (error) => {
-      toast.error('An error occured, please try again!');
+      // Extract the error message or use a fallback
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : typeof error === 'string' 
+          ? error 
+          : 'An error occurred, please try again!';
+      
+      toast.error(errorMessage);
     },
   });
 
