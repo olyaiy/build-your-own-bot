@@ -82,11 +82,10 @@ export default async function ChatsPage({
   }
   
   return (
-    <div className="container max-w-6xl py-8 mx-auto ">
-        <div className="px-6">
-        <MainHeader />
-        </div>
-      <div className="space-y-8 px-8 mt-2">
+    <>
+    <MainHeader />
+    <div className="container max-w-6xl py-2 mx-auto ">
+      <div className="space-y-8 px-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
           <div>
             <h1 className="text-4xl font-bold tracking-tight">Chat History</h1>
@@ -124,5 +123,6 @@ export default async function ChatsPage({
         </div>
       </div>
     </div>
+    </>
   );
 }
