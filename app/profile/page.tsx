@@ -10,6 +10,7 @@ import { auth } from "@/app/(auth)/auth";
 import { AgentList } from "@/components/agent/agent-list";
 import { getAgents } from "@/lib/db/queries";
 import { MainHeader } from "@/components/layout/main-header";
+import { TokenUsage } from '@/app/components/TokenUsage';
 
 export const metadata: Metadata = {
   title: "Profile",
@@ -39,7 +40,7 @@ export default async function ProfilePage() {
   return (
     <>
     <MainHeader />
-    <div className="container max-w-5xl mx-auto py-12">
+    <div className="container max-w-5xl mx-auto py-4 px-4">
       <div className="grid gap-8">
         {/* Profile Card */}
         <Card className="shadow-sm">
@@ -59,6 +60,9 @@ export default async function ProfilePage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Token Usage Card */}
+        <TokenUsage userId={userId} />
 
         {/* Agents Preview Section */}
         <Card className="shadow-sm">

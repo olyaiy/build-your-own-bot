@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { genSaltSync, hashSync } from 'bcrypt-ts';
-import { and, asc, desc, eq, gt, gte, inArray, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, inArray, isNotNull, or, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { generateSlug } from '@/lib/utils';
@@ -987,6 +987,138 @@ export async function searchChatsByContent({
     return result;
   } catch (error) {
     console.error('Failed to search messages by content', error);
+    throw error;
+  }
+}
+
+export async function getUserTokenUsage(userId: string) {
+  try {
+    // Fetch all messages from user's chats with their associated model
+    const userChats = await db
+      .select({ id: chat.id, agentId: chat.agentId })
+      .from(chat)
+      .where(eq(chat.userId, userId));
+    
+    const chatIds = userChats.map(chat => chat.id);
+    
+    if (chatIds.length === 0) {
+      return [];
+    }
+    
+    // Get all messages with token usage from these chats
+    const messagesWithTokens = await db
+      .select({
+        chatId: message.chatId,
+        role: message.role,
+        tokenUsage: message.token_usage,
+      })
+      .from(message)
+      .where(
+        and(
+          inArray(message.chatId, chatIds),
+          isNotNull(message.token_usage)
+        )
+      );
+    
+    // Create a map of chatId to agentId
+    const chatToAgentMap = new Map(
+      userChats.map(chat => [chat.id, chat.agentId])
+    );
+    
+    // Get agent model information
+    const agentModelsData = await db
+      .select({
+        agentId: agentModels.agentId,
+        modelId: agentModels.modelId,
+        modelName: models.model_display_name,
+        provider: models.provider
+      })
+      .from(agentModels)
+      .innerJoin(models, eq(agentModels.modelId, models.id))
+      .where(
+        inArray(
+          agentModels.agentId,
+          userChats
+            .filter(c => c.agentId !== null && c.agentId !== undefined)
+            .map(c => c.agentId as string)
+        )
+      );
+    
+    // Create a map of agentId to model info
+    const agentToModelMap = new Map();
+    agentModelsData.forEach(am => {
+      // Prioritize default models
+      if (agentToModelMap.has(am.agentId)) {
+        // Only replace if this is the default model (we'd need additional query for this)
+        // For now, we'll just use the first model we find for each agent
+      } else {
+        agentToModelMap.set(am.agentId, {
+          modelId: am.modelId,
+          modelName: am.modelName,
+          provider: am.provider
+        });
+      }
+    });
+    
+    // Prepare data structure for token usage by model
+    const tokenUsageByModel = new Map();
+    
+    // Default "unknown model" for messages without model info
+    tokenUsageByModel.set('unknown', {
+      modelName: 'Unknown Model',
+      provider: '',
+      inputTokens: 0,
+      outputTokens: 0
+    });
+    
+    // Process each message and attribute to the right model
+    messagesWithTokens.forEach(message => {
+      if (!message.tokenUsage) return;
+      
+      const chatId = message.chatId;
+      const agentId = chatToAgentMap.get(chatId);
+      
+      let modelKey = 'unknown';
+      let modelName = 'Unknown Model';
+      let provider = '';
+      
+      // If we can determine the model, use it
+      if (agentId && agentToModelMap.has(agentId)) {
+        const modelInfo = agentToModelMap.get(agentId);
+        modelKey = modelInfo.modelId;
+        modelName = modelInfo.modelName;
+        provider = modelInfo.provider;
+      }
+      
+      // Initialize model data if not exists
+      if (!tokenUsageByModel.has(modelKey)) {
+        tokenUsageByModel.set(modelKey, {
+          modelName,
+          provider,
+          inputTokens: 0,
+          outputTokens: 0
+        });
+      }
+      
+      // Add token usage to appropriate category
+      const modelData = tokenUsageByModel.get(modelKey);
+      if (message.role === 'user') {
+        modelData.inputTokens += message.tokenUsage;
+      } else {
+        modelData.outputTokens += message.tokenUsage;
+      }
+    });
+    
+    // Convert map to array and sort by total usage
+    const result = Array.from(tokenUsageByModel.values())
+      .filter(model => model.inputTokens > 0 || model.outputTokens > 0)
+      .sort((a, b) => 
+        (b.inputTokens + b.outputTokens) - (a.inputTokens + a.outputTokens)
+      );
+    
+    return result;
+  } catch (error) {
+    console.error('Failed to get user token usage from database', error);
     throw error;
   }
 }
