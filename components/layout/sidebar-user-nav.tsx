@@ -45,7 +45,7 @@ export function SidebarUserNav({ user }: { user: User }) {
           >
             <DropdownMenuItem asChild>
               <Link href="/profile" className="flex items-center cursor-pointer">
-                <UserCircle className="mr-2 h-4 w-4" />
+                <UserCircle className="mr-2 size-4" />
                 <span>View Profile</span>
               </Link>
             </DropdownMenuItem>

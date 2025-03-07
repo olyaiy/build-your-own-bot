@@ -90,7 +90,7 @@ export const SearchResultsImageSection: React.FC<
               onClick={() => setSelectedIndex(index)}
             >
               <Card className="flex-1 h-full">
-                <CardContent className="p-2 h-full w-full">
+                <CardContent className="p-2 size-full">
                   {image ? (
                     <img
                       src={image.url}

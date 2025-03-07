@@ -26,7 +26,7 @@ export default function EmptyState() {
         <Button asChild size="lg" className="group">
           <Link href="/" className="flex items-center gap-2">
             Start a conversation
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </Button>
         <Button asChild variant="outline" size="lg">

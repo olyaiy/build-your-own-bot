@@ -94,7 +94,7 @@ export default async function ChatsPage({
           
           <div className="flex flex-col md:flex-row items-end md:items-center gap-4">
             <form className="relative w-full md:w-auto">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
               <Input 
                 type="search"
                 name="search"

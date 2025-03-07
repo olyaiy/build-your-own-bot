@@ -53,7 +53,7 @@ export function ToolGroupSelector({
             >
               {isSelected && (
                 <div className="absolute top-2 right-2">
-                  <CheckIcon className="h-4 w-4 text-primary" />
+                  <CheckIcon className="size-4 text-primary" />
                 </div>
               )}
               <div className="font-medium truncate">{group.displayName}</div>

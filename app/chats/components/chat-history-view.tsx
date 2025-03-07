@@ -37,7 +37,7 @@ function PaginationButton({ direction, isDisabled, currentPage }: PaginationButt
         className="h-8 w-8" 
         disabled
       >
-        <Icon className="h-4 w-4" />
+        <Icon className="size-4" />
       </Button>
     );
   }
@@ -53,7 +53,7 @@ function PaginationButton({ direction, isDisabled, currentPage }: PaginationButt
       asChild
     >
       <Link href={`/chats?page=${pageNumber}`}>
-        <Icon className="h-4 w-4" />
+        <Icon className="size-4" />
       </Link>
     </Button>
   );
