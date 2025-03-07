@@ -243,22 +243,22 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
           <div className="w-full h-0 pb-[75%] relative bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
             {isUploading ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <Loader2 className="h-10 w-10 text-gray-400 animate-spin" />
+                <Loader2 className="size-10 text-gray-400 animate-spin" />
                 <span className="mt-2 text-sm text-gray-500">Uploading...</span>
               </div>
             ) : imageUrl ? (
               <div className="absolute inset-0">
-                <div className="relative w-full h-full">
+                <div className="relative size-full">
                   <Image 
                     src={imageUrl} 
                     alt="Agent profile" 
                     width={400}
                     height={300}
-                    className="w-full h-full object-cover"
+                    className="size-full object-cover"
                     sizes="(max-width: 768px) 100vw, 25vw"
                     priority
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black bg-black/0 hover:bg-black/40 transition-all duration-200 flex items-center justify-center">
                     <Button 
                       type="button" 
                       variant="secondary" 
@@ -278,7 +278,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                     onClick={handleDeleteImage}
                     disabled={isDeletingImage}
                   >
-                    {isDeletingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    {isDeletingImage ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
                   </Button>
                 </div>
               </div>
@@ -378,7 +378,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                         onClick={() => handleRemoveAlternateModel(modelId)}
                         className="ml-1 text-muted-foreground hover:text-foreground"
                       >
-                        <X className="h-3 w-3" />
+                        <X className="size-3" />
                       </button>
                     </Badge>
                   ) : null;
