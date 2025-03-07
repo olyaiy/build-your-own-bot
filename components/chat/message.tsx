@@ -217,15 +217,15 @@ const PurePreviewMessage = ({
             )}
 
             {/* Updated token usage display with conditional alignment */}
-              {/* Updated token usage display with conditional alignment */}
-              {(message as any).token_usage && (
+            {(message as any).token_usage && (
               <div className={cn(
                 "text-xs text-muted-foreground mt-1 opacity-70",
                 message.role === 'user' ? "flex justify-end" : "flex justify-start"
               )}>
-                {(message as any).token_usage.toLocaleString()} tokens
+                {(message as any).token_usage.toLocaleString()} {message.role === 'user' ? "input tokens" : "output tokens"}
               </div>
             )}
+
 
           </div>
         </div>
