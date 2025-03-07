@@ -30,6 +30,7 @@ export const myProvider = customProvider({
     'claude-3-7-sonnet-20250219': anthropic('claude-3-7-sonnet-20250219'),
     'o1-mini': openai('o1-mini'), 
     'o1': openai('o1'),
+    'o3-mini': openai('o3-mini'), // Added this missing model
   },
   imageModels: {
     'small-model': openai.image('dall-e-2'),
@@ -42,8 +43,19 @@ export interface ChatModel {
   name: string;
   description: string;
   provider: string;
+  supportsReasoning?: boolean; // Add this field to indicate reasoning support
+  defaultReasoningConfig?: Record<string, any>; // Add default reasoning configuration
 }
 
+// Define default reasoning configurations by provider
+export const REASONING_CONFIGS = {
+  anthropic: {
+    thinking: { type: 'enabled', budgetTokens: 12000 }
+  },
+  openai: {
+    thinking: { type: 'enabled', budgetTokens: 8000 }
+  }
+};
 
 export const chatModels: Array<ChatModel> = [
   {
@@ -110,54 +122,68 @@ export const chatModels: Array<ChatModel> = [
     id: 'claude-3-7-sonnet-20250219',
     name: 'Claude 3.7 Sonnet',
     description: 'Anthropic Claude 3.7 Sonnet',
-    provider: 'Anthropic'
+    provider: 'Anthropic',
+    supportsReasoning: true,
+    defaultReasoningConfig: REASONING_CONFIGS.anthropic
   },
   {
     id: 'claude-3-5-sonnet-20241022',
     name: 'Claude 3.5 Sonnet',
     description: 'Anthropic Claude 3.5 Sonnet',
-    provider: 'Anthropic'
+    provider: 'Anthropic',
+    supportsReasoning: true,
+    defaultReasoningConfig: REASONING_CONFIGS.anthropic
   },
   {
     id: 'claude-3-5-haiku-20241022',
     name: 'Claude 3.5 Haiku',
     description: 'Anthropic Claude 3.5 Haiku',
-    provider: 'Anthropic'
+    provider: 'Anthropic',
+    supportsReasoning: true,
+    defaultReasoningConfig: REASONING_CONFIGS.anthropic
   },
   {
     id: 'deepseek-reasoner',
     name: 'DeepSeek R1',
     description: 'Deepseek R1 Reasoning Model',
-    provider: 'DeepSeek'
+    provider: 'DeepSeek',
+    supportsReasoning: true
   },
   {
     id: 'o1-mini',
     name: 'OpenAI o1 Mini',
-    description: 'Openai o1 Mini Reasoning Model',
-    provider: 'Openai'
+    description: 'OpenAI o1 Mini Reasoning Model',
+    provider: 'OpenAI',
+    supportsReasoning: true,
+    defaultReasoningConfig: REASONING_CONFIGS.openai
   },
   {
     id: 'o1',
     name: 'O1',
     description: 'OpenAI O1 reasoning model',
-    provider: 'OpenAI'
+    provider: 'OpenAI',
+    supportsReasoning: true,
+    defaultReasoningConfig: REASONING_CONFIGS.openai
   },
   {
     id: 'o3-mini',
-    name: 'OpenAI o1 Mini',
-    description: 'Openai o1 Mini Reasoning Model',
-    provider: 'Openai'
+    name: 'O3 Mini',
+    description: 'OpenAI O3 Mini Reasoning Model',
+    provider: 'OpenAI',
+    supportsReasoning: true,
+    defaultReasoningConfig: REASONING_CONFIGS.openai
   },
-  
 ];
-
 
 // Different reasoning models have different capabilities
 export const REASONING_MODEL_IDS = [
   'deepseek-reasoner',
   'o3-mini',
   'o1',
-  'o1-mini'
+  'o1-mini',
+  'claude-3-7-sonnet-20250219',
+  'claude-3-5-sonnet-20241022',
+  'claude-3-5-haiku-20241022'
 ];
 
 // Models that support tools
@@ -185,6 +211,18 @@ export const supportsObjectGeneration = (modelId: string): boolean => {
 };
 
 export const supportsReasoningEffort = (modelId: string): boolean => {
-  return ['o1', 'o1-mini', 'o3-mini'].includes(modelId);
+  return ['o1', 'o1-mini', 'o3-mini', 'claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022'].includes(modelId);
 };
 
+// Helper function to get default provider options for a model
+export const getDefaultProviderOptions = (modelId: string): Record<string, Record<string, any>> | undefined => {
+  const model = chatModels.find(m => m.id === modelId);
+  
+  if (model?.supportsReasoning && model?.defaultReasoningConfig) {
+    return {
+      [model.provider.toLowerCase()]: model.defaultReasoningConfig
+    };
+  }
+  
+  return undefined;
+};

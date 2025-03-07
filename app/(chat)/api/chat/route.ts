@@ -77,7 +77,8 @@ export async function POST(request: Request) {
   }
 
   const modelDetails = await getModelById(selectedModelId);
-  const providerOptions = modelDetails?.provider_options as Record<string, Record<string, any>> | undefined;
+  const jsonProviderOptions = modelDetails?.provider_options as Record<string, Record<string, any>> | undefined;
+  const providerOptions = JSON.parse(JSON.stringify(jsonProviderOptions));
 
   console.log("THE PROVIDER OPTIONS AREEEE....", providerOptions)
 
@@ -85,6 +86,8 @@ export async function POST(request: Request) {
 
   return createDataStreamResponse({
     execute: async (dataStream) => {
+
+
       // Fetch the tool groups for this agent
       const agentToolGroups = await getToolGroupsByAgentId(agentId);
       
@@ -101,23 +104,22 @@ export async function POST(request: Request) {
           .flat()
           .map(tool => tool.tool)
       )];
-      
 
       // Create tools object with the appropriate tools
       const registry = toolRegistry({ session, dataStream });
 
-const tools: Record<string, any> = {};
-for (const toolName of availableToolNames) {
-  // Special handling for searchTool based on the searchEnabled flag
-  // Only exclude the search tool if searchEnabled is explicitly false
-  if (toolName === 'searchTool' && searchEnabled === false) {
-    continue; // Skip adding the search tool if searchEnabled is false
-  }
-  
-  if (toolName in registry && registry[toolName as keyof typeof registry]) {
-    tools[toolName] = registry[toolName as keyof typeof registry];
-  }
-}
+      const tools: Record<string, any> = {};
+      for (const toolName of availableToolNames) {
+        // Special handling for searchTool based on the searchEnabled flag
+        // Only exclude the search tool if searchEnabled is explicitly false
+        if (toolName === 'searchTool' && searchEnabled === false) {
+          continue; // Skip adding the search tool if searchEnabled is false
+        }
+        
+        if (toolName in registry && registry[toolName as keyof typeof registry]) {
+          tools[toolName] = registry[toolName as keyof typeof registry];
+        }
+      }
 
       // Get the list of tool names that are actually available
       const activeToolNames = Object.keys(tools);
@@ -137,6 +139,11 @@ for (const toolName of availableToolNames) {
             : [],
 
         providerOptions,
+        // providerOptions: {
+        //   anthropic: {
+        //     thinking: { type: 'enabled', budgetTokens: 12000 },
+        //   },
+        // },      
         experimental_transform: smoothStream({ chunking: 'word' }),
         experimental_generateMessageId: generateUUID,
         tools,
@@ -197,8 +204,8 @@ for (const toolName of availableToolNames) {
           functionId: 'stream-text',
         },
         toolCallStreaming: true,
-        
       });
+
 
       result.consumeStream();
 

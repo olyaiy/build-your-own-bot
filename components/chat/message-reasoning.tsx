@@ -7,7 +7,7 @@ import { Markdown } from '@/components/util/markdown';
 
 interface MessageReasoningProps {
   isLoading: boolean;
-  reasoning: string | { type: string; details: Array<{type: string; text?: string}> };
+  reasoning: string;
 }
 
 export function MessageReasoning({
@@ -30,27 +30,6 @@ export function MessageReasoning({
       marginBottom: '0.5rem',
     },
   };
-
-  // Process the reasoning content based on its format
-  const getReasoningContent = () => {
-    // If reasoning is a string (old format), return it directly
-    if (typeof reasoning === 'string') {
-      return reasoning;
-    }
-    
-    // If reasoning is an object with the new format (type + details)
-    if (reasoning && typeof reasoning === 'object' && 'details' in reasoning) {
-      return reasoning.details
-        .filter(detail => detail.type === 'text' && detail.text)
-        .map(detail => detail.text)
-        .join('\n\n');
-    }
-    
-    // Fallback for unexpected formats
-    return JSON.stringify(reasoning);
-  };
-
-  const reasoningContent = getReasoningContent();
 
   return (
     <div className="flex flex-col">
@@ -87,7 +66,7 @@ export function MessageReasoning({
             style={{ overflow: 'hidden' }}
             className="pl-4 text-zinc-600 dark:text-zinc-400 border-l flex flex-col gap-4"
           >
-            <Markdown>{reasoningContent}</Markdown>
+            <Markdown>{reasoning}</Markdown>
           </motion.div>
         )}
       </AnimatePresence>
