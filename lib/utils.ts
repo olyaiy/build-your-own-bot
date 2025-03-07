@@ -11,6 +11,12 @@ import { twMerge } from 'tailwind-merge';
 
 import type { Message as DBMessage, Document } from '@/lib/db/schema';
 
+export interface ExtendedMessage extends Message {
+  token_usage?: number | null;
+  model_id?: string | null;
+}
+
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -87,8 +93,8 @@ function addToolMessageToChat({
 
 export function convertToUIMessages(
   messages: Array<DBMessage>,
-): Array<Message> {
-  return messages.reduce((chatMessages: Array<Message>, message) => {
+): Array<ExtendedMessage> {
+  return messages.reduce((chatMessages: Array<ExtendedMessage>, message) => {
     if (message.role === 'tool') {
       return addToolMessageToChat({
         toolMessage: message as CoreToolMessage,
@@ -125,11 +131,13 @@ export function convertToUIMessages(
       content: textContent,
       reasoning,
       toolInvocations,
+      token_usage: message.token_usage, // Add token_usage from the DB message
     });
 
     return chatMessages;
   }, []);
 }
+
 
 type ResponseMessageWithoutId = CoreToolMessage | CoreAssistantMessage;
 type ResponseMessage = ResponseMessageWithoutId & { id: string };

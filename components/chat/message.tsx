@@ -215,6 +215,18 @@ const PurePreviewMessage = ({
                 isLoading={isLoading}
               />
             )}
+
+            {/* Updated token usage display with conditional alignment */}
+              {/* Updated token usage display with conditional alignment */}
+              {(message as any).token_usage && (
+              <div className={cn(
+                "text-xs text-muted-foreground mt-1 opacity-70",
+                message.role === 'user' ? "flex justify-end" : "flex justify-start"
+              )}>
+                {(message as any).token_usage.toLocaleString()} tokens
+              </div>
+            )}
+
           </div>
         </div>
       </motion.div>
@@ -256,6 +268,9 @@ export const PreviewMessage = memo(
       
     // Check vote changes
     if (!equal(prevProps.vote, nextProps.vote)) return false;
+
+    // Also compare token_usage to prevent unnecessary rerenders
+    if ((prevProps.message as any).token_usage !== (nextProps.message as any).token_usage) return false;
 
     return true;
   },
