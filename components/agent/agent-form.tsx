@@ -193,7 +193,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6  z-[100] relative">
+    <form onSubmit={handleSubmit} className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6  z-[100]">
       
         
               {/* Action Buttons at Top Right */}
@@ -350,8 +350,8 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
           </div>
 
           {/* Models Section */}
-          <div className="space-y-4">
-            <div>
+          <div className="space-y-4 relative">
+            <div className="relative">
               <Label htmlFor="primaryModel" className="text-lg font-semibold">Primary Model</Label>
               <ModelSelector
                 id="primaryModel"
@@ -359,7 +359,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                 value={primaryModelId}
                 onValueChange={handlePrimaryModelChange}
                 placeholder="Select a primary model"
-                className="mt-2 text-start py-2 h-12"
+                className="mt-2 text-start py-2 h-12 z-[9999] "
                 required
               />
             </div>
