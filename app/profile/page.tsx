@@ -11,6 +11,8 @@ import { AgentList } from "@/components/agent/agent-list";
 import { getAgents } from "@/lib/db/queries";
 import { MainHeader } from "@/components/layout/main-header";
 import { TokenUsage } from '@/app/components/TokenUsage';
+import { DollarSign } from "lucide-react"; // Changed to DollarSign icon for currency
+
 
 export const metadata: Metadata = {
   title: "Profile",
@@ -32,6 +34,13 @@ export default async function ProfilePage() {
     return notFound();
   }
 
+
+    // Format credit balance as dollars with '$' symbol
+    const dollarCredits = user.credit_balance 
+    ? `$${parseFloat(user.credit_balance.toString()).toFixed(2)}`
+    : '$0.00';
+
+
   // Fetch user's agents
   const userAgents = await getAgents(userId);
   // Limit to just a preview (3 agents)
@@ -42,7 +51,7 @@ export default async function ProfilePage() {
     <MainHeader />
     <div className="container max-w-5xl mx-auto p-4">
       <div className="grid gap-8">
-        {/* Profile Card */}
+                        {/* Profile Card */}
         <Card className="shadow-sm">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-bold">Profile</CardTitle>
@@ -56,10 +65,23 @@ export default async function ProfilePage() {
               <div className="flex-1 space-y-2">
                 <EditUsername user={user} />
                 <p className="text-sm text-muted-foreground">{user.email}</p>
+                
+                {/* Credit Balance Display with Dollar Format */}
+                <div className="flex items-center mt-2 p-2 bg-muted/30 rounded-md">
+                  <div className="w-8 h-8 flex items-center justify-center bg-primary/20 rounded-full mr-2">
+                    <DollarSign className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Available Credits (USD)</p>
+                    <p className="text-sm font-semibold">{dollarCredits}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+
 
         {/* Token Usage Card */}
         <TokenUsage userId={userId} />
