@@ -9,7 +9,7 @@ import { useLocalStorage } from 'usehooks-ts';
 
 import { ChatHeader } from '@/components/chat/chat-header';
 import type { Vote } from '@/lib/db/schema';
-import { fetcher, generateUUID } from '@/lib/utils';
+import { convertToUIMessages, fetcher, generateUUID } from '@/lib/utils';
 import { MultimodalInput } from '@/components/chat/multimodal-input';
 import { Messages } from '@/components/chat/messages';
 import { useArtifactSelector } from '@/hooks/use-artifact';
@@ -80,6 +80,14 @@ export function Chat({
     generateId: generateUUID,
     onFinish: () => {
       mutate('/api/history');
+
+      fetch(`/api/chat/messages?chatId=${id}`)
+      .then(res => res.json())
+      .then(latestMessages => {
+        // Update the messages with token usage information
+        setMessages(convertToUIMessages(latestMessages));
+      });
+  
     },
     onError: (error) => {
       // Extract the error message or use a fallback
