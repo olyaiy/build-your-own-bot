@@ -73,6 +73,36 @@ const PurePreviewMessage = ({
 }) => {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
 
+  // Process the message to extract content and reasoning from either format
+  const processMessage = (message: Message) => {
+    // For messages with parts (new format)
+    if (message.parts && Array.isArray(message.parts)) {
+      let textContent = '';
+      let reasoningContent = null;
+      
+      message.parts.forEach(part => {
+        if (part.type === 'text' && part.text) {
+          textContent += part.text;
+        } else if (part.type === 'reasoning') {
+          reasoningContent = part;
+        }
+      });
+      
+      return {
+        content: textContent || message.content,
+        reasoning: reasoningContent || message.reasoning
+      };
+    }
+    
+    // For legacy format
+    return {
+      content: message.content,
+      reasoning: message.reasoning
+    };
+  };
+
+  const { content, reasoning } = processMessage(message);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -110,10 +140,10 @@ const PurePreviewMessage = ({
               </div>
             )}
 
-            {message.reasoning && (
+            {reasoning && (
               <MessageReasoning
                 isLoading={isLoading}
-                reasoning={message.reasoning}
+                reasoning={reasoning}
               />
             )}
 
@@ -129,7 +159,7 @@ const PurePreviewMessage = ({
               </div>
             )}
 
-            {(message.content || message.reasoning) && mode === 'view' && (
+            {(content || reasoning) && mode === 'view' && (
               <div className="flex flex-row gap-2 items-start">
                 {message.role === 'user' && !isReadonly && (
                   <Tooltip>
@@ -154,18 +184,21 @@ const PurePreviewMessage = ({
                       message.role === 'user',
                   })}
                 >
-                  <Markdown>{message.content as string}</Markdown>
+                  <Markdown>{content as string}</Markdown>
                 </div>
               </div>
             )}
 
-            {message.content && mode === 'edit' && (
+            {content && mode === 'edit' && (
               <div className="flex flex-row gap-2 items-start">
                 <div className="size-8" />
 
                 <MessageEditor
                   key={message.id}
-                  message={message}
+                  message={{
+                    ...message,
+                    content: content as string  // Make sure we edit the processed content
+                  }}
                   setMode={setMode}
                   setMessages={setMessages}
                   reload={reload}
@@ -192,10 +225,27 @@ const PurePreviewMessage = ({
 export const PreviewMessage = memo(
   PurePreviewMessage,
   (prevProps, nextProps) => {
+    // Check for loading state changes
     if (prevProps.isLoading !== nextProps.isLoading) return false;
-    if (prevProps.message.reasoning !== nextProps.message.reasoning)
-      return false;
+    
+    // Check for reasoning updates in both formats
+    const prevReasoning = prevProps.message.reasoning !== undefined;
+    const nextReasoning = nextProps.message.reasoning !== undefined;
+    if (prevReasoning !== nextReasoning) return false;
+    if (prevReasoning && nextReasoning && 
+        !equal(prevProps.message.reasoning, nextProps.message.reasoning)) return false;
+    
+    // Check for parts array updates
+    const prevHasParts = Array.isArray(prevProps.message.parts);
+    const nextHasParts = Array.isArray(nextProps.message.parts);
+    if (prevHasParts !== nextHasParts) return false;
+    if (prevHasParts && nextHasParts && 
+        !equal(prevProps.message.parts, nextProps.message.parts)) return false;
+    
+    // Check content changes
     if (prevProps.message.content !== nextProps.message.content) return false;
+    
+    // Check tool invocations
     if (
       !equal(
         prevProps.message.toolInvocations,
@@ -203,6 +253,8 @@ export const PreviewMessage = memo(
       )
     )
       return false;
+      
+    // Check vote changes
     if (!equal(prevProps.vote, nextProps.vote)) return false;
 
     return true;

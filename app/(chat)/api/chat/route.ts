@@ -14,6 +14,7 @@ import {
   saveMessages,
   getToolGroupsByAgentId,
   getToolsByToolGroupId,
+  getModelById,
 } from '@/lib/db/queries';
 import {
   generateUUID,
@@ -28,6 +29,8 @@ import { toolRegistry } from '@/lib/ai/tools/registry';
 
 
 export const maxDuration = 60;
+
+
 
 export async function POST(request: Request) {
   const {
@@ -47,7 +50,6 @@ export async function POST(request: Request) {
     agentSystemPrompt?: string;
     searchEnabled?: boolean;
   } = await request.json();
-
 
   
   const session = await auth();
@@ -73,6 +75,13 @@ export async function POST(request: Request) {
       return new Response('Failed to create chat', { status: 500 });
     }
   }
+
+  const modelDetails = await getModelById(selectedModelId);
+  const providerOptions = modelDetails?.provider_options as Record<string, Record<string, any>> | undefined;
+
+  console.log("THE PROVIDER OPTIONS AREEEE....", providerOptions)
+
+  console.log("THE MODEL ITSELF IS", selectedChatModel)
 
   return createDataStreamResponse({
     execute: async (dataStream) => {
@@ -127,6 +136,7 @@ for (const toolName of availableToolNames) {
             ? activeToolNames
             : [],
 
+        providerOptions,
         experimental_transform: smoothStream({ chunking: 'word' }),
         experimental_generateMessageId: generateUUID,
         tools,
@@ -137,6 +147,8 @@ for (const toolName of availableToolNames) {
                 messages: response.messages,
                 reasoning,
               });
+
+              console.log("THE REASONING WAS...", reasoning)
 
               // Wait for the usage promise to resolve
               const tokenUsage = await usage;
@@ -190,6 +202,7 @@ for (const toolName of availableToolNames) {
 
       result.consumeStream();
 
+      
       result.mergeIntoDataStream(dataStream, {
         sendReasoning: true,
       });

@@ -142,6 +142,12 @@ export const chatModels: Array<ChatModel> = [
     description: 'OpenAI O1 reasoning model',
     provider: 'OpenAI'
   },
+  {
+    id: 'o3-mini',
+    name: 'OpenAI o1 Mini',
+    description: 'Openai o1 Mini Reasoning Model',
+    provider: 'Openai'
+  },
   
 ];
 
