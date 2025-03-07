@@ -32,6 +32,8 @@ export const user = pgTable('User', {
   email: varchar('email', { length: 64 }).notNull(),
   password: varchar('password', { length: 64 }),
   user_name: varchar('user_name', { length: 64 }),
+  credit_balance: numeric('credit_balance', { precision: 19, scale: 9 }).default('0'),
+  lifetime_credits: numeric('lifetime_credits', { precision: 19, scale: 9 }).default('0'),
 });
 
 export type User = InferSelectModel<typeof user>;
@@ -241,3 +243,25 @@ export const agentToolGroups = pgTable("agent_tool_groups", {
 
 export type AgentToolGroup = typeof agentToolGroups.$inferSelect;
 
+
+
+// Enum for transaction types
+export const transactionTypeEnum = pgEnum("transaction_type", [
+  "usage",
+  "purchase",
+  "refund",
+  "promotional",
+  "adjustment"
+]);
+
+export const userTransactions = pgTable('user_transactions', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => user.id),
+  amount: numeric('amount', { precision: 19, scale: 9 }).notNull(),
+  type: transactionTypeEnum('type').notNull(),
+  description: text('description'),
+  messageId: uuid('message_id').references(() => message.id),
+  created_at: timestamp('created_at').notNull().defaultNow(),
+});
+
+export type UserTransaction = InferSelectModel<typeof userTransactions>;
