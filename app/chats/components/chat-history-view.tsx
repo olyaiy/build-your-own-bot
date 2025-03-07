@@ -14,8 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { GlobeIcon, LockIcon, MessageSquare as MessageIcon, Search as SearchIcon } from 'lucide-react';
+import { GlobeIcon, LockIcon, MessageSquare as MessageIcon, Search as SearchIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Simple pagination button component

@@ -2,10 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAgent as createAgentQuery, deleteAgentQuery, getAgentById, updateAgentById } from '@/lib/db/queries';
-import { agents, agentModels, agentToolGroups } from '@/lib/db/schema';
-import { type AgentVisibility } from '@/lib/db/schema';
+import { agentModels, agentToolGroups } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
-import { generateSlug } from '@/lib/utils';
 import { db } from '@/lib/db/queries';
 
 export async function createAgent({

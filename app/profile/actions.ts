@@ -1,9 +1,8 @@
 'use server';
 
-import { getUser } from '@/lib/db/queries';
-import { User } from '@/lib/db/schema';
+
+import { User, user } from '@/lib/db/schema';
 import { db } from '@/lib/db/queries';
-import { user } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 

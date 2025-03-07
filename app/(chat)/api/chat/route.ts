@@ -4,9 +4,8 @@ import {
   smoothStream,
   streamText,
 } from 'ai';
-import { supportsTools } from '@/lib/ai/models';
+import { supportsTools, myProvider } from '@/lib/ai/models';
 import { auth } from '@/app/(auth)/auth';
-import { myProvider } from '@/lib/ai/models';
 import { systemPrompt } from '@/lib/ai/prompts';
 import {
   deleteChatById,
