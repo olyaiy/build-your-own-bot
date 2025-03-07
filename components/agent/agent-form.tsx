@@ -258,11 +258,11 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                     sizes="(max-width: 768px) 100vw, 25vw"
                     priority
                   />
-                  <div className="absolute inset-0 bg-black  hover:bg-black/40 transition-all duration-200 flex items-center justify-center">
+                  <div className="absolute inset-0 hover:bg-black/30 transition-all duration-200 flex items-center justify-center">
                     <Button 
                       type="button" 
                       variant="secondary" 
-                      className="z-10 opacity-0 hover:opacity-100 transition-opacity duration-200"
+                      className="z-10 opacity-0 hover:opacity-100  transition-opacity duration-200"
                       onClick={open}
                     >
                       Change Image
