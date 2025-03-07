@@ -34,7 +34,7 @@ function PaginationButton({ direction, isDisabled, currentPage }: PaginationButt
       <Button 
         variant="outline" 
         size="icon" 
-        className="h-8 w-8" 
+        className="size-8" 
         disabled
       >
         <Icon className="size-4" />
@@ -47,7 +47,7 @@ function PaginationButton({ direction, isDisabled, currentPage }: PaginationButt
       variant="outline"
       size="icon"
       className={cn(
-        "h-8 w-8 hover:bg-muted-foreground/10",
+        "size-8 hover:bg-muted-foreground/10",
         direction === 'next' ? "rounded-r-md" : "rounded-l-md"
       )}
       asChild
@@ -197,12 +197,12 @@ export default function ChatHistoryView({
                       >
                         {chat.visibility === 'public' ? (
                           <div className="flex items-center space-x-1">
-                            <GlobeIcon className="h-3 w-3" />
+                            <GlobeIcon className="size-3" />
                             <span>Public</span>
                           </div>
                         ) : (
                           <div className="flex items-center space-x-1">
-                            <LockIcon className="h-3 w-3" />
+                            <LockIcon className="size-3" />
                             <span>Private</span>
                           </div>
                         )}
@@ -218,7 +218,7 @@ export default function ChatHistoryView({
                         {chat.matchSnippets.map((snippet, i) => (
                           <div key={i} className="bg-muted p-2 rounded-md overflow-hidden">
                             <div className="flex items-center text-xs mb-1">
-                              <SearchIcon className="h-3 w-3 text-muted-foreground" />
+                              <SearchIcon className="size-3 text-muted-foreground" />
                               <span className="ml-1.5 text-muted-foreground">Match {i + 1}</span>
                             </div>
                             <p className="line-clamp-2">
@@ -229,7 +229,7 @@ export default function ChatHistoryView({
                       </div>
                     ) : (
                       <div className="flex items-center text-xs text-muted-foreground">
-                        <MessageIcon className="h-3 w-3" />
+                        <MessageIcon className="size-3" />
                         <span className="ml-1.5 truncate">{formatDate(chat.createdAt)}</span>
                       </div>
                     )}

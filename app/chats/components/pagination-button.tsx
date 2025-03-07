@@ -24,7 +24,7 @@ export function PaginationButton({
       <Button 
         variant="outline" 
         size="icon" 
-        className="h-8 w-8" 
+        className="size-8" 
         disabled
       >
         <Icon className="size-4" />
@@ -37,7 +37,7 @@ export function PaginationButton({
       variant="outline"
       size="icon"
       className={cn(
-        "h-8 w-8 hover:bg-muted-foreground/10",
+        "size-8 hover:bg-muted-foreground/10",
         direction === 'next' ? "rounded-r-md" : "rounded-l-md"
       )}
       asChild
