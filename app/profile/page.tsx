@@ -40,7 +40,7 @@ export default async function ProfilePage() {
   return (
     <>
     <MainHeader />
-    <div className="container max-w-5xl mx-auto py-4 px-4">
+    <div className="container max-w-5xl mx-auto p-4">
       <div className="grid gap-8">
         {/* Profile Card */}
         <Card className="shadow-sm">
@@ -52,7 +52,7 @@ export default async function ProfilePage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-6 p-2">
-              <UserAvatar user={user} className="h-16 w-16" />
+              <UserAvatar user={user} className="size-16" />
               <div className="flex-1 space-y-2">
                 <EditUsername user={user} />
                 <p className="text-sm text-muted-foreground">{user.email}</p>
@@ -82,7 +82,7 @@ export default async function ProfilePage() {
               <AgentList agents={agentPreview} userId={userId} />
             ) : (
               <div className="text-center py-10 px-4 bg-muted/20 rounded-lg">
-                <p className="text-muted-foreground">You haven't created any agents yet.</p>
+                <p className="text-muted-foreground">You haven`&apos;`t created any agents yet.</p>
               </div>
             )}
           </CardContent>

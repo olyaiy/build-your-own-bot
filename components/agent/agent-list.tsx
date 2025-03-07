@@ -134,7 +134,7 @@ export function AgentList({ agents: initialAgents, userId }: AgentListProps) {
             <div className="flex flex-col gap-1 mt-auto">
               {/* Models display */}
               {agent.models && agent.models.length > 0 && (
-                <div className="flex items-center gap-1 max-w-[100%] overflow-hidden">
+                <div className="flex items-center gap-1 max-w-full overflow-hidden">
                   <div className="text-xs text-muted-foreground mr-1">Models:</div>
                   {/* Display first two models */}
                   {agent.models.slice(0, 2).map((model) => (
@@ -161,7 +161,7 @@ export function AgentList({ agents: initialAgents, userId }: AgentListProps) {
 
               {/* Tool Groups display */}
               {agent.toolGroups && agent.toolGroups.length > 0 && (
-                <div className="flex items-center gap-1 max-w-[100%] overflow-hidden ">
+                <div className="flex items-center gap-1 max-w-full overflow-hidden ">
                   <div className="text-xs text-muted-foreground mr-1">Tools:</div>
                   {/* Display first two tool groups */}
                   {agent.toolGroups.slice(0, 2).map((toolGroup) => (
