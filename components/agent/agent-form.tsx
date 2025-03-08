@@ -480,28 +480,11 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
             />
           </div>
 
-          <Separator className="my-8" />
+          
 
           {/* Tool Groups Section - Improved header */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <h3 className="text-lg font-semibold">Tool Groups</h3>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <AlertCircle className="h-4 w-4 text-gray-400" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[300px]">
-                      <p>Tool groups provide your agent with additional capabilities like web search, code execution, or data analysis.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <Badge variant="outline" className="text-xs">
-                Optional
-              </Badge>
-            </div>
+           
             <ToolGroupSelector
               toolGroups={toolGroups}
               selectedToolGroupIds={selectedToolGroupIds}

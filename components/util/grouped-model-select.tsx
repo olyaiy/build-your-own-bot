@@ -8,7 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ModelInfo } from '@/components/agent/agent-form';
+import { ModelInfo } from '../agent/model-selector-section';
+
 
 
 // Group models by provider
