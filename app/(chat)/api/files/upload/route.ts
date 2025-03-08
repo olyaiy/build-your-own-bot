@@ -81,7 +81,7 @@ export async function POST(request: Request) {
         Key: filename,
       });
 
-      // Create a signed URL that expires in 1 hour (3600 seconds)
+      // Create a direct URL to the R2 public bucket for high-quality image access
       const publicUrl = `https://pub-8ddd283c539f458b8f9ee190cb5cbbdd.r2.dev/${filename}`;
 
       return NextResponse.json({
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
         pathname: filename,
         contentType: file.type,
       });
-          } catch (error) {
+    } catch (error) {
       console.error('R2 upload error:', error);
       return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
     }

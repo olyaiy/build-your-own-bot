@@ -44,7 +44,7 @@ export function ModelSelector({
           <ChevronDownIcon />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-[300px] p-4">
+      <DropdownMenuContent align="start" className="min-w-[300px] p-4 bg-red-500">
         {chatModels.map((chatModel) => {
           const { id } = chatModel;
 
@@ -59,7 +59,7 @@ export function ModelSelector({
                   saveChatModelAsCookie(id);
                 });
               }}
-              className="gap-4 group/item flex flex-row justify-between items-center bg-green-500 z-[9999] bg-opacity-100"
+              className="gap-4 group/item flex flex-row   bg-green-500 z-[9999] bg-opacity-100"
               data-active={id === optimisticModelId}
             >
               <div className="flex flex-col gap-1 items-start">

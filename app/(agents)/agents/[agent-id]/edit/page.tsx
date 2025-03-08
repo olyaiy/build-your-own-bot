@@ -43,8 +43,7 @@ export default async function EditAgentPage({
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 ">
-      <h1 className="text-2xl font-bold mb-4">Edit Agent</h1>
+    <div className="container mx-auto px-2 ">
       <AgentForm 
         mode="edit"
         userId={session?.user?.id}

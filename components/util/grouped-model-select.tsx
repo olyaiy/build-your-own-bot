@@ -99,7 +99,7 @@ export function ModelSelector({
       <SelectTrigger id={id} className={className}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent className="max-h-[400px]">
+      <SelectContent className="max-h-[450px]">
         {groupedModels.map((group) => (
           <SelectGroup key={group.provider}>
             <SelectLabel className="font-bold text-md text-primary p-0 m-0 py-1 pl-2">
@@ -112,13 +112,10 @@ export function ModelSelector({
                 value={model.id} 
                 className="pl-6"
               >
-                <div className="flex flex-col py-1">
+                <div className="flex flex-col   justify-between py-1">
                   <span className="font-medium">{model.displayName}</span>
-                  {model.modelType && (
-                    <span className="text-xs text-muted-foreground">{model.modelType}</span>
-                  )}
                   {model.description && (
-                    <span className="text-xs text-muted-foreground">{model.description}</span>
+                    <span className=" text-xs text-muted-foreground">{model.description}</span>
                   )}
                 </div>
               </SelectItem>
