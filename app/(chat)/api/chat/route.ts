@@ -80,10 +80,6 @@ export async function POST(request: Request) {
   const jsonProviderOptions = modelDetails?.provider_options as Record<string, Record<string, any>> | undefined;
   const providerOptions = JSON.parse(JSON.stringify(jsonProviderOptions));
 
-  console.log("THE PROVIDER OPTIONS AREEEE....", providerOptions)
-
-  console.log("THE MODEL ITSELF IS", selectedChatModel)
-
   return createDataStreamResponse({
     execute: async (dataStream) => {
 

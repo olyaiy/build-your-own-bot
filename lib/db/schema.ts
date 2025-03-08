@@ -12,6 +12,7 @@ import {
   pgEnum,
   integer,
   numeric,
+  index,
 } from 'drizzle-orm/pg-core';
 
 // Enums
@@ -32,6 +33,10 @@ export const user = pgTable('User', {
   email: varchar('email', { length: 64 }).notNull(),
   password: varchar('password', { length: 64 }),
   user_name: varchar('user_name', { length: 64 }),
+}, (table) => {
+  return {
+    emailIdx: index("user_email_idx").on(table.email),
+  };
 });
 
 export type User = InferSelectModel<typeof user>;
@@ -55,6 +60,11 @@ export const models = pgTable("models", {
   cost_per_million_input_tokens: numeric("cost_per_million_input_tokens", { precision: 10, scale: 4 }),
   cost_per_million_output_tokens: numeric("cost_per_million_output_tokens", { precision: 10, scale: 4 }),
   provider_options: json("provider_options"), 
+}, (table) => {
+  return {
+    modelIdx: index("model_idx").on(table.model),
+    providerIdx: index("provider_idx").on(table.provider),
+  };
 });
 
 export type Model = typeof models.$inferSelect;
@@ -66,6 +76,10 @@ export const toolGroups = pgTable("tool_groups", {
   display_name: varchar("display_name", { length: 255 }).notNull(),
   description: text("description"),
   creatorId: uuid("creator_id").references(() => user.id),
+}, (table) => {
+  return {
+    creatorIdIdx: index("tool_groups_creator_id_idx").on(table.creatorId),
+  };
 });
 
 export type ToolGroup = typeof toolGroups.$inferSelect;
@@ -81,6 +95,11 @@ export const agents = pgTable("agents", {
   creatorId: uuid("creator_id").references(() => user.id),
   artifacts_enabled: boolean("artifacts_enabled").default(true),
   image_url: text("image_url"),
+}, (table) => {
+  return {
+    creatorIdIdx: index("agents_creator_id_idx").on(table.creatorId),
+    visibilityIdx: index("agents_visibility_idx").on(table.visibility),
+  };
 });
  
 export type Agent = typeof agents.$inferSelect;
@@ -102,6 +121,7 @@ export const document = pgTable(
   (table) => {
     return {
       pk: primaryKey({ columns: [table.id, table.createdAt] }),
+      userIdIdx: index("document_user_id_idx").on(table.userId),
     };
   },
 );
@@ -120,6 +140,8 @@ export const agentModels = pgTable("agent_models", {
 }, (table) => {
   return {
     pk: primaryKey({ columns: [table.agentId, table.modelId] }),
+    agentIdIdx: index("agent_models_agent_id_idx").on(table.agentId),
+    modelIdIdx: index("agent_models_model_id_idx").on(table.modelId),
   };
 });
 
@@ -137,6 +159,12 @@ export const chat = pgTable('Chat', {
   visibility: varchar('visibility', { enum: ['public', 'private'] })
     .notNull()
     .default('private'),
+}, (table) => {
+  return {
+    userIdIdx: index("chat_user_id_idx").on(table.userId),
+    agentIdIdx: index("chat_agent_id_idx").on(table.agentId),
+    createdAtIdx: index("chat_created_at_idx").on(table.createdAt),
+  };
 });
 
 export type Chat = InferSelectModel<typeof chat>;
@@ -166,6 +194,8 @@ export const suggestion = pgTable(
       columns: [table.documentId, table.documentCreatedAt],
       foreignColumns: [document.id, document.createdAt],
     }),
+    documentIdIdx: index("suggestion_document_id_idx").on(table.documentId, table.documentCreatedAt),
+    userIdIdx: index("suggestion_user_id_idx").on(table.userId),
   }),
 );
 
@@ -183,6 +213,12 @@ export const message = pgTable('Message', {
   token_usage: integer('token_usage'),
   model_id: uuid("model_id")
     .references(() => models.id, { onDelete: "cascade" }),
+}, (table) => {
+  return {
+    chatIdIdx: index("message_chat_id_idx").on(table.chatId),
+    modelIdIdx: index("message_model_id_idx").on(table.model_id),
+    createdAtIdx: index("message_created_at_idx").on(table.createdAt),
+  };
 });
 
 export type Message = InferSelectModel<typeof message>;
@@ -202,6 +238,8 @@ export const vote = pgTable(
   (table) => {
     return {
       pk: primaryKey({ columns: [table.chatId, table.messageId] }),
+      chatIdIdx: index("vote_chat_id_idx").on(table.chatId),
+      messageIdIdx: index("vote_message_id_idx").on(table.messageId),
     };
   },
 );
@@ -230,6 +268,8 @@ export const toolGroupTools = pgTable("tool_group_tools", {
 }, (table) => {
   return {
     pk: primaryKey({ columns: [table.toolGroupId, table.toolId] }),
+    toolGroupIdIdx: index("tool_group_tools_tool_group_id_idx").on(table.toolGroupId),
+    toolIdIdx: index("tool_group_tools_tool_id_idx").on(table.toolId),
   };
 });
 
@@ -246,12 +286,12 @@ export const agentToolGroups = pgTable("agent_tool_groups", {
 }, (table) => {
   return {
     pk: primaryKey({ columns: [table.agentId, table.toolGroupId] }),
+    agentIdIdx: index("agent_tool_groups_agent_id_idx").on(table.agentId),
+    toolGroupIdIdx: index("agent_tool_groups_tool_group_id_idx").on(table.toolGroupId),
   };
 });
 
 export type AgentToolGroup = typeof agentToolGroups.$inferSelect;
-
-
 
 // Enum for transaction types
 export const transactionTypeEnum = pgEnum("transaction_type", [
@@ -270,6 +310,13 @@ export const userTransactions = pgTable('user_transactions', {
   description: text('description'),
   messageId: uuid('message_id').references(() => message.id),
   created_at: timestamp('created_at').notNull().defaultNow(),
+}, (table) => {
+  return {
+    userIdIdx: index("user_transactions_user_id_idx").on(table.userId),
+    messageIdIdx: index("user_transactions_message_id_idx").on(table.messageId),
+    typeIdx: index("user_transactions_type_idx").on(table.type),
+    createdAtIdx: index("user_transactions_created_at_idx").on(table.created_at),
+  };
 });
 
 export type UserTransaction = InferSelectModel<typeof userTransactions>;

@@ -26,6 +26,8 @@ import {
   agentToolGroups,
   tools,
   toolGroupTools,
+  userCredits,
+  userTransactions,
 } from './schema';  
 import { ArtifactKind } from '@/components/artifact/artifact';
 
@@ -39,6 +41,7 @@ export const db = drizzle(client);
 
 export async function getUser(email: string): Promise<Array<User>> {
   try {
+    // Will use the index on user.email
     return await db.select().from(user).where(eq(user.email, email));
   } catch (error) {
     console.error('Failed to get user from database');
@@ -98,6 +101,7 @@ export async function deleteChatById({ id }: { id: string }) {
 
 export async function getChatsByUserId({ id }: { id: string }) {
   try {
+    // Will use the index on chat.userId
     return await db
       .select({
         id: chat.id,
@@ -109,9 +113,9 @@ export async function getChatsByUserId({ id }: { id: string }) {
         agentDisplayName: agents.agent_display_name
       })
       .from(chat)
-      .leftJoin(agents, eq(chat.agentId, agents.id))
+      .leftJoin(agents, eq(chat.agentId, agents.id)) // This join will use the index on chat.agentId
       .where(eq(chat.userId, id))
-      .orderBy(desc(chat.createdAt));
+      .orderBy(desc(chat.createdAt)); // Will use the index on chat.createdAt
   } catch (error) {
     console.error('Failed to get chats by user from database');
     throw error;
@@ -150,13 +154,10 @@ export async function saveMessages({
 
 export async function getMessagesByChatId({ id }: { id: string }) {
   try {
-    return await db
-      .select()
-      .from(message)
-      .where(eq(message.chatId, id))
-      .orderBy(asc(message.createdAt));
+    // Will use the index on message.chatId
+    return await db.select().from(message).where(eq(message.chatId, id)).orderBy(asc(message.createdAt));
   } catch (error) {
-    console.error('Failed to get messages by chat id from database', error);
+    console.error('Failed to get messages by chat id from database');
     throw error;
   }
 }
@@ -171,24 +172,28 @@ export async function voteMessage({
   type: 'up' | 'down';
 }) {
   try {
-    const [existingVote] = await db
+    // Check if a vote already exists
+    const existingVote = await db
       .select()
       .from(vote)
-      .where(and(eq(vote.messageId, messageId)));
+      .where(and(eq(vote.messageId, messageId))); // Will use the index on vote.messageId
 
-    if (existingVote) {
+    // If a vote exists, update it
+    if (existingVote.length > 0) {
       return await db
         .update(vote)
         .set({ isUpvoted: type === 'up' })
-        .where(and(eq(vote.messageId, messageId), eq(vote.chatId, chatId)));
+        .where(and(eq(vote.messageId, messageId), eq(vote.chatId, chatId))); // Uses indexes on both messageId and chatId
     }
+
+    // If no vote exists, create one
     return await db.insert(vote).values({
       chatId,
       messageId,
       isUpvoted: type === 'up',
     });
   } catch (error) {
-    console.error('Failed to upvote message in database', error);
+    console.error('Failed to save vote in database');
     throw error;
   }
 }
@@ -402,8 +407,8 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean) => 
     })
     .from(agents)
     .where(or(
-      eq(agents.visibility, 'public'),
-      userId ? eq(agents.creatorId, userId) : undefined
+      eq(agents.visibility, 'public'), // Will use the index on agents.visibility
+      userId ? eq(agents.creatorId, userId) : undefined // Will use the index on agents.creatorId
     ))
     .orderBy(desc(agents.id));
 
@@ -416,8 +421,8 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean) => 
           isDefault: agentModels.isDefault
         })
         .from(agentModels)
-        .leftJoin(models, eq(agentModels.modelId, models.id))
-        .where(eq(agentModels.agentId, agent.id));
+        .leftJoin(models, eq(agentModels.modelId, models.id)) // Will use the index on agentModels.modelId
+        .where(eq(agentModels.agentId, agent.id)); // Will use the index on agentModels.agentId
 
         const agentModelsArray = agentModelResults
           .map(r => r.model)
@@ -433,8 +438,8 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean) => 
           description: toolGroups.description,
         })
         .from(agentToolGroups)
-        .leftJoin(toolGroups, eq(agentToolGroups.toolGroupId, toolGroups.id))
-        .where(eq(agentToolGroups.agentId, agent.id));
+        .leftJoin(toolGroups, eq(agentToolGroups.toolGroupId, toolGroups.id)) // Will use the index on agentToolGroups.toolGroupId
+        .where(eq(agentToolGroups.agentId, agent.id)); // Will use the index on agentToolGroups.agentId
 
         const toolGroupsArray = toolGroupResults
           .filter(tg => tg.id !== null && tg.name !== null && tg.display_name !== null)
@@ -840,9 +845,7 @@ export async function searchChatsByContent({
   }
 
   try {
-    
-    // STEP 1: DIRECTLY search in the message content column
-    // This query specifically targets the message.content column, which is JSON
+    // Will use the index on chat.userId and join will use message.chatId index
     const matchingMessages = await db
       .select({
         messageId: message.id,
@@ -855,19 +858,15 @@ export async function searchChatsByContent({
       .innerJoin(chat, eq(message.chatId, chat.id))
       .where(
         and(
-          eq(chat.userId, userId),
+          eq(chat.userId, userId), // Uses the index on chat.userId
           or(
-            // Direct full text search on the entire JSON content (most comprehensive)
             sql`CAST(${message.content} AS TEXT) ILIKE ${'%' + searchTerm + '%'}`,
-            
-            // Common JSON structures in message content
             sql`CAST(${message.content}->>'text' AS TEXT) ILIKE ${'%' + searchTerm + '%'}`,
             sql`CAST(${message.content}->>'value' AS TEXT) ILIKE ${'%' + searchTerm + '%'}`,
             sql`CAST(${message.content}->>'content' AS TEXT) ILIKE ${'%' + searchTerm + '%'}`
           )
         )
       );
-
 
     // If no message matches, fallback to chat title and agent name search
     if (matchingMessages.length === 0) {
@@ -997,7 +996,7 @@ export async function searchChatsByContent({
 
     return result;
   } catch (error) {
-    console.error('Failed to search messages by content', error);
+    console.error('Failed to search chats by content', error);
     throw error;
   }
 }

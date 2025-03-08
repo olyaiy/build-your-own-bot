@@ -17,16 +17,24 @@ import {
 import { Coins } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+// Define the interface for the token usage data returned by the API
+interface ModelUsage {
+  modelName: string;
+  provider?: string;
+  inputTokens: number;
+  outputTokens: number;
+  cost: number;
+  costPerMillionInputTokens?: number | null;
+  costPerMillionOutputTokens?: number | null;
+}
+
 interface TokenUsageProps {
   userId: string;
 }
 
 export async function TokenUsage({ userId }: TokenUsageProps) {
-
-
-
   // Safely fetch token usage data and handle potential errors
-  let tokenUsageData = [];
+  let tokenUsageData: ModelUsage[] = [];
   try {
     tokenUsageData = await getUserTokenUsage(userId) || [];
     console.log('THE TOKEN USAGE DATA IS .....', tokenUsageData);
@@ -35,8 +43,6 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
     // Continue with empty array if there's an error
   }
 
-
-  
   // Calculate totals only if we have data
   const totalInputTokens = tokenUsageData.length > 0 
     ? tokenUsageData.reduce((sum, model) => sum + model.inputTokens, 0)
@@ -55,58 +61,74 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
   // Format numbers with commas
   const formatNumber = (num: number) => num.toLocaleString();
   
-  // Format currency
+  // Format cost as USD currency
   const formatCost = (cost: number) => {
-    // For very small amounts (less than 1 cent), show in a more readable format
+    if (cost === 0) return '$0.00';
+    
+    // If cost is very small, use a more precise format
     if (cost < 0.01) {
-      // For extremely small amounts, show in scientific notation
-      if (cost < 0.0001) {
-        return `$${cost.toExponential(4)}`;
-      }
-      // For small but not tiny amounts, show more decimal places
-      return `$${cost.toFixed(6)}`;
-    }
-    // For larger amounts (more than 1 cent), standard formatting is fine
-    else if (cost < 1) {
       return `$${cost.toFixed(4)}`;
     }
-    // For dollar amounts or more
-    return `$${cost.toFixed(2)}`;
+    
+    return new Intl.NumberFormat('en-US', { 
+      style: 'currency', 
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(cost);
   };
   
-  // Get provider badge color
+  // Helper to determine badge color by provider
   const getProviderColor = (provider: string) => {
-    switch (provider?.toLowerCase() || '') {
-      case 'openai':
-        return 'bg-green-100 text-green-800';
-      case 'anthropic':
-        return 'bg-purple-100 text-purple-800';
-      case 'google':
-        return 'bg-blue-100 text-blue-800';
-      case 'mistral':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+    const lowerProvider = provider.toLowerCase();
+    
+    if (lowerProvider.includes('claude') || lowerProvider.includes('anthropic')) {
+      return 'bg-purple-100 text-purple-800 border-purple-300';
     }
+    
+    if (lowerProvider.includes('gpt') || lowerProvider.includes('openai')) {
+      return 'bg-green-100 text-green-800 border-green-300';
+    }
+    
+    if (lowerProvider.includes('gemini') || lowerProvider.includes('google')) {
+      return 'bg-blue-100 text-blue-800 border-blue-300';
+    }
+    
+    return 'bg-gray-100 text-gray-800 border-gray-300';
   };
-  
+
   return (
-    <Card className="shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <div>
-          <CardTitle className="text-2xl font-bold">Token Usage</CardTitle>
-          <CardDescription className="text-sm text-muted-foreground">
-            Your AI model token consumption
-          </CardDescription>
+    <Card className="w-full">
+      <CardHeader>
+        <div className="flex items-center space-x-2">
+          <Coins className="h-5 w-5 text-muted-foreground" />
+          <CardTitle>Token Usage</CardTitle>
         </div>
-        <Coins className="h-6 w-6 text-muted-foreground" />
+        <CardDescription>
+          Your API usage and estimated costs
+        </CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-muted/50 p-3 rounded-md">
+            <div className="text-sm text-muted-foreground mb-1">Input Tokens</div>
+            <div className="text-2xl font-semibold">{formatNumber(totalInputTokens)}</div>
+          </div>
+          <div className="bg-muted/50 p-3 rounded-md">
+            <div className="text-sm text-muted-foreground mb-1">Output Tokens</div>
+            <div className="text-2xl font-semibold">{formatNumber(totalOutputTokens)}</div>
+          </div>
+          <div className="bg-muted/50 p-3 rounded-md">
+            <div className="text-sm text-muted-foreground mb-1">Estimated Cost</div>
+            <div className="text-2xl font-semibold">{formatCost(totalCost)}</div>
+          </div>
+        </div>
+
         {tokenUsageData.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[40%]">Model</TableHead>
+                <TableHead>Model</TableHead>
                 <TableHead className="text-right">Input Tokens</TableHead>
                 <TableHead className="text-right">Output Tokens</TableHead>
                 <TableHead className="text-right">Total</TableHead>
@@ -131,24 +153,15 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
                     <TableCell className="text-right">{formatNumber(model.inputTokens)}</TableCell>
                     <TableCell className="text-right">{formatNumber(model.outputTokens)}</TableCell>
                     <TableCell className="text-right">{formatNumber(modelTotal)}</TableCell>
-                    <TableCell className="text-right">{model.cost !== undefined ? formatCost(model.cost) : '-'}</TableCell>
+                    <TableCell className="text-right">{formatCost(model.cost)}</TableCell>
                   </TableRow>
                 );
               })}
-              
-              {/* Totals row */}
-              <TableRow className="border-t-2">
-                <TableCell className="font-bold">Total</TableCell>
-                <TableCell className="text-right font-bold">{formatNumber(totalInputTokens)}</TableCell>
-                <TableCell className="text-right font-bold">{formatNumber(totalOutputTokens)}</TableCell>
-                <TableCell className="text-right font-bold">{formatNumber(grandTotal)}</TableCell>
-                <TableCell className="text-right font-bold">{formatCost(totalCost)}</TableCell>
-              </TableRow>
             </TableBody>
           </Table>
         ) : (
-          <div className="flex justify-center items-center h-24 text-muted-foreground">
-            No token usage data available
+          <div className="text-center py-6 text-muted-foreground">
+            No token usage data available yet.
           </div>
         )}
       </CardContent>
