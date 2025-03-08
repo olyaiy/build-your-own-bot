@@ -37,7 +37,6 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
   let tokenUsageData: ModelUsage[] = [];
   try {
     tokenUsageData = await getUserTokenUsage(userId) || [];
-    console.log('THE TOKEN USAGE DATA IS .....', tokenUsageData);
   } catch (error) {
     console.error('Error fetching token usage data:', error);
     // Continue with empty array if there's an error

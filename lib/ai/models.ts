@@ -189,6 +189,10 @@ export const REASONING_MODEL_IDS = [
 // Models that support tools
 export const TOOLS_SUPPORTED_MODEL_IDS = [
   'o1',  // o1 supports tools according to the docs
+  'claude-3-7-sonnet-20250219',
+  'claude-3-5-sonnet-20241022',
+  'claude-3-5-haiku-20241022',
+  'o3-mini',
   // Other non-reasoning models that support tools
 ];
 
