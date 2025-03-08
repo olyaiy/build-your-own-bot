@@ -55,11 +55,15 @@ const PureChatItem = ({
   isActive,
   onDelete,
   setOpenMobile,
+  onItemClick,
+  isLoading,
 }: {
   chat: Chat;
   isActive: boolean;
   onDelete: (chatId: string) => void;
   setOpenMobile: (open: boolean) => void;
+  onItemClick: (chatId: string) => void;
+  isLoading?: boolean;
 }) => {
   const { visibilityType, setVisibilityType } = useChatVisibility({
     chatId: chat.id,
@@ -69,14 +73,37 @@ const PureChatItem = ({
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild isActive={isActive}   className={cn({
-    'border-2 border-primary bg-red-500': isActive,
-  })}
->
-        <Link href={`/${chat.agentId}/${chat.id}`} onClick={() => setOpenMobile(false)}>
+      <SidebarMenuButton 
+        asChild 
+        isActive={isActive} 
+        className={cn(
+          "transition-all duration-100 relative",
+          {
+            'bg-accent border-l-4 border-primary rounded-l-sm': isActive,
+          }
+        )}
+      >
+        <Link 
+          href={`/${chat.agentId}/${chat.id}`} 
+          onClick={() => {
+            // Set this chat as optimistically active
+            onItemClick(chat.id);
+            setOpenMobile(false);
+          }}
+        >
           <div className="flex flex-col gap-0.5 items-start w-full">
-            <span className="text-sm font-medium truncate w-full">{chat.title}</span>
-            <span className="text-xs text-muted-foreground truncate w-full">{chat.agentDisplayName}</span>
+            <span className={cn(
+              "text-sm truncate w-full transition-colors duration-150", 
+              {
+                "font-semibold text-primary": isActive,
+                "font-medium": !isActive
+              }
+            )}>
+              {chat.title}
+            </span>
+            <span className="text-xs text-muted-foreground truncate w-full">
+              {chat.agentDisplayName}
+            </span>
           </div>
         </Link>
       </SidebarMenuButton>
@@ -145,6 +172,8 @@ const PureChatItem = ({
 
 export const ChatItem = memo(PureChatItem, (prevProps, nextProps) => {
   if (prevProps.isActive !== nextProps.isActive) return false;
+  if (prevProps.isLoading !== nextProps.isLoading) return false;
+  if (prevProps.chat.id !== nextProps.chat.id) return false;
   return true;
 });
 
@@ -157,8 +186,20 @@ export function SidebarHistory({
   currentConversationId?: string 
 }) {
   const { setOpenMobile } = useSidebar();
-  const { id } = useParams();
+  const params = useParams();
+  const chatIdFromUrl = params?.['chat-id'] as string | undefined;
   const pathname = usePathname();
+  
+  const [optimisticActiveId, setOptimisticActiveId] = useState<string | undefined>(undefined);
+  
+  const isOptimisticState = optimisticActiveId !== undefined && optimisticActiveId !== chatIdFromUrl;
+  
+  const activeId = optimisticActiveId || chatIdFromUrl || currentConversationId;
+  
+  useEffect(() => {
+    setOptimisticActiveId(undefined);
+  }, [chatIdFromUrl, pathname]);
+  
   const {
     data: history,
     isLoading,
@@ -184,7 +225,7 @@ export function SidebarHistory({
       success: () => {
         mutate((history) => {
           if (history) {
-            return history.filter((h) => h.id !== id);
+            return history.filter((h) => h.id !== deleteId);
           }
         });
         return 'Chat deleted successfully';
@@ -194,7 +235,7 @@ export function SidebarHistory({
 
     setShowDeleteDialog(false);
 
-    if (deleteId === id) {
+    if (deleteId === activeId) {
       router.push('/');
     }
   };
@@ -305,12 +346,16 @@ export function SidebarHistory({
                           <ChatItem
                             key={chat.id}
                             chat={chat}
-                            isActive={chat.id === id}
+                            isActive={chat.id === activeId}
                             onDelete={(chatId) => {
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
                             }}
                             setOpenMobile={setOpenMobile}
+                            onItemClick={(chatId) => {
+                              setOptimisticActiveId(chatId);
+                            }}
+                            isLoading={isOptimisticState}
                           />
                         ))}
                       </>
@@ -325,12 +370,16 @@ export function SidebarHistory({
                           <ChatItem
                             key={chat.id}
                             chat={chat}
-                            isActive={chat.id === id}
+                            isActive={chat.id === activeId}
                             onDelete={(chatId) => {
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
                             }}
                             setOpenMobile={setOpenMobile}
+                            onItemClick={(chatId) => {
+                              setOptimisticActiveId(chatId);
+                            }}
+                            isLoading={isOptimisticState}
                           />
                         ))}
                       </>
@@ -345,12 +394,16 @@ export function SidebarHistory({
                           <ChatItem
                             key={chat.id}
                             chat={chat}
-                            isActive={chat.id === id}
+                            isActive={chat.id === activeId}
                             onDelete={(chatId) => {
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
                             }}
                             setOpenMobile={setOpenMobile}
+                            onItemClick={(chatId) => {
+                              setOptimisticActiveId(chatId);
+                            }}
+                            isLoading={isOptimisticState}
                           />
                         ))}
                       </>
@@ -365,12 +418,16 @@ export function SidebarHistory({
                           <ChatItem
                             key={chat.id}
                             chat={chat}
-                            isActive={chat.id === id}
+                            isActive={chat.id === activeId}
                             onDelete={(chatId) => {
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
                             }}
                             setOpenMobile={setOpenMobile}
+                            onItemClick={(chatId) => {
+                              setOptimisticActiveId(chatId);
+                            }}
+                            isLoading={isOptimisticState}
                           />
                         ))}
                       </>
@@ -385,12 +442,16 @@ export function SidebarHistory({
                           <ChatItem
                             key={chat.id}
                             chat={chat}
-                            isActive={chat.id === id}
+                            isActive={chat.id === activeId}
                             onDelete={(chatId) => {
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
                             }}
                             setOpenMobile={setOpenMobile}
+                            onItemClick={(chatId) => {
+                              setOptimisticActiveId(chatId);
+                            }}
+                            isLoading={isOptimisticState}
                           />
                         ))}
                       </>

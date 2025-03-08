@@ -24,7 +24,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
   const params = useParams();
   const pathname = usePathname();
   const agentId = params.agent ?? 'fb4a1d96-bd42-46cb-a153-4aac537f3720';
-  const conversationId = params.conversationId as string | undefined;
+  const chatId = params['chat-id'] as string | undefined;
   const isHistoryPage = pathname === '/chats';
 
   return (
@@ -87,7 +87,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         </div>
       </SidebarHeader>
       <SidebarContent className="custom-sidebar-scrollbar">
-        <SidebarHistory user={user} currentConversationId={conversationId} />
+        <SidebarHistory user={user} currentConversationId={chatId} />
       </SidebarContent>
       <SidebarFooter>{user && <SidebarUserNav user={user} />}</SidebarFooter>
     </Sidebar>
