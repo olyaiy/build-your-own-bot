@@ -155,7 +155,6 @@ export async function POST(request: Request) {
                 reasoning,
               });
 
-              console.log("THE REASONING WAS...", reasoning)
 
               // Wait for the usage promise to resolve
               const tokenUsage = await usage;

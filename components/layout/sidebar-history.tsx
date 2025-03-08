@@ -7,6 +7,7 @@ import type { User } from 'next-auth';
 import { memo, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import useSWR from 'swr';
+import React from 'react';
 
 import {
   AlertDialog,
@@ -40,7 +41,7 @@ import {
 import type { ExtendedChat as Chat } from '@/lib/db/schema';
 import { cn, fetcher } from '@/lib/utils';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
-import { GlobeIcon, MoreHorizontalIcon, ShareIcon, CheckCircleFillIcon, LockIcon, TrashIcon } from '../util/icons';
+import { GlobeIcon, MoreHorizontalIcon, ShareIcon, CheckCircleFillIcon, LockIcon, TrashIcon, CopyIcon } from '../util/icons';
 
 type GroupedChats = {
   today: Chat[];
@@ -54,6 +55,7 @@ const PureChatItem = ({
   chat,
   isActive,
   onDelete,
+  onDuplicate,
   setOpenMobile,
   onItemClick,
   isLoading,
@@ -61,6 +63,7 @@ const PureChatItem = ({
   chat: Chat;
   isActive: boolean;
   onDelete: (chatId: string) => void;
+  onDuplicate: (chatId: string) => void;
   setOpenMobile: (open: boolean) => void;
   onItemClick: (chatId: string) => void;
   isLoading?: boolean;
@@ -70,6 +73,8 @@ const PureChatItem = ({
     initialVisibility: chat.visibility,
   });
 
+  // Check if this is an optimistic chat (being created)
+  const isOptimisticChat = chat.id.startsWith('optimistic-');
 
   return (
     <SidebarMenuItem>
@@ -84,8 +89,12 @@ const PureChatItem = ({
         )}
       >
         <Link 
-          href={`/${chat.agentId}/${chat.id}`} 
-          onClick={() => {
+          href={isOptimisticChat ? '#' : `/${chat.agentId}/${chat.id}`}
+          onClick={(e) => {
+            if (isOptimisticChat) {
+              // Prevent navigation for optimistic chats
+              e.preventDefault();
+            }
             // Set this chat as optimistically active
             onItemClick(chat.id);
             setOpenMobile(false);
@@ -96,10 +105,12 @@ const PureChatItem = ({
               "text-sm truncate w-full transition-colors duration-150", 
               {
                 "font-semibold text-primary": isActive,
-                "font-medium": !isActive
+                "font-medium": !isActive,
+                "opacity-70": isOptimisticChat
               }
             )}>
               {chat.title}
+              {isOptimisticChat && " (creating...)"}
             </span>
             <span className="text-xs text-muted-foreground truncate w-full">
               {chat.agentDisplayName}
@@ -108,64 +119,74 @@ const PureChatItem = ({
         </Link>
       </SidebarMenuButton>
 
-      <DropdownMenu modal={true}>
-        <DropdownMenuTrigger asChild>
-          <SidebarMenuAction
-            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground mr-0.5"
-            showOnHover={!isActive}
-          >
-            <MoreHorizontalIcon />
-            <span className="sr-only">More</span>
-          </SidebarMenuAction>
-        </DropdownMenuTrigger>
+      {!isOptimisticChat && (
+        <DropdownMenu modal={true}>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuAction
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground mr-0.5"
+              showOnHover={!isActive}
+            >
+              <MoreHorizontalIcon />
+              <span className="sr-only">More</span>
+            </SidebarMenuAction>
+          </DropdownMenuTrigger>
 
-        <DropdownMenuContent side="bottom" align="end">
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="cursor-pointer">
-              <ShareIcon />
-              <span>Share</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem
-                  className="cursor-pointer flex-row justify-between"
-                  onClick={() => {
-                    setVisibilityType('private');
-                  }}
-                >
-                  <div className="flex flex-row gap-2 items-center">
-                    <LockIcon size={12} />
-                    <span>Private</span>
-                  </div>
-                  {visibilityType === 'private' ? (
-                    <CheckCircleFillIcon />
-                  ) : null}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="cursor-pointer flex-row justify-between"
-                  onClick={() => {
-                    setVisibilityType('public');
-                  }}
-                >
-                  <div className="flex flex-row gap-2 items-center">
-                    <GlobeIcon />
-                    <span>Public</span>
-                  </div>
-                  {visibilityType === 'public' ? <CheckCircleFillIcon /> : null}
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
+          <DropdownMenuContent side="bottom" align="end">
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="cursor-pointer">
+                <ShareIcon />
+                <span>Share</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem
+                    className="cursor-pointer flex-row justify-between"
+                    onClick={() => {
+                      setVisibilityType('private');
+                    }}
+                  >
+                    <div className="flex flex-row gap-2 items-center">
+                      <LockIcon size={12} />
+                      <span>Private</span>
+                    </div>
+                    {visibilityType === 'private' ? (
+                      <CheckCircleFillIcon />
+                    ) : null}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer flex-row justify-between"
+                    onClick={() => {
+                      setVisibilityType('public');
+                    }}
+                  >
+                    <div className="flex flex-row gap-2 items-center">
+                      <GlobeIcon />
+                      <span>Public</span>
+                    </div>
+                    {visibilityType === 'public' ? <CheckCircleFillIcon /> : null}
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
 
-          <DropdownMenuItem
-            className="cursor-pointer text-destructive focus:bg-destructive/15 focus:text-destructive dark:text-red-500"
-            onSelect={() => onDelete(chat.id)}
-          >
-            <TrashIcon />
-            <span>Delete</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onSelect={() => onDuplicate(chat.id)}
+            >
+              <CopyIcon />
+              <span>Duplicate</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              className="cursor-pointer text-destructive focus:bg-destructive/15 focus:text-destructive dark:text-red-500"
+              onSelect={() => onDelete(chat.id)}
+            >
+              <TrashIcon />
+              <span>Delete</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </SidebarMenuItem>
   );
 };
@@ -180,7 +201,6 @@ export const ChatItem = memo(PureChatItem, (prevProps, nextProps) => {
 export function SidebarHistory({ 
   user,
   currentConversationId
-
 }: { 
   user: User | undefined,
   currentConversationId?: string 
@@ -191,6 +211,11 @@ export function SidebarHistory({
   const pathname = usePathname();
   
   const [optimisticActiveId, setOptimisticActiveId] = useState<string | undefined>(undefined);
+  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [optimisticChats, setOptimisticChats] = useState<Chat[]>([]);
+  const router = useRouter();
   
   const isOptimisticState = optimisticActiveId !== undefined && optimisticActiveId !== chatIdFromUrl;
   
@@ -198,6 +223,7 @@ export function SidebarHistory({
   
   useEffect(() => {
     setOptimisticActiveId(undefined);
+    setOptimisticChats([]);
   }, [chatIdFromUrl, pathname]);
   
   const {
@@ -212,9 +238,14 @@ export function SidebarHistory({
     mutate();
   }, [pathname, mutate]);
 
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const router = useRouter();
+  const combinedHistory = React.useMemo(() => {
+    if (!history) return optimisticChats;
+    const filteredOptimisticChats = optimisticChats.filter(
+      (oc) => !history.some((c) => c.id === oc.id)
+    );
+    return [...history, ...filteredOptimisticChats];
+  }, [history, optimisticChats]);
+
   const handleDelete = async () => {
     const deletePromise = fetch(`/api/chat?id=${deleteId}`, {
       method: 'DELETE',
@@ -240,6 +271,74 @@ export function SidebarHistory({
     }
   };
 
+  const handleDuplicate = async (chatId: string) => {
+    try {
+      setIsDuplicating(true);
+      
+      // Find the original chat to duplicate
+      const originalChat = history?.find(chat => chat.id === chatId);
+      if (!originalChat) {
+        throw new Error('Original chat not found');
+      }
+      
+      // Create an optimistic temporary ID for the new chat
+      const optimisticId = `optimistic-${Date.now()}`;
+      
+      // Create an optimistic chat and add it to state
+      const optimisticChat: Chat = {
+        id: optimisticId,
+        createdAt: new Date(),
+        title: `${originalChat.title} (copy)`,
+        userId: originalChat.userId,
+        agentId: originalChat.agentId,
+        visibility: originalChat.visibility,
+        // Copy additional properties for display
+        agentDisplayName: originalChat.agentDisplayName,
+      };
+      
+      // Add the optimistic chat to our state
+      setOptimisticChats(prev => [...prev, optimisticChat]);
+      
+      // Set this as the active chat
+      setOptimisticActiveId(optimisticId);
+      
+      // Make the actual API request
+      const response = await fetch('/api/chats/duplicate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ chatId }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to duplicate chat');
+      }
+      
+      const { newChatId, agentId } = await response.json();
+      
+      // Remove the optimistic chat
+      setOptimisticChats(prev => prev.filter(chat => chat.id !== optimisticId));
+      
+      toast.success('Chat duplicated successfully');
+      
+      // Navigate to the real chat
+      router.push(`/${agentId}/${newChatId}`);
+      
+      // Refresh data
+      mutate();
+    } catch (error) {
+      toast.error('Failed to duplicate chat. Please try again.');
+      console.error('Error duplicating chat:', error);
+      
+      // Remove all optimistic chats on error
+      setOptimisticChats(prev => prev.filter(chat => !chat.id.startsWith('optimistic-')));
+      setOptimisticActiveId(undefined);
+    } finally {
+      setIsDuplicating(false);
+    }
+  };
+
   if (!user) {
     return (
       <SidebarGroup>
@@ -252,7 +351,7 @@ export function SidebarHistory({
     );
   }
 
-  if (isLoading) {
+  if (isLoading && !combinedHistory.length) {
     return (
       <SidebarGroup>
         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
@@ -281,7 +380,7 @@ export function SidebarHistory({
     );
   }
 
-  if (history?.length === 0) {
+  if (combinedHistory.length === 0) {
     return (
       <SidebarGroup>
         <SidebarGroupContent>
@@ -331,9 +430,9 @@ export function SidebarHistory({
       <SidebarGroup>
         <SidebarGroupContent>
           <SidebarMenu>
-            {history &&
+            {combinedHistory &&
               (() => {
-                const groupedChats = groupChatsByDate(history);
+                const groupedChats = groupChatsByDate(combinedHistory);
 
                 return (
                   <>
@@ -351,6 +450,7 @@ export function SidebarHistory({
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
                             }}
+                            onDuplicate={handleDuplicate}
                             setOpenMobile={setOpenMobile}
                             onItemClick={(chatId) => {
                               setOptimisticActiveId(chatId);
@@ -375,6 +475,7 @@ export function SidebarHistory({
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
                             }}
+                            onDuplicate={handleDuplicate}
                             setOpenMobile={setOpenMobile}
                             onItemClick={(chatId) => {
                               setOptimisticActiveId(chatId);
@@ -399,6 +500,7 @@ export function SidebarHistory({
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
                             }}
+                            onDuplicate={handleDuplicate}
                             setOpenMobile={setOpenMobile}
                             onItemClick={(chatId) => {
                               setOptimisticActiveId(chatId);
@@ -423,6 +525,7 @@ export function SidebarHistory({
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
                             }}
+                            onDuplicate={handleDuplicate}
                             setOpenMobile={setOpenMobile}
                             onItemClick={(chatId) => {
                               setOptimisticActiveId(chatId);
@@ -447,6 +550,7 @@ export function SidebarHistory({
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
                             }}
+                            onDuplicate={handleDuplicate}
                             setOpenMobile={setOpenMobile}
                             onItemClick={(chatId) => {
                               setOptimisticActiveId(chatId);

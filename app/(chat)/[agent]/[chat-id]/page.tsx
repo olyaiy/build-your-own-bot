@@ -50,7 +50,6 @@ export default async function Page(props: {
 
   const ui_messages = convertToUIMessages(messagesFromDb)
 
-  console.log("THE UI MESSAGES ARE ", ui_messages)
 
 
   return (
