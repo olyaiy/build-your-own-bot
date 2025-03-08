@@ -32,11 +32,18 @@ export const user = pgTable('User', {
   email: varchar('email', { length: 64 }).notNull(),
   password: varchar('password', { length: 64 }),
   user_name: varchar('user_name', { length: 64 }),
+});
+
+export type User = InferSelectModel<typeof user>;
+
+// Add new user_credits table
+export const userCredits = pgTable('user_credits', {
+  user_id: uuid('user_id').primaryKey().references(() => user.id, { onDelete: 'cascade' }),
   credit_balance: numeric('credit_balance', { precision: 19, scale: 9 }).default('0'),
   lifetime_credits: numeric('lifetime_credits', { precision: 19, scale: 9 }).default('0'),
 });
 
-export type User = InferSelectModel<typeof user>;
+export type UserCredits = InferSelectModel<typeof userCredits>;
 
 export const models = pgTable("models", {
   id: uuid("id").defaultRandom().primaryKey(),
