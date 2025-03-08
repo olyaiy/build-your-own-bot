@@ -29,7 +29,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
 
   return (
     <Sidebar className="group-data-[side=left]:border-r-0">
-      <SidebarHeader>
+      <SidebarHeader className="p-2">
         <SidebarMenu>
           <div className="flex flex-row justify-between items-center">
             <Link
@@ -37,9 +37,9 @@ export function AppSidebar({ user }: { user: User | undefined }) {
               onClick={() => {
                 setOpenMobile(false);
               }}
-              className="flex flex-row gap-3 items-center"
+              className="flex flex-row gap-2 items-center"
             >
-              <span className="text-lg font-semibold px-2 hover:bg-muted rounded-md cursor-pointer">
+              <span className="text-base font-semibold px-2 hover:bg-muted rounded-md cursor-pointer">
                 Agent Place
               </span>
             </Link>
@@ -48,14 +48,14 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 <Button
                   variant="ghost"
                   type="button"
-                  className="p-2 h-fit"
+                  className="h-8 w-8 p-0"
                   onClick={() => {
                     setOpenMobile(false);
                     router.push(`/${agentId}`);
                     router.refresh();
                   }}
                 >
-                  <PlusIcon />
+                  <PlusIcon size={16} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent align="end">New Chat</TooltipContent>
@@ -63,14 +63,14 @@ export function AppSidebar({ user }: { user: User | undefined }) {
           </div>
         </SidebarMenu>
         
-        <div className="px-3 pb-2 pt-1">
+        <div>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
                 className={cn(
-                  "w-full flex items-center justify-start gap-2 h-9 px-3",
+                  "w-full flex items-center justify-start gap-2 h-8 px-2 text-sm",
                   isHistoryPage && "bg-muted border-primary/50 text-primary"
                 )}
                 onClick={() => {
@@ -78,7 +78,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   router.push('/chats');
                 }}
               >
-                <HistoryIcon size={16} />
+                <HistoryIcon size={14} />
                 <span>View Chat History</span>
               </Button>
             </TooltipTrigger>

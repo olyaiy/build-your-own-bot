@@ -82,7 +82,7 @@ const PureChatItem = ({
         asChild 
         isActive={isActive} 
         className={cn(
-          "transition-all duration-100 relative",
+          "transition-all duration-100 relative py-1.5",
           {
             'bg-accent border-l-4 border-primary rounded-l-sm': isActive,
           }
@@ -112,7 +112,7 @@ const PureChatItem = ({
               {chat.title}
               {isOptimisticChat && " (creating...)"}
             </span>
-            <span className="text-xs text-muted-foreground truncate w-full">
+            <span className="text-xs text-muted-foreground truncate w-full opacity-80">
               {chat.agentDisplayName}
             </span>
           </div>
@@ -126,15 +126,15 @@ const PureChatItem = ({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground mr-0.5"
               showOnHover={!isActive}
             >
-              <MoreHorizontalIcon />
+              <MoreHorizontalIcon size={14} />
               <span className="sr-only">More</span>
             </SidebarMenuAction>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent side="bottom" align="end">
+          <DropdownMenuContent side="bottom" align="end" className="w-48">
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="cursor-pointer">
-                <ShareIcon />
+                <ShareIcon size={14} />
                 <span>Share</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
@@ -173,7 +173,7 @@ const PureChatItem = ({
               className="cursor-pointer"
               onSelect={() => onDuplicate(chat.id)}
             >
-              <CopyIcon />
+              <CopyIcon size={14} />
               <span>Duplicate</span>
             </DropdownMenuItem>
 
@@ -181,7 +181,7 @@ const PureChatItem = ({
               className="cursor-pointer text-destructive focus:bg-destructive/15 focus:text-destructive dark:text-red-500"
               onSelect={() => onDelete(chat.id)}
             >
-              <TrashIcon />
+              <TrashIcon size={14} />
               <span>Delete</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -343,7 +343,7 @@ export function SidebarHistory({
     return (
       <SidebarGroup>
         <SidebarGroupContent>
-          <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2">
+          <div className="px-3 py-2 text-muted-foreground w-full flex flex-row justify-center items-center text-xs text-center">
             Login to save and revisit previous chats!
           </div>
         </SidebarGroupContent>
@@ -354,18 +354,18 @@ export function SidebarHistory({
   if (isLoading && !combinedHistory.length) {
     return (
       <SidebarGroup>
-        <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
+        <div className="px-2 py-1 text-xs font-medium text-sidebar-foreground/60">
           Today
         </div>
         <SidebarGroupContent>
-          <div className="flex flex-col">
+          <div className="flex flex-col space-y-1.5 px-1 py-1">
             {[44, 32, 28, 64, 52].map((item) => (
               <div
                 key={item}
-                className="rounded-md h-8 flex gap-2 px-2 items-center"
+                className="rounded-md h-7 flex gap-2 px-2 items-center"
               >
                 <div
-                  className="h-4 rounded-md flex-1 max-w-[--skeleton-width] bg-sidebar-accent-foreground/10"
+                  className="h-3.5 rounded-md flex-1 max-w-[--skeleton-width] bg-sidebar-accent-foreground/10 animate-pulse"
                   style={
                     {
                       '--skeleton-width': `${item}%`,
@@ -384,7 +384,7 @@ export function SidebarHistory({
     return (
       <SidebarGroup>
         <SidebarGroupContent>
-          <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2">
+          <div className="px-3 py-2 text-muted-foreground w-full flex flex-row justify-center items-center text-xs text-center">
             Your conversations will appear here once you start chatting!
           </div>
         </SidebarGroupContent>
@@ -438,7 +438,7 @@ export function SidebarHistory({
                   <>
                     {groupedChats.today.length > 0 && (
                       <>
-                        <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
+                        <div className="px-2 py-1 text-xs font-medium text-sidebar-foreground/60">
                           Today
                         </div>
                         {groupedChats.today.map((chat) => (
@@ -463,7 +463,7 @@ export function SidebarHistory({
 
                     {groupedChats.yesterday.length > 0 && (
                       <>
-                        <div className="px-2 py-1 text-xs text-sidebar-foreground/50 mt-6">
+                        <div className="px-2 py-1 text-xs font-medium text-sidebar-foreground/60 mt-4">
                           Yesterday
                         </div>
                         {groupedChats.yesterday.map((chat) => (
@@ -488,7 +488,7 @@ export function SidebarHistory({
 
                     {groupedChats.lastWeek.length > 0 && (
                       <>
-                        <div className="px-2 py-1 text-xs text-sidebar-foreground/50 mt-6">
+                        <div className="px-2 py-1 text-xs font-medium text-sidebar-foreground/60 mt-4">
                           Last 7 days
                         </div>
                         {groupedChats.lastWeek.map((chat) => (
@@ -513,7 +513,7 @@ export function SidebarHistory({
 
                     {groupedChats.lastMonth.length > 0 && (
                       <>
-                        <div className="px-2 py-1 text-xs text-sidebar-foreground/50 mt-6">
+                        <div className="px-2 py-1 text-xs font-medium text-sidebar-foreground/60 mt-4">
                           Last 30 days
                         </div>
                         {groupedChats.lastMonth.map((chat) => (
@@ -538,7 +538,7 @@ export function SidebarHistory({
 
                     {groupedChats.older.length > 0 && (
                       <>
-                        <div className="px-2 py-1 text-xs text-sidebar-foreground/50 mt-6">
+                        <div className="px-2 py-1 text-xs font-medium text-sidebar-foreground/60 mt-4">
                           Older
                         </div>
                         {groupedChats.older.map((chat) => (

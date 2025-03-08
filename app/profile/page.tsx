@@ -11,7 +11,7 @@ import { AgentList } from "@/components/agent/agent-list";
 import { getAgents } from "@/lib/db/queries";
 import { MainHeader } from "@/components/layout/main-header";
 import { TokenUsage } from '@/app/components/TokenUsage';
-import { DollarSign } from "lucide-react"; // Changed to DollarSign icon for currency
+import { DollarSign, Plus } from "lucide-react"; // Added Plus icon for the Add Credits button
 
 
 export const metadata: Metadata = {
@@ -66,15 +66,21 @@ export default async function ProfilePage() {
                 <EditUsername user={user} />
                 <p className="text-sm text-muted-foreground">{user.email}</p>
                 
-                {/* Credit Balance Display with Dollar Format */}
+                {/* Credit Balance Display with Dollar Format and Add Credits Button */}
                 <div className="flex items-center mt-2 p-2 bg-muted/30 rounded-md">
                   <div className="w-8 h-8 flex items-center justify-center bg-primary/20 rounded-full mr-2">
                     <DollarSign className="h-4 w-4 text-primary" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Available Credits (USD)</p>
                     <p className="text-sm font-semibold">{dollarCredits}</p>
                   </div>
+                  <Link href="/profile/credits">
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Plus className="h-3 w-3" />
+                      Add Credits
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>

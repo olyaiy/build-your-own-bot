@@ -204,6 +204,7 @@ export const OBJECT_GENERATION_MODEL_IDS = [
   'claude-3-5-haiku-20241022',
   'o3-mini',
   'o1-mini',
+  
   // Other non-reasoning models that support object generation
 ];
 
