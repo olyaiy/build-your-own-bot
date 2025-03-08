@@ -199,6 +199,11 @@ export const TOOLS_SUPPORTED_MODEL_IDS = [
 // Models that support structured object generation
 export const OBJECT_GENERATION_MODEL_IDS = [
   'o1',  // o1 supports object generation according to the docs
+  'claude-3-7-sonnet-20250219',
+  'claude-3-5-sonnet-20241022',
+  'claude-3-5-haiku-20241022',
+  'o3-mini',
+  'o1-mini',
   // Other non-reasoning models that support object generation
 ];
 
