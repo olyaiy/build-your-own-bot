@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { stripe } from '@/lib/stripe/stripe';
 
+
 interface SuccessPageProps {
   searchParams: Promise<{ session_id?: string }>;
 }
@@ -24,6 +25,37 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   } = checkoutSession;
 
   const customerEmail = customer_details?.email;
+  
+  // Extract the price ID from the line items
+  const lineItems = checkoutSession.line_items?.data || [];
+  const priceId = lineItems[0]?.price?.id;
+  
+  // Define credit packages (should match those in the credits page)
+  const creditPackages = [
+    { id: "price_1R0II9Pikexl2RtDVzeHL5pL", credits: 5, price: "$5" },
+    { id: "price_1R0IIAPikexl2RtD5yd9S8GW", credits: 10, price: "$10" },
+    { id: "price_1R0IIAPikexl2RtDJOADwSqA", credits: 20, price: "$20" }
+  ];
+  
+  // Find the matching credit package
+  const purchasedPackage = creditPackages.find(pkg => pkg.id === priceId);
+  
+  if (purchasedPackage && status === 'complete') {
+    console.log(`User purchased ${purchasedPackage.credits} credits for ${purchasedPackage.price}`);
+    
+    // For a real implementation, update the user's credits:
+    // const session = await auth();
+    // const userId = session?.user?.id;
+    // if (userId) {
+    //   await db
+    //     .update(userCredits)
+    //     .set({ 
+    //       credit_balance: db.raw(`credit_balance + ${purchasedPackage.credits}`),
+    //       lifetime_credits: db.raw(`lifetime_credits + ${purchasedPackage.credits}`)
+    //     })
+    //     .where(eq(userCredits.user_id, userId));
+    // }
+  }
 
   if (status === 'open') {
     return redirect('/');

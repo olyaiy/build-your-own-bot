@@ -46,8 +46,9 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: {
   // Credit package options
   const creditPackages = [
     { id: "price_1R0II9Pikexl2RtDVzeHL5pL", credits: 5, price: "$5" },
-    { id: "price_1R0IIAPikexl2RtD5yd9S8GW", credits: 10, price: "$10" },
-    { id: "price_1R0IIAPikexl2RtDJOADwSqA", credits: 20, price: "$20" }
+    { id: "price_1R0IIvPikexl2RtD3pYbOXbb", credits: 10, price: "$10" },
+    { id: "price_1R0IJLPikexl2RtDK5ggIlxS", credits: 15, price: "$15" },
+    { id: "price_1R0IKvPikexl2RtD7sr7rLM3", credits: 20, price: "$20" }
   ];
 
   return (
