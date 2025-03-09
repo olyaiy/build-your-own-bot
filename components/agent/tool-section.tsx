@@ -72,6 +72,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
               tool={tool}
               isOpen={effectiveIsOpen}
               onOpenChange={handleOpenChange}
+              state={state}
             />
           </ToolWrapper>
         );
@@ -116,6 +117,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
             tool={tool}
             isOpen={effectiveIsOpen}
             onOpenChange={handleOpenChange}
+            state={state}
           />
         </ToolWrapper>
       );

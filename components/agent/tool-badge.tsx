@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link, Loader2, Search, Video } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 type ToolBadgeProps = {
   tool: string
@@ -22,10 +23,27 @@ export const ToolBadge: React.FC<ToolBadgeProps> = ({
     video_search_loading: <Loader2 size={14} className="animate-spin" />
   }
 
+  const iconToUse = icon[tool] || 
+    (tool === 'retrieveTool' ? icon['retrieve'] : 
+     (tool === 'retrieveTool_loading' ? icon['retrieve_loading'] : <Search size={14} />))
+
+  const content = typeof children === 'string' ? children : 'Link'
+
   return (
-    <Badge className={className} variant={'secondary'}>
-      {icon[tool] || <Search size={14} />}
-      <span className="ml-1">{children}</span>
-    </Badge>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Badge className={className} variant={'secondary'}>
+            {iconToUse}
+            <span className="ml-1 truncate max-w-[200px] sm:max-w-[300px] md:max-w-[400px]">
+              {children}
+            </span>
+          </Badge>
+        </TooltipTrigger>
+        <TooltipContent>
+          {content}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }

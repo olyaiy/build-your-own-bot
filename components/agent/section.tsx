@@ -97,19 +97,25 @@ export function ToolArgsSection({
   state?: string
 }) {
   // Determine which tool identifier to use based on state
-  const displayTool = state && state !== 'result' ? `${tool}_loading` : tool
+  const toolName = tool.replace('Tool', '')
+  const displayTool = state && state !== 'result' ? `${toolName}_loading` : toolName
   
   return (
-    <Section size="sm" className="py-0 flex items-center justify-between overflow-hidden pr-2">
+    <Section size="sm" className="py-0 flex items-center justify-between overflow-hidden pr-2 ">
       <ToolBadge tool={displayTool}>{children}</ToolBadge>
-      {state === 'result' && number && (
+      {state === 'result' && number && !tool.includes('retrieve') && (
         <StatusIndicator icon={Check} iconClassName="text-green-500">
           {number} results
         </StatusIndicator>
       )}
+      {state === 'result' && tool.includes('retrieve') && (
+        <StatusIndicator icon={Check} iconClassName="text-green-500">
+          Page retrieved
+        </StatusIndicator>
+      )}
       {state && state !== 'result' && (
         <span className="flex items-center text-xs text-muted-foreground">
-          <span>Searching the web</span>
+          <span>{tool.includes('retrieve') ? 'Reading page' : 'Searching the web'}</span>
           <span className="inline-flex ml-1">
             <span className="animate-pulse">.</span>
             <span className="animate-pulse" style={{ animationDelay: '300ms' }}>.</span>

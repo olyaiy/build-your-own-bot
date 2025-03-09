@@ -11,19 +11,21 @@ interface RetrieveSectionProps {
   tool: ToolInvocation
   isOpen: boolean
   onOpenChange: (open: boolean) => void
+  state?: string
 }
 
 export function RetrieveSection({
   tool,
   isOpen,
-  onOpenChange
+  onOpenChange,
+  state
 }: RetrieveSectionProps) {
-  const isLoading = tool.state === 'call'
+  const isLoading = tool.state === 'call' || state === 'loading'
   const data: SearchResultsType =
     tool.state === 'result' ? tool.result : undefined
   const url = tool.args?.url as string | undefined
 
-  const header = <ToolArgsSection tool="retrieveTool">{url}</ToolArgsSection>
+  const header = <ToolArgsSection tool="retrieveTool" state={state}>{url}</ToolArgsSection>
 
   return (
     <CollapsibleMessage
