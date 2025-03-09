@@ -1,6 +1,6 @@
-import { customer, user } from '@/lib/db/schema';
+import { customer, user, userCredits, userTransactions, transactionTypeEnum } from '@/lib/db/schema';
 import { Customer } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import Stripe from 'stripe';
 import { db } from '../db/queries';
 
@@ -51,4 +51,58 @@ export async function createOrRetrieveCustomer(userId: string): Promise<Customer
     .returning();
 
   return newCustomer[0];
+}
+
+/**
+ * Adds credits to a user's account based on a Stripe customer ID
+ * @param stripeCustomerId - The Stripe customer ID
+ * @param creditsAmount - The number of credits to add
+ * @returns boolean indicating success
+ */
+export async function addCreditsToUser(stripeCustomerId: string, creditsAmount: number): Promise<boolean> {
+  try {
+    // Find the user associated with the Stripe customer ID
+    const customers = await db.select().from(customer).where(eq(customer.stripe_customer_id, stripeCustomerId));
+    
+    if (customers.length === 0) {
+      throw new Error(`No customer found with Stripe ID: ${stripeCustomerId}`);
+    }
+    
+    const userId = customers[0].id;
+    
+    // Use a transaction to ensure both operations succeed or fail together
+    await db.transaction(async (tx) => {
+      // Check if the user already has a credit record
+      const existingCredits = await tx.select().from(userCredits).where(eq(userCredits.user_id, userId));
+      
+      if (existingCredits.length > 0) {
+        // Update existing record
+        await tx.update(userCredits)
+          .set({
+            credit_balance: sql`${userCredits.credit_balance} + ${creditsAmount}`,
+            lifetime_credits: sql`${userCredits.lifetime_credits} + ${creditsAmount}`
+          })
+          .where(eq(userCredits.user_id, userId));
+      } else {
+        // Create new record
+        await tx.insert(userCredits).values({
+          user_id: userId,
+          credit_balance: creditsAmount.toString(),
+          lifetime_credits: creditsAmount.toString()
+        });
+      }
+      
+      // Add transaction record
+      await tx.insert(userTransactions).values({
+        userId,
+        amount: creditsAmount.toString(),
+        type: "purchase"
+      });
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Failed to add credits to user account:', error);
+    return false;
+  }
 }

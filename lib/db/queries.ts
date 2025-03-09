@@ -4,7 +4,7 @@ import { genSaltSync, hashSync } from 'bcrypt-ts';
 import { and, asc, desc, eq, gt, gte, inArray, isNotNull, or, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { generateSlug } from '@/lib/utils';
+import { generateSlug, generateUUID } from '@/lib/utils';
 
 import {
   user,
@@ -134,18 +134,81 @@ export async function getChatById({ id }: { id: string }) {
 
 export async function saveMessages({ 
   messages, 
-  model_id 
+  model_id,
+  user_id,
+  inputCost,
+  outputCost
 }: { 
   messages: Array<Message>; 
   model_id?: string;
+  user_id?: string;
+  inputCost?: number;
+  outputCost?: number;
 }) {
   try {
-    // If model_id is provided, set it for all messages
-    const messagesToSave = model_id 
-      ? messages.map(msg => ({ ...msg, model_id })) 
-      : messages;
+    // Add generated UUIDs and apply model_id if provided
+    const messagesToSave = messages.map(msg => ({
+      ...msg,
+      id: msg.id || generateUUID(), // Generate UUID if not already present
+      model_id: model_id || msg.model_id,
+    }));
+
+    console.log('========== MESSAGES TO SAVE ==========');
+    console.log(messagesToSave);
+    console.log('=========================================');
+    
+    // Use a transaction to ensure both operations are atomic
+    await db.transaction(async (tx) => {
+      // Insert messages
+      await tx.insert(message).values(messagesToSave);
       
-    return await db.insert(message).values(messagesToSave);
+      // Insert transaction records for the entire batch if user_id is provided
+      if (user_id && messagesToSave.length > 0) {
+        // Define the type for transaction records
+        type TransactionRecord = {
+          userId: string;
+          amount: string;
+          type: 'usage';
+          description: string;
+          messageId: string;
+        };
+        
+        const transactionRecords: TransactionRecord[] = [];
+        
+        // Use the first message's ID as reference for the transaction records
+        const referenceMessageId = messagesToSave[0].id;
+        
+        // Add input cost transaction if it exists (only once for the entire batch)
+        if (inputCost && inputCost > 0) {
+          transactionRecords.push({
+            userId: user_id,
+            amount: inputCost.toString(), // Convert to string for PostgreSQL numeric type
+            type: 'usage' as const,
+            description: 'Input tokens cost',
+            messageId: referenceMessageId,
+          });
+        }
+        
+        // Add output cost transaction if it exists (only once for the entire batch)
+        if (outputCost && outputCost > 0) {
+          transactionRecords.push({
+            userId: user_id,
+            amount: outputCost.toString(), // Convert to string for PostgreSQL numeric type
+            type: 'usage' as const,
+            description: 'Output tokens cost',
+            messageId: referenceMessageId,
+          });
+        }
+        
+        // Only insert if there are any transaction records to add
+        if (transactionRecords.length > 0) {
+          await tx.insert(userTransactions).values(transactionRecords);
+        }
+      }
+    });
+    
+    // Return the messages with their generated IDs
+    return messagesToSave;
   } catch (error) {
     console.error('Failed to save messages in database', error);
     throw error;

@@ -54,8 +54,8 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: {
   return (
     <>
       <MainHeader />
-      <div className="container max-w-6xl py-12 px-4 sm:px-6">
-        <div className="mb-8">
+      <div className="container max-w-6xl py-4 px-4 sm:px-6">
+        <div className="mb-2">
           <Link href="/profile" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Profile

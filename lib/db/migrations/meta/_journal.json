@@ -176,6 +176,13 @@
       "when": 1741477246099,
       "tag": "0024_fresh_vulture",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1741484450229,
+      "tag": "0025_light_ricochet",
+      "breakpoints": true
     }
   ]
 }

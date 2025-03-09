@@ -317,7 +317,7 @@ export const userTransactions = pgTable('user_transactions', {
   amount: numeric('amount', { precision: 19, scale: 9 }).notNull(),
   type: transactionTypeEnum('type').notNull(),
   description: text('description'),
-  messageId: uuid('message_id').references(() => message.id),
+  messageId: uuid('message_id').references(() => message.id, { onDelete: 'set null' }),
   created_at: timestamp('created_at').notNull().defaultNow(),
 }, (table) => {
   return {

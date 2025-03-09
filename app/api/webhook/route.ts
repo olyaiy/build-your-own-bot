@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { addCreditsToUser } from '@/lib/stripe/actions';
 
 // Initialize Stripe with the secret key from environment variables
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -48,17 +49,10 @@ export async function POST(request: NextRequest) {
       break;
     
     case 'checkout.session.completed':
-      const session = event.data.object as Stripe.Checkout.Session;
-      
-      // Log the session for debugging
-      logWebhook('🛒 Checkout session completed', { 
-        id: session.id,
-        customer: session.customer,
-        paymentStatus: session.payment_status
-      });
-      
       try {
-        // Retrieve session with expanded line items to get the price ID
+        const session = event.data.object as Stripe.Checkout.Session;
+        
+        // Retrieve the session with line items
         const retrievedSession = await stripe.checkout.sessions.retrieve(session.id, {
           expand: ['line_items']
         });
@@ -69,9 +63,10 @@ export async function POST(request: NextRequest) {
         
         // Define credit packages (should match those in the credits page)
         const creditPackages = [
-          { id: "price_1R0II9Pikexl2RtDVzeHL5pL", credits: 5, price: "$5" },
-          { id: "price_1R0IIAPikexl2RtD5yd9S8GW", credits: 10, price: "$10" },
-          { id: "price_1R0IIAPikexl2RtDJOADwSqA", credits: 20, price: "$20" }
+          { id: "price_1R0II9Pikexl2RtDVzeHL5pL", credits: 5, price: "$5"},
+          { id: "price_1R0IIvPikexl2RtD3pYbOXbb", credits: 10, price: "$10"},
+          { id: "price_1R0IJLPikexl2RtDK5ggIlxS", credits: 15, price: "$15"},
+          { id: "price_1R0IKvPikexl2RtD7sr7rLM3", credits: 20, price: "$20"}
         ];
         
         // Find the matching credit package
@@ -84,6 +79,26 @@ export async function POST(request: NextRequest) {
             credits: purchasedPackage.credits,
             price: purchasedPackage.price
           });
+          
+          // Add the credits to the user's account
+          if (session.customer) {
+            const stripeCustomerId = session.customer as string;
+            const result = await addCreditsToUser(stripeCustomerId, purchasedPackage.credits);
+            
+            if (result) {
+              logWebhook('✅ Credits added to user account', {
+                stripeCustomerId,
+                credits: purchasedPackage.credits
+              });
+            } else {
+              logWebhook('❌ Failed to add credits to user account', {
+                stripeCustomerId,
+                credits: purchasedPackage.credits
+              });
+            }
+          } else {
+            logWebhook('❌ No customer ID in session', { sessionId: session.id });
+          }
         } else {
           logWebhook('⚠️ Unknown package purchased', { priceId });
         }
