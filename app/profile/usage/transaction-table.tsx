@@ -200,7 +200,7 @@ export default function TransactionTable({
             onClick={() => setIsFiltersVisible(!isFiltersVisible)}
             className="flex items-center gap-1 text-sm"
           >
-            <FilterIcon className="h-4 w-4" />
+            <FilterIcon className="size-4" />
             Filters
             {activeFilterCount > 0 && (
               <Badge variant="secondary" className="ml-1 rounded-full text-xs h-5 min-w-5 flex items-center justify-center">
@@ -216,7 +216,7 @@ export default function TransactionTable({
               onClick={resetFilters}
               className="text-xs text-muted-foreground flex items-center gap-1"
             >
-              <XCircleIcon className="h-3.5 w-3.5" />
+              <XCircleIcon className="size-3.5" />
               Reset
             </Button>
           )}
@@ -227,7 +227,7 @@ export default function TransactionTable({
               <Badge variant="outline" className="flex gap-1 items-center pl-2">
                 Type: <span className="capitalize">{type}</span>
                 <XCircleIcon 
-                  className="h-3.5 w-3.5 ml-1 cursor-pointer" 
+                  className="size-3.5 ml-1 cursor-pointer" 
                   onClick={() => {
                     setType(null);
                     const params = new URLSearchParams(searchParams.toString());
@@ -243,7 +243,7 @@ export default function TransactionTable({
                 Date: {startDate ? formatDateString(startDate) : '...'} 
                 {endDate ? ` - ${formatDateString(endDate)}` : ''}
                 <XCircleIcon 
-                  className="h-3.5 w-3.5 ml-1 cursor-pointer" 
+                  className="size-3.5 ml-1 cursor-pointer" 
                   onClick={() => {
                     setStartDate(undefined);
                     setEndDate(undefined);
@@ -295,7 +295,7 @@ export default function TransactionTable({
                       variant="outline"
                       className="w-full justify-start text-left font-normal"
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <CalendarIcon className="mr-2 size-4" />
                       {startDate ? format(startDate, 'MMM dd, yyyy') : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
@@ -320,7 +320,7 @@ export default function TransactionTable({
                       variant="outline"
                       className="w-full justify-start text-left font-normal"
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <CalendarIcon className="mr-2 size-4" />
                       {endDate ? format(endDate, 'MMM dd, yyyy') : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
@@ -406,8 +406,8 @@ export default function TransactionTable({
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <ChevronDown className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" className="size-8">
+                          <ChevronDown className="size-4" />
                           <span className="sr-only">Open menu</span>
                         </Button>
                       </DropdownMenuTrigger>

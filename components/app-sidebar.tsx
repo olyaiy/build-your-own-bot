@@ -71,7 +71,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 <Button
                   variant="ghost"
                   type="button"
-                  className="h-8 w-8 p-0"
+                  className="size-8 p-0"
                   onClick={handleNewChatClick}
                 >
                   <PlusIcon size={16} />

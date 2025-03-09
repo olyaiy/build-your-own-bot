@@ -109,7 +109,7 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
           <Link href="/profile/usage" passHref>
             <Button variant="outline" size="sm" className="gap-1">
               <span>View Details</span>
-              <ExternalLink className="h-4 w-4" />
+              <ExternalLink className="size-4" />
             </Button>
           </Link>
         </div>

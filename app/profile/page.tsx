@@ -68,8 +68,8 @@ export default async function ProfilePage() {
                 
                 {/* Credit Balance Display with Dollar Format and Add Credits Button */}
                 <div className="flex items-center mt-2 p-2 bg-muted/30 rounded-md">
-                  <div className="w-8 h-8 flex items-center justify-center bg-primary/20 rounded-full mr-2">
-                    <DollarSign className="h-4 w-4 text-primary" />
+                  <div className="size-8 flex items-center justify-center bg-primary/20 rounded-full mr-2">
+                    <DollarSign className="size-4 text-primary" />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Available Credits (USD)</p>

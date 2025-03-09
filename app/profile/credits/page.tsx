@@ -54,10 +54,10 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: {
   return (
     <>
       <MainHeader />
-      <div className="container max-w-6xl py-4 px-4 sm:px-6">
+      <div className="container max-w-6xl p-4 sm:px-6">
         <div className="mb-2">
           <Link href="/profile" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft className="mr-2 size-4" />
             Back to Profile
           </Link>
         </div>
@@ -135,13 +135,13 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: {
                 </RadioGroup>
                 
                 <Button type="submit" className="w-full mt-8" size="lg">
-                  <CreditCard className="mr-2 h-4 w-4" />
+                  <CreditCard className="mr-2 size-4" />
                   Checkout with Stripe
                 </Button>
               </form>
             </CardContent>
             <CardFooter className="bg-muted/40 border-t flex items-center justify-center gap-2 py-4">
-              <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+              <ShieldCheck className="size-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Secure payment processing by Stripe</span>
             </CardFooter>
           </Card>

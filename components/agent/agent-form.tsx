@@ -238,7 +238,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
             >
               {isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 size-4 animate-spin" />
                   {mode === 'create' ? 'Creating...' : 'Updating...'}
                 </>
               ) : (
@@ -258,7 +258,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
-                          <AlertCircle className="h-3.5 w-3.5 text-gray-400" />
+                          <AlertCircle className="size-3.5 text-gray-400" />
                         </TooltipTrigger>
                         <TooltipContent side="right" className="max-w-[250px]">
                           <p>A visual representation of your agent. Good images help users recognize and connect with your agent.</p>
@@ -280,7 +280,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                 >
                   {isUploading ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900/80 backdrop-blur-sm">
-                      <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                      <Loader2 className="size-8 text-primary animate-spin" />
                       <span className="mt-2 text-sm text-gray-600 dark:text-gray-300">Uploading...</span>
                     </div>
                   ) : imageUrl ? (
@@ -303,7 +303,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                             className="shadow-lg"
                             onClick={open}
                           >
-                            <Camera className="h-4 w-4 mr-2" />
+                            <Camera className="size-4 mr-2" />
                             Change
                           </Button>
                           
@@ -316,8 +316,8 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                             disabled={isDeletingImage}
                           >
                             {isDeletingImage ? 
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : 
-                              <Trash2 className="h-4 w-4 mr-2" />
+                              <Loader2 className="size-4 mr-2 animate-spin" /> : 
+                              <Trash2 className="size-4 mr-2" />
                             }
                             Remove
                           </Button>
@@ -331,7 +331,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                     >
                       <input {...getInputProps()} id="agent-image" />
                       <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800 mb-3">
-                        <ImageIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                        <ImageIcon className="size-8 text-gray-400 dark:text-gray-500" />
                       </div>
                       {isDragActive ? (
                         <p className="text-sm font-medium text-center text-primary">Drop to upload</p>
@@ -354,7 +354,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                   )}
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                  <InfoIcon className="h-3.5 w-3.5" />
+                  <InfoIcon className="size-3.5" />
                   Images help users recognize and connect with your agent
                 </p>
               </div>
@@ -369,10 +369,10 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
-                          <AlertCircle className="h-3.5 w-3.5 text-gray-400" />
+                          <AlertCircle className="size-3.5 text-gray-400" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[250px]">
-                          <p>Choose a clear, descriptive name that reflects your agent's purpose or personality.</p>
+                          <p>Choose a clear, descriptive name that reflects your agent&apos;s purpose or personality.</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -394,7 +394,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
-                          <AlertCircle className="h-3.5 w-3.5 text-gray-400" />
+                          <AlertCircle className="size-3.5 text-gray-400" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[250px]">
                           <p>Public: Everyone can see and use your agent<br/>
@@ -423,7 +423,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
-                        <AlertCircle className="h-3.5 w-3.5 text-gray-400" />
+                        <AlertCircle className="size-3.5 text-gray-400" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[250px]">
                         <p>A brief explanation of what your agent does and how it can help users. This will be visible to users.</p>
@@ -473,7 +473,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <AlertCircle className="h-4 w-4 text-gray-400" />
+                      <AlertCircle className="size-4 text-gray-400" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-[300px]">
                       <p>Select the AI models that will power your agent. The primary model will be used by default, with alternates available as fallbacks.</p>
@@ -516,7 +516,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <AlertCircle className="h-4 w-4 text-gray-400" />
+                      <AlertCircle className="size-4 text-gray-400" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-[300px]">
                       <p>The system prompt defines how your agent behaves. Be specific about its role, knowledge, and preferred response style.</p>
@@ -552,13 +552,13 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="p-1.5 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer">
-                          <AlertCircle className="h-4 w-4 text-gray-500" />
+                          <AlertCircle className="size-4 text-gray-500" />
                         </div>
                       </TooltipTrigger>
                       <TooltipContent side="left" className="max-w-[300px]">
                         <p className="font-medium mb-1">Tips for effective system prompts:</p>
                         <ul className="text-xs space-y-1 list-disc pl-4">
-                          <li>Define the agent's role clearly (e.g., "You are a math tutor")</li>
+                          <li>Define the agent&apos;s role clearly (e.g., &quot;You are a math tutor&quot;)</li>
                           <li>Specify tone and style (formal, casual, technical)</li>
                           <li>Set response length preferences (concise, detailed)</li>
                           <li>Include any domain-specific knowledge</li>
@@ -571,7 +571,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
               </div>
               <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 p-2 rounded border border-gray-100 dark:border-gray-800">
                 <span className="flex items-center gap-1">
-                  <InfoIcon className="h-3.5 w-3.5" />
+                  <InfoIcon className="size-3.5" />
                   This prompt is invisible to users but guides how your agent responds
                 </span>
               </div>
@@ -593,7 +593,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
           >
             {isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 size-4 animate-spin" />
                 {mode === 'create' ? 'Creating...' : 'Updating...'}
               </>
             ) : (

@@ -23,8 +23,8 @@ export default function ChatLoadingSkeleton() {
         <Skeleton className="h-8 w-24 order-1 md:order-3" />
         
         {/* Settings Button */}
-        <div className="order-1 md:order-4 flex items-center justify-center h-8 w-8 rounded-md border">
-          <Settings className="h-4 w-4 text-muted-foreground" />
+        <div className="order-1 md:order-4 flex items-center justify-center size-8 rounded-md border">
+          <Settings className="size-4 text-muted-foreground" />
         </div>
       </header>
 
@@ -39,7 +39,7 @@ export default function ChatLoadingSkeleton() {
               </div>
               <Skeleton className="h-16 w-full rounded-lg" />
             </div>
-            <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+            <Skeleton className="size-8 rounded-full shrink-0" />
           </div>
         </div>
 
@@ -67,7 +67,7 @@ export default function ChatLoadingSkeleton() {
               </div>
               <Skeleton className="h-10 w-full rounded-lg" />
             </div>
-            <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+            <Skeleton className="size-8 rounded-full shrink-0" />
           </div>
         </div>
 
@@ -97,7 +97,7 @@ export default function ChatLoadingSkeleton() {
               </div>
               <Skeleton className="h-6 w-32 rounded-lg" />
             </div>
-            <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+            <Skeleton className="size-8 rounded-full shrink-0" />
           </div>
         </div>
 
@@ -124,7 +124,7 @@ export default function ChatLoadingSkeleton() {
               <Skeleton className="h-10 w-full rounded-md" />
             </div>
             <div className="flex gap-2">
-              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="size-8 rounded-full" />
               <div className="rounded-full p-1 sm:p-1.5 h-fit border dark:border-zinc-600 flex items-center justify-center">
                 <ArrowUpIcon size={14} className="text-muted-foreground" />
               </div>
