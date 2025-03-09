@@ -176,32 +176,33 @@ export async function saveMessages({
         
         const transactionRecords: TransactionRecord[] = [];
         
-        // Use the first message's ID as reference for the transaction records
-        const referenceMessageId = messagesToSave[0].id;
+        // Find user and assistant messages
+        const userMessage = messagesToSave.find(msg => msg.role === 'user');
+        const assistantMessage = messagesToSave.find(msg => msg.role === 'assistant');
         
         // Calculate total cost for credit deduction
         let totalCost = 0;
         
-        // Add input cost transaction if it exists (only once for the entire batch)
-        if (inputCost && inputCost > 0) {
+        // Add input cost transaction if it exists (associated with user message)
+        if (inputCost && inputCost > 0 && userMessage) {
           transactionRecords.push({
             userId: user_id,
             amount: inputCost.toString(), // Convert to string for PostgreSQL numeric type
             type: 'usage' as const,
             description: 'Input tokens cost',
-            messageId: referenceMessageId,
+            messageId: userMessage.id,
           });
           totalCost += inputCost;
         }
         
-        // Add output cost transaction if it exists (only once for the entire batch)
-        if (outputCost && outputCost > 0) {
+        // Add output cost transaction if it exists (associated with assistant message)
+        if (outputCost && outputCost > 0 && assistantMessage) {
           transactionRecords.push({
             userId: user_id,
             amount: outputCost.toString(), // Convert to string for PostgreSQL numeric type
             type: 'usage' as const,
             description: 'Output tokens cost',
-            messageId: referenceMessageId,
+            messageId: assistantMessage.id,
           });
           totalCost += outputCost;
         }
