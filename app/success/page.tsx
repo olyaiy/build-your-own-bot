@@ -1,13 +1,14 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { stripe } from '@/lib/stripe';
+import { stripe } from '@/lib/stripe/stripe';
 
 interface SuccessPageProps {
-  searchParams: { session_id?: string };
+  searchParams: Promise<{ session_id?: string }>;
 }
 
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
-  const { session_id } = searchParams;
+  const resolvedParams = await searchParams;
+  const { session_id } = resolvedParams;
 
   if (!session_id) {
     throw new Error('Please provide a valid session_id (`cs_test_...`)');

@@ -6,11 +6,13 @@ export default NextAuth(authConfig).auth;
 
 export const config = {
   matcher: [
-    '/',              // Root path
-    '/:id',           // Any single-segment path like /about
-    '/api/:path*',    // All API routes and their subpaths
-    '/login',         // Login page
-    '/register',      // Registration page
-    '/chat/:chat*',   // All chat-related paths and subpaths
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api/webhook (Stripe webhook endpoint)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api/webhook|_next/static|_next/image|favicon.ico).*)',
   ],
 };

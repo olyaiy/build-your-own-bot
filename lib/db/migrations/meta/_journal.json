@@ -169,6 +169,13 @@
       "when": 1741412552396,
       "tag": "0023_nosy_mordo",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1741477246099,
+      "tag": "0024_fresh_vulture",
+      "breakpoints": true
     }
   ]
 }

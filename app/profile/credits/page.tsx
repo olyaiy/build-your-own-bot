@@ -9,6 +9,7 @@ import { MainHeader } from "@/components/layout/main-header";
 import { DollarSign, CreditCard, ArrowLeft } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { createOrRetrieveCustomer } from "@/lib/stripe/actions";
 
 export const metadata: Metadata = {
   title: "Buy Credits",
@@ -32,6 +33,12 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: {
   if (!user) {
     return redirect("/login");
   }
+
+  // Create or retrieve the Stripe customer
+  const customer = await createOrRetrieveCustomer(userId);
+  
+  // Log the customer information (server-side only)
+  console.log('Stripe customer retrieved/created:', customer);
 
   // Format credit balance as dollars with '$' symbol
   const dollarCredits = user.credit_balance 

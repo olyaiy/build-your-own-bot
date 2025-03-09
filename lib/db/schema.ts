@@ -50,6 +50,15 @@ export const userCredits = pgTable('user_credits', {
 
 export type UserCredits = InferSelectModel<typeof userCredits>;
 
+// Customer table for Stripe integration
+export const customer = pgTable('customer', {
+  id: uuid('id').primaryKey().references(() => user.id, { onDelete: 'cascade' }),
+  stripe_customer_id: varchar('stripe_customer_id', { length: 100 }),
+  email: varchar('email', { length: 64 }),
+});
+
+export type Customer = InferSelectModel<typeof customer>;
+
 export const models = pgTable("models", {
   id: uuid("id").defaultRandom().primaryKey(),
   model_display_name: varchar("model_display_name", { length: 255 }).notNull(),
