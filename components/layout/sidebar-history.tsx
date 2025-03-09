@@ -4,7 +4,7 @@ import { isToday, isYesterday, subMonths, subWeeks } from 'date-fns';
 import Link from 'next/link';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import type { User } from 'next-auth';
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, useMemo } from 'react';
 import { toast } from 'sonner';
 import useSWR from 'swr';
 
@@ -237,7 +237,7 @@ export function SidebarHistory({
     mutate();
   }, [pathname, mutate]);
 
-  const combinedHistory = React.useMemo(() => {
+  const combinedHistory = useMemo(() => {
     if (!history) return optimisticChats;
     const filteredOptimisticChats = optimisticChats.filter(
       (oc) => !history.some((c) => c.id === oc.id)
@@ -357,7 +357,7 @@ export function SidebarHistory({
           Today
         </div>
         <SidebarGroupContent>
-          <div className="flex flex-col space-y-1.5 px-1 py-1">
+          <div className="flex flex-col space-y-1.5 p-1">
             {[44, 32, 28, 64, 52].map((item) => (
               <div
                 key={item}

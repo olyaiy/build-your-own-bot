@@ -1,6 +1,6 @@
-import React from "react";
+import React, { SVGProps } from "react";
 
-interface InfoIconProps extends React.SVGProps<SVGSVGElement> {}
+interface InfoIconProps extends SVGProps<SVGSVGElement> {}
 
 export function InfoIcon({ className, ...props }: InfoIconProps) {
   return (

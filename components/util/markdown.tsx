@@ -50,8 +50,7 @@ const components: Partial<Components> = {
   },
   a: ({ node, children, ...props }) => {
     return (
-
-      <Link
+      <a
         className="text-white text-sm bg-black/80 rounded-xl px-2 5 mx-0.5 pt-0.5  hover:underline hover:bg-black/80 break-words overflow-wrap inline-flex items-center gap-1.5 max-w-[200px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px]"
         target="_blank"
         rel="noreferrer"
@@ -59,7 +58,7 @@ const components: Partial<Components> = {
       >
         <span className="shrink-1 text-xs">🔗</span>
         <span className="truncate">{children}</span>
-      </Link>
+      </a>
     );
   },
   h1: ({ node, children, ...props }) => {
