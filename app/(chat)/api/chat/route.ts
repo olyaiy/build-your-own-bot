@@ -204,9 +204,6 @@ export async function POST(request: Request) {
                 model_id: selectedModelId, // Use the database model ID for saving
               }));
 
-              console.log('========== THE USER ID ==========');
-              console.log(session.user.id);
-              console.log('=========================================');
               
               // Save all messages including the user message in one operation
               await saveMessages({

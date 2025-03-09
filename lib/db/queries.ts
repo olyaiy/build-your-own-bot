@@ -178,6 +178,9 @@ export async function saveMessages({
         // Use the first message's ID as reference for the transaction records
         const referenceMessageId = messagesToSave[0].id;
         
+        // Calculate total cost for credit deduction
+        let totalCost = 0;
+        
         // Add input cost transaction if it exists (only once for the entire batch)
         if (inputCost && inputCost > 0) {
           transactionRecords.push({
@@ -187,6 +190,7 @@ export async function saveMessages({
             description: 'Input tokens cost',
             messageId: referenceMessageId,
           });
+          totalCost += inputCost;
         }
         
         // Add output cost transaction if it exists (only once for the entire batch)
@@ -198,11 +202,39 @@ export async function saveMessages({
             description: 'Output tokens cost',
             messageId: referenceMessageId,
           });
+          totalCost += outputCost;
         }
         
-        // Only insert if there are any transaction records to add
-        if (transactionRecords.length > 0) {
+        // Only proceed if there are costs to process
+        if (totalCost > 0) {
+          // Insert transaction records
           await tx.insert(userTransactions).values(transactionRecords);
+          
+          // Check if user has a credits record
+          const userCreditRows = await tx
+            .select()
+            .from(userCredits)
+            .where(eq(userCredits.user_id, user_id));
+          
+          if (userCreditRows.length > 0) {
+            // User has a record, update it with the subtraction
+            await tx
+              .update(userCredits)
+              .set({
+                credit_balance: sql`${userCredits.credit_balance} - ${totalCost.toString()}`
+              })
+              .where(eq(userCredits.user_id, user_id));
+          } else {
+            // User doesn't have a record yet, create one with negative balance
+            // (or starting from 0 and subtracting the cost)
+            await tx
+              .insert(userCredits)
+              .values({
+                user_id: user_id,
+                credit_balance: (-totalCost).toString(),
+                lifetime_credits: '0'
+              });
+          }
         }
       }
     });

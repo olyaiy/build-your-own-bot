@@ -37,7 +37,7 @@ export default async function ProfilePage() {
 
     // Format credit balance as dollars with '$' symbol
     const dollarCredits = user.credit_balance 
-    ? `$${parseFloat(user.credit_balance.toString()).toFixed(2)}`
+    ? `$${(Math.floor(parseFloat(user.credit_balance.toString()) * 100) / 100).toFixed(2)}`
     : '$0.00';
 
 
