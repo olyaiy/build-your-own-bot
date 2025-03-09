@@ -187,9 +187,9 @@ export async function saveMessages({
         if (inputCost && inputCost > 0 && userMessage) {
           transactionRecords.push({
             userId: user_id,
-            amount: inputCost.toString(), // Convert to string for PostgreSQL numeric type
+            amount: (-inputCost).toString(), // Store as negative value to indicate deduction
             type: 'usage' as const,
-            description: 'Input tokens cost',
+            description: 'Input tokens',
             messageId: userMessage.id,
           });
           totalCost += inputCost;
@@ -199,9 +199,9 @@ export async function saveMessages({
         if (outputCost && outputCost > 0 && assistantMessage) {
           transactionRecords.push({
             userId: user_id,
-            amount: outputCost.toString(), // Convert to string for PostgreSQL numeric type
+            amount: (-outputCost).toString(), // Store as negative value to indicate deduction
             type: 'usage' as const,
-            description: 'Output tokens cost',
+            description: 'Output tokens',
             messageId: assistantMessage.id,
           });
           totalCost += outputCost;

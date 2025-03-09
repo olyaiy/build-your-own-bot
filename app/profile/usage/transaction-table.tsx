@@ -62,7 +62,7 @@ export default function TransactionTable({
   };
 
   // Function to get type badge color
-  const getTypeBadgeVariant = (type: string) => {
+  const getTypeBadgeVariant = (type: string): "default" | "destructive" | "outline" | "secondary" => {
     switch (type) {
       case 'usage':
         return 'secondary';
@@ -71,34 +71,41 @@ export default function TransactionTable({
       case 'refund':
         return 'destructive';
       case 'promotional':
-        return 'success';
+        return 'outline';
       case 'adjustment':
-        return 'warning';
+        return 'outline';
       default:
         return 'outline';
     }
   };
 
-  // Format amount to display in a user-friendly way
+  // Format amount to display in a user-friendly way with dollar sign
   const formatAmount = (amount: string) => {
     const numAmount = parseFloat(amount);
-    return numAmount.toLocaleString(undefined, {
+    const isNegative = numAmount < 0;
+    return `${isNegative ? '-' : ''}$${Math.abs(numAmount).toLocaleString('en-US', {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 9
-    });
+      maximumFractionDigits: 2
+    })}`;
+  };
+
+  // Function to determine text color based on amount (positive/negative)
+  const getAmountColorClass = (amount: string): string => {
+    const numAmount = parseFloat(amount);
+    return numAmount < 0 ? 'text-destructive' : 'text-emerald-600';
   };
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      <div className="rounded-md border shadow-sm overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Message Content</TableHead>
+              <TableHead className="font-semibold">Date</TableHead>
+              <TableHead className="font-semibold">Type</TableHead>
+              <TableHead className="font-semibold">Amount</TableHead>
+              <TableHead className="font-semibold">Description</TableHead>
+              <TableHead className="font-semibold">Message Content</TableHead>
               <TableHead className="sr-only">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -111,17 +118,17 @@ export default function TransactionTable({
               </TableRow>
             ) : (
               transactions.map((transaction) => (
-                <TableRow key={transaction.id}>
+                <TableRow key={transaction.id} className="hover:bg-muted/20 transition-colors">
                   <TableCell className="whitespace-nowrap">
                     <div className="font-medium">{new Date(transaction.date).toLocaleDateString()}</div>
-                    <div className="text-sm text-muted-foreground">{transaction.formattedDate}</div>
+                    <div className="text-xs text-muted-foreground">{transaction.formattedDate}</div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={getTypeBadgeVariant(transaction.type)}>
+                    <Badge variant={getTypeBadgeVariant(transaction.type)} className="capitalize">
                       {transaction.type}
                     </Badge>
                   </TableCell>
-                  <TableCell className="font-mono">
+                  <TableCell className={`font-medium ${getAmountColorClass(transaction.amount)}`}>
                     {formatAmount(transaction.amount)}
                   </TableCell>
                   <TableCell className="max-w-[200px] truncate" title={transaction.description}>
@@ -129,9 +136,9 @@ export default function TransactionTable({
                   </TableCell>
                   <TableCell className="max-w-[300px]">
                     {transaction.message === 'N/A' ? (
-                      <span className="text-muted-foreground">N/A</span>
+                      <span className="text-muted-foreground italic text-xs">N/A</span>
                     ) : (
-                      <div className="max-h-[60px] overflow-hidden text-ellipsis line-clamp-2 text-xs">
+                      <div className="max-h-[60px] overflow-hidden text-ellipsis line-clamp-2 text-xs bg-muted/30 p-1.5 rounded-sm">
                         {transaction.message}
                       </div>
                     )}
@@ -139,7 +146,7 @@ export default function TransactionTable({
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
                           <ChevronDown className="h-4 w-4" />
                           <span className="sr-only">Open menu</span>
                         </Button>
@@ -148,12 +155,14 @@ export default function TransactionTable({
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem 
                           onClick={() => navigator.clipboard.writeText(transaction.id)}
+                          className="cursor-pointer"
                         >
                           Copy transaction ID
                         </DropdownMenuItem>
                         {transaction.message !== 'N/A' && (
                           <DropdownMenuItem 
                             onClick={() => navigator.clipboard.writeText(transaction.message)}
+                            className="cursor-pointer"
                           >
                             Copy message content
                           </DropdownMenuItem>
@@ -170,7 +179,7 @@ export default function TransactionTable({
 
       {/* Pagination */}
       {pageCount > 1 && (
-        <Pagination>
+        <Pagination className="mt-6">
           <PaginationContent>
             {currentPage > 1 && (
               <PaginationItem>
@@ -267,7 +276,7 @@ export default function TransactionTable({
         </Pagination>
       )}
 
-      <div className="text-xs text-muted-foreground">
+      <div className="text-xs text-muted-foreground text-center">
         Showing {transactions.length} of {totalCount} transactions
       </div>
     </div>
