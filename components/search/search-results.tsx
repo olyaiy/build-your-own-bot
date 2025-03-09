@@ -39,7 +39,7 @@ export function SearchResults({ results }: SearchResultsProps) {
       {displayedResults.map((result, index) => (
         <div className="w-1/2 md:w-1/4 p-1" key={index}>
           <Link href={result.url} passHref target="_blank">
-            <Card className="flex-1 h-full">
+            <Card className="flex-1 h-full transition-all duration-150 hover:scale-105 hover:shadow-sm hover:bg-blue-50/80 dark:hover:bg-blue-900/20">
               <CardContent className="p-2 flex flex-col justify-between h-full">
                 <p className="text-xs line-clamp-2 min-h-8">
                   {result.title || result.content}

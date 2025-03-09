@@ -19,6 +19,10 @@ interface ToolSectionProps {
 export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, addToolResult }: ToolSectionProps) {
   const { toolName, state, args } = tool;
   const [internalIsOpen, setInternalIsOpen] = useState(false);
+
+  // console.log('THIS IS THE TOOL SECTION PROPS:', { tool, isOpen, onOpenChange, isReadonly, addToolResult });
+  // console.log('THIS IS THE TOOL SECTION STATE:', { toolName, state, args });
+  
   
   
   // Use provided state management or internal state if not provided
@@ -78,6 +82,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
               tool={tool}
               isOpen={effectiveIsOpen}
               onOpenChange={handleOpenChange}
+              state={state}
             />
           </ToolWrapper>
         );
@@ -121,6 +126,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
             tool={tool}
             isOpen={effectiveIsOpen}
             onOpenChange={handleOpenChange}
+            state={state}
           />
         </ToolWrapper>
       );

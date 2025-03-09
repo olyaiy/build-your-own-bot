@@ -10,18 +10,21 @@ import { SearchResults } from './search-results'
 import { SearchResultsImageSection } from './search-results-image'
 import { Section, ToolArgsSection } from '../agent/section'
 import { useEffect } from 'react'
+import { DefaultSkeleton } from '../util/default-skeleton'
 export const CHAT_ID = 'search' as const
 
 interface SearchSectionProps {
   tool: ToolInvocation
   isOpen: boolean
   onOpenChange: (open: boolean) => void
+  state?: string
 }
 
 export function SearchSection({
   tool,
   isOpen,
-  onOpenChange
+  onOpenChange,
+  state
 }: SearchSectionProps) {
   
   const handleOpenChange = (open: boolean) => {
@@ -31,12 +34,15 @@ export function SearchSection({
   useEffect(() => {
   }, [isOpen])
 
-  const { isLoading } = useChat({
+  const chatReturn = useChat({
     id: CHAT_ID
   })
-  const isToolLoading = tool.state === 'call'
+  const { isLoading } = chatReturn
+  
+  const isToolLoading = state === 'call' || tool.state === 'call'
   const searchResults: TypeSearchResults =
-    tool.state === 'result' ? tool.result : undefined
+    (state === 'result' || tool.state === 'result') ? 
+    ('result' in tool ? tool.result : undefined) : undefined
   const query = tool.args?.query as string | undefined
   const includeDomains = tool.args?.includeDomains as string[] | undefined
   const includeDomainsString = includeDomains
@@ -50,6 +56,11 @@ export function SearchSection({
     >{`${query}${includeDomainsString}`}</ToolArgsSection>
   )
 
+  // console.log('isLoading:', isLoading, 'isToolLoading:', isToolLoading);
+
+  console.log('THE TOOL:', tool);
+  console.log('THE STATE:', state);
+
   return (
     <CollapsibleMessage
       role="assistant"
@@ -57,18 +68,20 @@ export function SearchSection({
       header={header}
       isOpen={isOpen}
       onOpenChange={handleOpenChange}
+
     >
       {searchResults &&
         searchResults.images &&
         searchResults.images.length > 0 && (
           <Section>
+            {/* Search Result Images */}
             <SearchResultsImageSection
               images={searchResults.images}
               query={query}
             />
           </Section>
         )}
-      {isLoading && isToolLoading ? (
+      {state !== 'result' ? (
         <SearchSkeleton />
       ) : searchResults?.results ? (
         <Section title="Sources">

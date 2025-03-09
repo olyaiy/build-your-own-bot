@@ -155,9 +155,6 @@ export async function saveMessages({
       model_id: model_id || msg.model_id,
     }));
 
-    console.log('========== MESSAGES TO SAVE ==========');
-    console.log(messagesToSave);
-    console.log('=========================================');
     
     // Use a transaction to ensure both operations are atomic
     await db.transaction(async (tx) => {

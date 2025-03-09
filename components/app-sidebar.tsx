@@ -27,6 +27,29 @@ export function AppSidebar({ user }: { user: User | undefined }) {
   const chatId = params['chat-id'] as string | undefined;
   const isHistoryPage = pathname === '/chats';
 
+  // Function to handle the new chat button click
+  const handleNewChatClick = () => {
+    setOpenMobile(false);
+    
+    // Check if we're on an agent edit page
+    if (pathname.includes('/agents/') && pathname.includes('/edit')) {
+      // Extract the agent-id from the URL
+      const agentIdMatch = pathname.match(/\/agents\/([^\/]+)\/edit/);
+      if (agentIdMatch && agentIdMatch[1]) {
+        // Navigate to the chat page with the extracted agent ID
+        router.push(`/${agentIdMatch[1]}`);
+      } else {
+        // Fallback to the current agentId from params
+        router.push(`/${agentId}`);
+      }
+    } else {
+      // Default behavior - use the agentId from params
+      router.push(`/${agentId}`);
+    }
+    
+    router.refresh();
+  };
+
   return (
     <Sidebar className="group-data-[side=left]:border-r-0">
       <SidebarHeader className="p-2">
@@ -49,11 +72,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   variant="ghost"
                   type="button"
                   className="h-8 w-8 p-0"
-                  onClick={() => {
-                    setOpenMobile(false);
-                    router.push(`/${agentId}`);
-                    router.refresh();
-                  }}
+                  onClick={handleNewChatClick}
                 >
                   <PlusIcon size={16} />
                 </Button>

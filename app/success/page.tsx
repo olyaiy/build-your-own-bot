@@ -39,23 +39,6 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   
   // Find the matching credit package
   const purchasedPackage = creditPackages.find(pkg => pkg.id === priceId);
-  
-  if (purchasedPackage && status === 'complete') {
-    console.log(`User purchased ${purchasedPackage.credits} credits for ${purchasedPackage.price}`);
-    
-    // For a real implementation, update the user's credits:
-    // const session = await auth();
-    // const userId = session?.user?.id;
-    // if (userId) {
-    //   await db
-    //     .update(userCredits)
-    //     .set({ 
-    //       credit_balance: db.raw(`credit_balance + ${purchasedPackage.credits}`),
-    //       lifetime_credits: db.raw(`lifetime_credits + ${purchasedPackage.credits}`)
-    //     })
-    //     .where(eq(userCredits.user_id, userId));
-    // }
-  }
 
   if (status === 'open') {
     return redirect('/');

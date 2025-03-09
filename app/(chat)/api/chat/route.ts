@@ -77,9 +77,6 @@ export async function POST(request: Request) {
   }
 
   const modelDetails = await getModelById(selectedModelId);
-  console.log('========== MODEL DETAILS ==========');
-  console.log(modelDetails);
-  console.log('=========================================');
   const jsonProviderOptions = modelDetails?.provider_options as Record<string, Record<string, any>> | undefined;
   const providerOptions = JSON.parse(JSON.stringify(jsonProviderOptions));
 
@@ -157,22 +154,11 @@ export async function POST(request: Request) {
 
               // Wait for the usage promise to resolve
               const tokenUsage = await usage;
-              console.log('========== TOKEN USAGE SUMMARY ==========');
-              console.log(`Input tokens: ${tokenUsage?.promptTokens || 0}`);
-              console.log(`Output tokens: ${tokenUsage?.completionTokens || 0}`);
-              console.log(`Total tokens: ${tokenUsage?.totalTokens || 0}`);
-              console.log('=========================================');
 
               // Calculate cost based on token usage and model rates
               const inputCost = ((tokenUsage?.promptTokens || 0) * parseFloat(modelDetails?.cost_per_million_input_tokens || '0')) / 1000000;
               const outputCost = ((tokenUsage?.completionTokens || 0) * parseFloat(modelDetails?.cost_per_million_output_tokens || '0')) / 1000000;
-              const totalCost = inputCost + outputCost;
 
-              console.log('========== COST SUMMARY ==========');
-              console.log(`Input cost: $${inputCost.toFixed(6)}`);
-              console.log(`Output cost: $${outputCost.toFixed(6)}`);
-              console.log(`Total cost: $${totalCost.toFixed(6)}`);
-              console.log('==================================');
               
               // Prepare all messages to save, including the user message with prompt tokens
               const messagesWithTokenUsage = [
