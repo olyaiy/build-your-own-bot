@@ -5,6 +5,7 @@ import { SidebarToggle } from '@/components/layout/sidebar-toggle';
 import { useSidebar } from '../ui/sidebar';
 
 
+
 function PureMainHeader() {
   const { open } = useSidebar();
 
