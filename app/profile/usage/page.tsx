@@ -9,12 +9,12 @@ import TransactionTable from './transaction-table';
 export default async function UsagePage({
   searchParams,
 }: {
-  searchParams: { 
+  searchParams: Promise<{ 
     page?: string;
     type?: string;
     startDate?: string;
     endDate?: string;
-  };
+  }>;
 }) {
   const session = await auth();
   const userId = session?.user?.id;
@@ -34,13 +34,16 @@ export default async function UsagePage({
     );
   }
 
-  const page = searchParams?.page ? parseInt(searchParams.page) : 1;
+  // Await the searchParams
+  const resolvedParams = await searchParams;
+  
+  const page = resolvedParams?.page ? parseInt(resolvedParams.page) : 1;
   const validTypes = ["usage", "purchase", "refund", "promotional", "adjustment"] as const;
-  const type = searchParams?.type && validTypes.includes(searchParams.type as any) 
-    ? searchParams.type as typeof validTypes[number]
+  const type = resolvedParams?.type && validTypes.includes(resolvedParams.type as any) 
+    ? resolvedParams.type as typeof validTypes[number]
     : null;
-  const startDate = searchParams?.startDate || null;
-  const endDate = searchParams?.endDate || null;
+  const startDate = resolvedParams?.startDate || null;
+  const endDate = resolvedParams?.endDate || null;
   
   // Fetch user transactions with pagination and filters
   const { transactions, totalCount, pageCount } = await getUserTransactions(

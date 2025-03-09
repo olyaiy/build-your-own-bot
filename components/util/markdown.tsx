@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import React, { memo } from 'react';
+import React, { memo, Children, isValidElement } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { CodeBlock } from './code-block';
@@ -12,9 +12,9 @@ const components: Partial<Components> = {
   // Check if paragraph contains a pre element and unwrap it if needed
   p: ({ node, children }) => {
     // Check if this paragraph contains a pre element or code element that will render a pre
-    const childrenArray = React.Children.toArray(children);
+    const childrenArray = Children.toArray(children);
     const hasPre = childrenArray.some(child => 
-      React.isValidElement(child) && 
+      isValidElement(child) && 
       (child.type === 'pre' || (child.props && child.props.node && child.props.node.tagName === 'code' && !child.props.inline))
     );
     
@@ -57,7 +57,7 @@ const components: Partial<Components> = {
         rel="noreferrer"
         {...props}
       >
-        <span className="flex-shrink-1 text-xs">🔗</span>
+        <span className="shrink-1 text-xs">🔗</span>
         <span className="truncate">{children}</span>
       </Link>
     );

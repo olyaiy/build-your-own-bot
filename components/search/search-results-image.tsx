@@ -96,7 +96,7 @@ export const SearchResultsImageSection: React.FC<
                       <img
                         src={image.url}
                         alt={`Image ${index + 1}`}
-                        className="size-full object-cover transition-transform duration-150 group-hover:scale-[1.05]"
+                        className="size-full object-cover transition-transform duration-150 group-hover:scale-105"
                         onError={e =>
                           (e.currentTarget.src = '/images/placeholder-image.jpg')
                         }

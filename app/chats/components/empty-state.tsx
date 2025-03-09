@@ -9,7 +9,7 @@ export default function EmptyState() {
       <div className="flex flex-col items-center space-y-6">
         <div className="relative">
           <div className="absolute -inset-4 rounded-full bg-primary/5 animate-pulse" />
-          <div className="relative flex items-center justify-center w-24 h-24 rounded-full bg-primary/10 shadow-sm">
+          <div className="relative flex items-center justify-center size-24 rounded-full bg-primary/10 shadow-sm">
             <MessageIcon size={38} />
           </div>
         </div>
