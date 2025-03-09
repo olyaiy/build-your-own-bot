@@ -1,10 +1,11 @@
 import 'server-only';
 
 import { genSaltSync, hashSync } from 'bcrypt-ts';
-import { and, asc, desc, eq, gt, gte, inArray, isNotNull, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, inArray, isNotNull, or, sql, like, ilike, not } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { generateSlug, generateUUID } from '@/lib/utils';
+import { InferModel, InferSelectModel } from 'drizzle-orm';
 
 import {
   user,
@@ -1258,5 +1259,47 @@ export async function getUserTokenUsage(userId: string) {
   } catch (error) {
     console.error('Failed to get user token usage from database', error);
     return []; // Return empty array instead of throwing
+  }
+}
+
+export async function getUserTransactions(userId: string, page = 1, pageSize = 10) {
+  try {
+    // Calculate offset based on page number and page size
+    const offset = (page - 1) * pageSize;
+    
+    // First, get the total count of transactions for pagination
+    const totalCountResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(userTransactions)
+      .where(eq(userTransactions.userId, userId));
+    
+    const totalCount = totalCountResult[0]?.count || 0;
+    
+    // Get the transactions with message content if available
+    const transactions = await db
+      .select({
+        id: userTransactions.id,
+        amount: userTransactions.amount,
+        type: userTransactions.type,
+        description: userTransactions.description,
+        created_at: userTransactions.created_at,
+        messageId: userTransactions.messageId,
+        messageContent: message.content,
+      })
+      .from(userTransactions)
+      .leftJoin(message, eq(userTransactions.messageId, message.id))
+      .where(eq(userTransactions.userId, userId))
+      .orderBy(desc(userTransactions.created_at))
+      .limit(pageSize)
+      .offset(offset);
+    
+    return {
+      transactions,
+      totalCount,
+      pageCount: Math.ceil(totalCount / pageSize)
+    };
+  } catch (error) {
+    console.error('Error fetching user transactions:', error);
+    throw error;
   }
 }

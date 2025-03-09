@@ -14,8 +14,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Coins } from "lucide-react";
+import { Coins, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 // Define the interface for the token usage data returned by the API
 interface ModelUsage {
@@ -99,9 +101,17 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <div className="flex items-center space-x-2">
-          <Coins className="h-5 w-5 text-muted-foreground" />
-          <CardTitle>Token Usage</CardTitle>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center space-x-2">
+            <Coins className="h-5 w-5 text-muted-foreground" />
+            <CardTitle>Token Usage</CardTitle>
+          </div>
+          <Link href="/profile/usage" passHref>
+            <Button variant="outline" size="sm" className="gap-1">
+              <span>View Details</span>
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
         <CardDescription>
           Your API usage and estimated costs
