@@ -35,7 +35,10 @@ export default async function UsagePage({
   }
 
   const page = searchParams?.page ? parseInt(searchParams.page) : 1;
-  const type = searchParams?.type || null;
+  const validTypes = ["usage", "purchase", "refund", "promotional", "adjustment"] as const;
+  const type = searchParams?.type && validTypes.includes(searchParams.type as any) 
+    ? searchParams.type as typeof validTypes[number]
+    : null;
   const startDate = searchParams?.startDate || null;
   const endDate = searchParams?.endDate || null;
   

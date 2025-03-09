@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { User } from 'next-auth';
 import { signOut } from 'next-auth/react';
 import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 
 import {
   DropdownMenu,
@@ -18,11 +19,34 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import type { User as DbUser } from '@/lib/db/schema';
 
 export function SidebarUserNav({ user }: { user: User }) {
   const { setTheme, theme } = useTheme();
+  const [dbUser, setDbUser] = useState<DbUser | null>(null);
 
-  console.log("user", user);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`/api/user?email=${encodeURIComponent(user.email!)}`);
+        if (response.ok) {
+          const userData = await response.json();
+          if (userData && userData.length > 0) {
+            setDbUser(userData[0]);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      }
+    };
+
+    if (user?.email) {
+      fetchUserData();
+    }
+  }, [user?.email]);
+
+  // Display name with fallback to email
+  const displayName = dbUser?.user_name || user?.email;
 
   return (
     <SidebarMenu>
@@ -32,12 +56,12 @@ export function SidebarUserNav({ user }: { user: User }) {
             <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent bg-background data-[state=open]:text-sidebar-accent-foreground h-10">
               <Image
                 src={`https://avatar.vercel.sh/${user.email}`}
-                alt={user.email ?? 'User Avatar'}
+                alt={displayName ?? 'User Avatar'}
                 width={24}
                 height={24}
                 className="rounded-full"
               />
-              <span className="truncate">{user?.email}</span>
+              <span className="truncate">{displayName}</span>
               <ChevronUp className="ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
