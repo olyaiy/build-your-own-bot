@@ -1,11 +1,10 @@
 import 'server-only';
 
 import { genSaltSync, hashSync } from 'bcrypt-ts';
-import { and, asc, desc, eq, gt, gte, inArray, isNotNull, or, sql, like, ilike, not } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, inArray, isNotNull, or, sql} from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { generateSlug, generateUUID } from '@/lib/utils';
-import { InferModel, InferSelectModel } from 'drizzle-orm';
 
 import {
   user,

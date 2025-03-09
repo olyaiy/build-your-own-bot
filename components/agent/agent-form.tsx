@@ -284,7 +284,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                       <span className="mt-2 text-sm text-gray-600 dark:text-gray-300">Uploading...</span>
                     </div>
                   ) : imageUrl ? (
-                    <div className="group absolute inset-0 w-full h-full">
+                    <div className="group absolute inset-0 size-full">
                       <Image 
                         src={imageUrl} 
                         alt="Agent profile" 

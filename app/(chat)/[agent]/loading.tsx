@@ -7,7 +7,7 @@ export default function ChatLoadingSkeleton() {
   return (
     <div className="flex flex-col min-w-0 h-dvh overflow-hidden bg-background">
       {/* Header Skeleton - matching chat-header.tsx */}
-      <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2 z-[50] border-b">
+      <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2 z-50 border-b">
         {/* Sidebar Toggle */}
         
         

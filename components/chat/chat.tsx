@@ -4,11 +4,10 @@ import type { Attachment, Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useState, useEffect } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
-import type { Agent, Model } from '@/lib/db/schema';
+import type { Agent, Model, Vote } from '@/lib/db/schema';
 import { useLocalStorage } from 'usehooks-ts';
 
 import { ChatHeader } from '@/components/chat/chat-header';
-import type { Vote } from '@/lib/db/schema';
 import { convertToUIMessages, fetcher, generateUUID } from '@/lib/utils';
 import { MultimodalInput } from '@/components/chat/multimodal-input';
 import { Messages } from '@/components/chat/messages';

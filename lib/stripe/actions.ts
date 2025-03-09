@@ -1,5 +1,4 @@
-import { customer, user, userCredits, userTransactions, transactionTypeEnum } from '@/lib/db/schema';
-import { Customer } from '@/lib/db/schema';
+import { customer, user, userCredits, userTransactions, Customer } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import Stripe from 'stripe';
 import { db } from '../db/queries';
