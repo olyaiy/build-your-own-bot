@@ -103,7 +103,7 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
       <CardHeader>
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center space-x-2">
-            <Coins className="h-5 w-5 text-muted-foreground" />
+            <Coins className="size-5 text-muted-foreground" />
             <CardTitle>Token Usage</CardTitle>
           </div>
           <Link href="/profile/usage" passHref>

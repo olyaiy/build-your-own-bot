@@ -77,7 +77,7 @@ export default async function ProfilePage() {
                   </div>
                   <Link href="/profile/credits">
                     <Button size="sm" variant="outline" className="gap-1">
-                      <Plus className="h-3 w-3" />
+                      <Plus className="size-3" />
                       Add Credits
                     </Button>
                   </Link>

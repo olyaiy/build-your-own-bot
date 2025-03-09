@@ -35,7 +35,7 @@ export function AgentCardSkeleton() {
           
           {/* Settings button area */}
           <div className="flex items-center justify-end">
-            <Skeleton className="h-5 w-5" />
+            <Skeleton className="size-5" />
           </div>
         </div>
       </Card>

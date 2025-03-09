@@ -16,9 +16,15 @@ export const metadata: Metadata = {
   description: "Purchase additional credits for your account",
 };
 
-export default async function BuyCreditsPage({ searchParams }: { searchParams: { canceled?: string } }) {
-  // Check for canceled payment
-  const { canceled } = await searchParams;
+export default async function BuyCreditsPage({ 
+  searchParams: searchParamsPromise 
+}: { 
+  searchParams: Promise<{ canceled?: string }> 
+}) {
+  // Await the searchParams promise
+  const searchParams = await searchParamsPromise;
+  // Extract the canceled parameter
+  const canceled = searchParams.canceled;
 
   // Get the authenticated user
   const session = await auth();
@@ -72,7 +78,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: {
         {canceled && (
           <div className="mb-8 p-4 border border-yellow-500/20 bg-yellow-50/50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 rounded-lg flex items-center gap-3">
             <div className="shrink-0 bg-yellow-100 dark:bg-yellow-800/50 p-2 rounded-full">
-              <CreditCard className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+              <CreditCard className="size-5 text-yellow-600 dark:text-yellow-400" />
             </div>
             <p>Your payment was canceled. You can try again by selecting a credit package below.</p>
           </div>
@@ -89,7 +95,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: {
             <CardContent>
               <div className="flex flex-col items-center space-y-4 py-4">
                 <div className="bg-primary/10 p-4 rounded-full ring-4 ring-primary/5">
-                  <DollarSign className="h-12 w-12 text-primary" />
+                  <DollarSign className="size-12 text-primary" />
                 </div>
                 <div className="text-center">
                   <p className="text-4xl font-bold text-primary">{dollarCredits}</p>
@@ -118,7 +124,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: {
                     <div key={pkg.id} className={`relative flex items-center space-x-2 border rounded-lg p-5 transition-all hover:border-primary/50 hover:bg-primary/5 ${pkg.popular ? 'border-primary/30 bg-primary/5 ring-1 ring-primary/20' : ''}`}>
                       {pkg.popular && (
                         <div className="absolute -top-3 right-4 bg-primary text-primary-foreground text-xs font-medium py-1 px-3 rounded-full flex items-center">
-                          <Zap className="h-3 w-3 mr-1" /> Most Popular
+                          <Zap className="size-3 mr-1" /> Most Popular
                         </div>
                       )}
                       <RadioGroupItem value={pkg.id} id={pkg.id} />
