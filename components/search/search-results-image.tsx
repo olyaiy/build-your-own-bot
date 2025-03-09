@@ -86,11 +86,11 @@ export const SearchResultsImageSection: React.FC<
         <Dialog key={index}>
           <DialogTrigger asChild>
             <div
-              className="w-[calc(50%-0.5rem)] md:w-[calc(25%-0.5rem)] aspect-video cursor-pointer relative"
+              className="w-[calc(50%-0.5rem)] md:w-[calc(25%-0.5rem)] aspect-video cursor-pointer relative group"
               onClick={() => setSelectedIndex(index)}
             >
               <Card className="flex-1 h-full overflow-hidden transition-all duration-150 hover:shadow-md hover:scale-[1.02] hover:border-primary/50">
-                <CardContent className="p-2 size-full relative group">
+                <CardContent className="p-2 size-full relative">
                   {image ? (
                     <>
                       <img
@@ -101,11 +101,7 @@ export const SearchResultsImageSection: React.FC<
                           (e.currentTarget.src = '/images/placeholder-image.jpg')
                         }
                       />
-                      {image.description && (
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-end p-2">
-                          <p className="text-xs text-white line-clamp-2">{image.description}</p>
-                        </div>
-                      )}
+                   
                     </>
                   ) : (
                     <div className="size-full bg-muted animate-pulse" />
@@ -113,7 +109,7 @@ export const SearchResultsImageSection: React.FC<
                 </CardContent>
               </Card>
               {index === 3 && images.length > 4 && (
-                <div className="absolute inset-0 bg-black/30 rounded-md flex items-center justify-center text-white/80 text-sm transition-all duration-150 hover:bg-black/50 hover:text-white group">
+                <div className="absolute inset-0 bg-black/30 rounded-md flex items-center justify-center text-white/80 text-sm transition-all duration-150 group-hover:bg-black/50 group-hover:text-white z-10">
                   <PlusCircle size={24} className="transition-transform duration-150 group-hover:scale-110" />
                 </div>
               )}

@@ -9,7 +9,9 @@ import {
   MessageCircleMore,
   Newspaper,
   Repeat2,
-  Search
+  Search,
+  Loader2,
+  AlertCircle
 } from 'lucide-react'
 import React from 'react'
 import { ToolBadge } from './tool-badge'
@@ -86,16 +88,36 @@ export const Section: React.FC<SectionProps> = ({
 export function ToolArgsSection({
   children,
   tool,
-  number
+  number,
+  state
 }: {
   children: React.ReactNode
   tool: string
   number?: number
+  state?: string
 }) {
+  // Determine which tool identifier to use based on state
+  const displayTool = state && state !== 'result' ? `${tool}_loading` : tool
+  
   return (
-    <Section size="sm" className="py-0 flex items-center justify-between  max-w-xl overflow-hidden n">
-      <ToolBadge tool={tool}>{children}</ToolBadge>
-      {number && (
+    <Section size="sm" className="py-0 flex items-center justify-between overflow-hidden pr-2">
+      <ToolBadge tool={displayTool}>{children}</ToolBadge>
+      {state === 'result' && number && (
+        <StatusIndicator icon={Check} iconClassName="text-green-500">
+          {number} results
+        </StatusIndicator>
+      )}
+      {state && state !== 'result' && (
+        <span className="flex items-center text-xs text-muted-foreground">
+          <span>Searching the web</span>
+          <span className="inline-flex ml-1">
+            <span className="animate-pulse">.</span>
+            <span className="animate-pulse" style={{ animationDelay: '300ms' }}>.</span>
+            <span className="animate-pulse" style={{ animationDelay: '600ms' }}>.</span>
+          </span>
+        </span>
+      )}
+      {!state && number && (
         <StatusIndicator icon={Check} iconClassName="text-green-500">
           {number} results
         </StatusIndicator>

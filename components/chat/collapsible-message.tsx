@@ -55,10 +55,10 @@ export function CollapsibleMessage({
           <Collapsible
             open={isOpen}
             onOpenChange={handleOpenChange}
-            className="w-full"
+            className="w-full "
           >
             <CollapsibleTrigger className="flex items-center justify-between w-full group ">
-              <div className="flex items-center justify-between w-full gap-2 ">
+              <div className="flex items-center justify-between w-full ">
                 {header && <div className="text-sm w-full ">{header}</div>}
                 <ChevronDown className="size-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </div>

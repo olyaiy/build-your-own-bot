@@ -10,7 +10,6 @@ import { SearchResults } from './search-results'
 import { SearchResultsImageSection } from './search-results-image'
 import { Section, ToolArgsSection } from '../agent/section'
 import { useEffect } from 'react'
-import { DefaultSkeleton } from '../util/default-skeleton'
 export const CHAT_ID = 'search' as const
 
 interface SearchSectionProps {
@@ -53,6 +52,7 @@ export function SearchSection({
     <ToolArgsSection
       tool="search"
       number={searchResults?.results?.length}
+      state={state}
     >{`${query}${includeDomainsString}`}</ToolArgsSection>
   )
 
@@ -68,7 +68,6 @@ export function SearchSection({
       header={header}
       isOpen={isOpen}
       onOpenChange={handleOpenChange}
-
     >
       {searchResults &&
         searchResults.images &&
