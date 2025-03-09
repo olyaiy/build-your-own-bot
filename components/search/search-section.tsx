@@ -3,14 +3,13 @@
 
 import type { SearchResults as TypeSearchResults } from '@/lib/types'
 import { ToolInvocation } from 'ai'
-import { useChat } from 'ai/react'
 import { CollapsibleMessage } from '../chat/collapsible-message'
 import { SearchSkeleton } from './default-skeleton'
 import { SearchResults } from './search-results'
 import { SearchResultsImageSection } from './search-results-image'
 import { Section, ToolArgsSection } from '../agent/section'
 import { useEffect } from 'react'
-export const CHAT_ID = 'search' as const
+
 
 interface SearchSectionProps {
   tool: ToolInvocation
@@ -33,10 +32,7 @@ export function SearchSection({
   useEffect(() => {
   }, [isOpen])
 
-  const chatReturn = useChat({
-    id: CHAT_ID
-  })
-  const { isLoading } = chatReturn
+
   
   const isToolLoading = state === 'call' || tool.state === 'call'
   const searchResults: TypeSearchResults =
@@ -56,10 +52,9 @@ export function SearchSection({
     >{`${query}${includeDomainsString}`}</ToolArgsSection>
   )
 
-  // console.log('isLoading:', isLoading, 'isToolLoading:', isToolLoading);
 
-  console.log('THE TOOL:', tool);
-  console.log('THE STATE:', state);
+  // console.log('THE TOOL:', tool);
+  // console.log('THE STATE:', state);
 
   return (
     <CollapsibleMessage

@@ -160,7 +160,7 @@ const PurePreviewMessage = ({
             )}
 
             {(content || reasoning) && mode === 'view' && (
-              <div className="flex flex-row gap-2 items-start">
+              <div className="flex flex-row gap-2 items-start  p-2 overflow-hidden">
                 {message.role === 'user' && !isReadonly && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -180,7 +180,7 @@ const PurePreviewMessage = ({
 
                 <div
                   className={cn('flex flex-col gap-4', {
-                    'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
+                    'bg-primary text-primary-foreground px-3 py-2 rounded-xl  max-w-full overflow-hidden':
                       message.role === 'user',
                   })}
                 >
