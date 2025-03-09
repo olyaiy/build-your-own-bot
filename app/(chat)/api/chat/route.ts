@@ -101,8 +101,14 @@ export async function POST(request: Request) {
           .map(tool => tool.tool)
       )];
 
+      
+      
       // Create tools object with the appropriate tools
-      const registry = toolRegistry({ session, dataStream });
+      const registry = toolRegistry({ 
+        session, 
+        dataStream,
+        messages // Pass the messages to the tool registry
+      });
 
       const tools: Record<string, any> = {};
       for (const toolName of availableToolNames) {
@@ -111,6 +117,11 @@ export async function POST(request: Request) {
         if (toolName === 'searchTool' && searchEnabled === false) {
           continue; // Skip adding the search tool if searchEnabled is false
         }
+
+        if (toolName === 'retrieveTool' && searchEnabled === false) {
+          continue; // Skip adding the search tool if searchEnabled is false
+        }
+
         
         if (toolName in registry && registry[toolName as keyof typeof registry]) {
           tools[toolName] = registry[toolName as keyof typeof registry];
@@ -119,6 +130,8 @@ export async function POST(request: Request) {
 
       // Get the list of tool names that are actually available
       const activeToolNames = Object.keys(tools);
+
+
 
       const result = streamText({
         model: myProvider.languageModel(selectedChatModel),

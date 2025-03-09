@@ -5,16 +5,24 @@ import { updateDocumentPrompt } from '@/lib/ai/prompts';
 
 export const textDocumentHandler = createDocumentHandler<'text'>({
   kind: 'text',
-  onCreateDocument: async ({ title, dataStream }) => {
+  onCreateDocument: async ({ title, dataStream, messages = [] }) => {
     let draftContent = '';
 
     const { fullStream } = streamText({
       model: myProvider.languageModel('artifact-model'),
-      system:
-        'Write about the given topic. Markdown is supported. Use headings wherever appropriate.',
+      system: `Write about the given topic. Markdown is supported. Use headings wherever appropriate. Title: ${title}`,
+      messages,
       experimental_transform: smoothStream({ chunking: 'word' }),
-      prompt: title,
+
     });
+
+    console.log('!!! this was passed to the artifact model')
+    console.log('--------------------------------')
+    console.log('Write about the given topic. Markdown is supported. Use headings wherever appropriate.')
+    console.log('--------------------------------')
+    console.log('title', title);
+    console.log(messages);
+    console.log('--------------------------------')
 
     for await (const delta of fullStream) {
       const { type } = delta;
@@ -33,14 +41,17 @@ export const textDocumentHandler = createDocumentHandler<'text'>({
 
     return draftContent;
   },
-  onUpdateDocument: async ({ document, description, dataStream }) => {
+  onUpdateDocument: async ({ document, description, dataStream, messages = [] }) => {
     let draftContent = '';
+
+    let prompt = updateDocumentPrompt(document.content, 'text');
+    prompt = prompt += `${description}`;
 
     const { fullStream } = streamText({
       model: myProvider.languageModel('artifact-model'),
-      system: updateDocumentPrompt(document.content, 'text'),
+      system: prompt,
+      messages,
       experimental_transform: smoothStream({ chunking: 'word' }),
-      prompt: description,
       experimental_providerMetadata: {
         openai: {
           prediction: {

@@ -49,7 +49,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
       <div className="container mx-auto p-8 flex flex-col items-center justify-center min-h-[70vh]">
         <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-8 max-w-md w-full text-center">
           <div className="mb-4 flex justify-center">
-            <div className="h-16 w-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+            <div className="size-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
                 className="size-8 text-green-500" 
