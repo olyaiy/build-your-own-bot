@@ -24,7 +24,18 @@ export const getReasoningInstructions = (modelId: string): string => {
   // Base reasoning instructions that work for all reasoning models
   const baseInstructions = `
   You are an AI assistant that helps users with complex reasoning tasks.
-  When answering difficult questions, use <think> tags to reason through the problem step by step.
+  `;
+
+  // Model-specific instructions
+  if (modelId.startsWith('o1') || modelId.startsWith('o3')) {
+    return `${baseInstructions}
+    
+    Additional instructions for OpenAI reasoning models:
+    - Keep prompts simple and direct
+    - Avoid chain-of-thought within your responses as you already do internal reasoning
+    - Focus on providing clear, concise answers after your reasoning process
+
+    When answering difficult questions, use <think> tags to reason through the problem step by step.
   Then provide your final answer without the reasoning steps.
   
   Example:
@@ -37,16 +48,7 @@ export const getReasoningInstructions = (modelId: string): string => {
   150 + 105 = 255
   </think>
   
-  15 * 17 = 255`;
-
-  // Model-specific instructions
-  if (modelId.startsWith('o1') || modelId.startsWith('o3')) {
-    return `${baseInstructions}
-    
-    Additional instructions for OpenAI reasoning models:
-    - Keep prompts simple and direct
-    - Avoid chain-of-thought within your responses as you already do internal reasoning
-    - Focus on providing clear, concise answers after your reasoning process
+  15 * 17 = 255
     ${artifactsPrompt}
     
     `;
