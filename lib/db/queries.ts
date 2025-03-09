@@ -29,6 +29,7 @@ import {
   toolGroupTools,
   userCredits,
   userTransactions,
+  transactionTypeEnum,
 } from './schema';  
 import { ArtifactKind } from '@/components/artifact/artifact';
 
@@ -1263,20 +1264,51 @@ export async function getUserTokenUsage(userId: string) {
   }
 }
 
-export async function getUserTransactions(userId: string, page = 1, pageSize = 10) {
+export async function getUserTransactions(
+  userId: string, 
+  page = 1, 
+  pageSize = 10,
+  type: "usage" | "purchase" | "refund" | "promotional" | "adjustment" | null = null,
+  startDate: string | null = null,
+  endDate: string | null = null
+) {
   try {
     // Calculate offset based on page number and page size
     const offset = (page - 1) * pageSize;
     
-    // First, get the total count of transactions for pagination
+    // Build the base condition with user ID
+    let conditions = [eq(userTransactions.userId, userId)];
+    
+    // Add type filter if provided
+    if (type) {
+      conditions.push(eq(userTransactions.type, type));
+    }
+    
+    // Add date range filters if provided
+    if (startDate) {
+      const startDateObj = new Date(startDate);
+      conditions.push(gte(userTransactions.created_at, startDateObj));
+    }
+    
+    if (endDate) {
+      // Set the end date to the end of the day (23:59:59)
+      const endDateObj = new Date(endDate);
+      endDateObj.setHours(23, 59, 59, 999);
+      conditions.push(sql`${userTransactions.created_at} <= ${endDateObj}`);
+    }
+    
+    // Combine all conditions with AND
+    const whereConditions = and(...conditions);
+    
+    // First, get the total count of transactions for pagination with filters
     const totalCountResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(userTransactions)
-      .where(eq(userTransactions.userId, userId));
+      .where(whereConditions);
     
     const totalCount = totalCountResult[0]?.count || 0;
     
-    // Get the transactions with message content if available
+    // Get the transactions with message content if available, applying the same filters
     const transactions = await db
       .select({
         id: userTransactions.id,
@@ -1289,7 +1321,7 @@ export async function getUserTransactions(userId: string, page = 1, pageSize = 1
       })
       .from(userTransactions)
       .leftJoin(message, eq(userTransactions.messageId, message.id))
-      .where(eq(userTransactions.userId, userId))
+      .where(whereConditions)
       .orderBy(desc(userTransactions.created_at))
       .limit(pageSize)
       .offset(offset);
@@ -1300,7 +1332,11 @@ export async function getUserTransactions(userId: string, page = 1, pageSize = 1
       pageCount: Math.ceil(totalCount / pageSize)
     };
   } catch (error) {
-    console.error('Error fetching user transactions:', error);
-    throw error;
+    console.error('Failed to get user transactions:', error);
+    return {
+      transactions: [],
+      totalCount: 0,
+      pageCount: 0
+    };
   }
 }

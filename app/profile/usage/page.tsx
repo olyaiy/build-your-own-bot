@@ -9,7 +9,12 @@ import TransactionTable from './transaction-table';
 export default async function UsagePage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: { 
+    page?: string;
+    type?: string;
+    startDate?: string;
+    endDate?: string;
+  };
 }) {
   const session = await auth();
   const userId = session?.user?.id;
@@ -30,9 +35,19 @@ export default async function UsagePage({
   }
 
   const page = searchParams?.page ? parseInt(searchParams.page) : 1;
+  const type = searchParams?.type || null;
+  const startDate = searchParams?.startDate || null;
+  const endDate = searchParams?.endDate || null;
   
-  // Fetch user transactions with pagination
-  const { transactions, totalCount, pageCount } = await getUserTransactions(userId, page, 10);
+  // Fetch user transactions with pagination and filters
+  const { transactions, totalCount, pageCount } = await getUserTransactions(
+    userId, 
+    page, 
+    10, 
+    type, 
+    startDate, 
+    endDate
+  );
   
   // Transform the data for the table
   const formattedTransactions = transactions.map((transaction) => {

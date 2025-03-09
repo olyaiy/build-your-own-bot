@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   Table,
   TableBody,
@@ -28,7 +28,26 @@ import {
   DropdownMenuLabel
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger 
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Card, CardContent } from '@/components/ui/card';
+import { CalendarIcon, ChevronDown, FilterIcon, XCircleIcon } from 'lucide-react';
+import { format, isValid, parseISO } from 'date-fns';
 
 type Transaction = {
   id: string;
@@ -55,10 +74,85 @@ export default function TransactionTable({
 }: TransactionTableProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Filter state
+  const [type, setType] = useState<string | null>(searchParams.get('type') || null);
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    searchParams.get('startDate') && isValid(parseISO(searchParams.get('startDate') || '')) 
+      ? parseISO(searchParams.get('startDate') || '') 
+      : undefined
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    searchParams.get('endDate') && isValid(parseISO(searchParams.get('endDate') || '')) 
+      ? parseISO(searchParams.get('endDate') || '') 
+      : undefined
+  );
+  const [isFiltersVisible, setIsFiltersVisible] = useState(false);
+
+  // Apply filters
+  const applyFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    // Update or remove type filter
+    if (type && type !== 'all') {
+      params.set('type', type);
+    } else {
+      params.delete('type');
+    }
+    
+    // Update or remove date filters
+    if (startDate) {
+      params.set('startDate', format(startDate, 'yyyy-MM-dd'));
+    } else {
+      params.delete('startDate');
+    }
+    
+    if (endDate) {
+      params.set('endDate', format(endDate, 'yyyy-MM-dd'));
+    } else {
+      params.delete('endDate');
+    }
+    
+    // Reset to first page when filters change
+    params.set('page', '1');
+    
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // Reset filters
+  const resetFilters = () => {
+    setType(null);
+    setStartDate(undefined);
+    setEndDate(undefined);
+    
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('type');
+    params.delete('startDate');
+    params.delete('endDate');
+    params.set('page', '1');
+    
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // Function to format dates for display
+  const formatDateString = (date: Date | undefined) => {
+    if (!date) return '';
+    return format(date, 'MMM dd, yyyy');
+  };
+
+  // Count active filters
+  const activeFilterCount = [
+    type,
+    startDate,
+    endDate
+  ].filter(Boolean).length;
 
   // Function to handle page change
   const handlePageChange = (page: number) => {
-    router.push(`${pathname}?page=${page}`);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', page.toString());
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   // Function to get type badge color
@@ -97,6 +191,172 @@ export default function TransactionTable({
 
   return (
     <div className="space-y-4">
+      {/* Filters Section */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setIsFiltersVisible(!isFiltersVisible)}
+            className="flex items-center gap-1 text-sm"
+          >
+            <FilterIcon className="h-4 w-4" />
+            Filters
+            {activeFilterCount > 0 && (
+              <Badge variant="secondary" className="ml-1 rounded-full text-xs h-5 min-w-5 flex items-center justify-center">
+                {activeFilterCount}
+              </Badge>
+            )}
+          </Button>
+          
+          {activeFilterCount > 0 && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={resetFilters}
+              className="text-xs text-muted-foreground flex items-center gap-1"
+            >
+              <XCircleIcon className="h-3.5 w-3.5" />
+              Reset
+            </Button>
+          )}
+          
+          {/* Active filters display */}
+          <div className="hidden md:flex gap-2 items-center">
+            {type && (
+              <Badge variant="outline" className="flex gap-1 items-center pl-2">
+                Type: <span className="capitalize">{type}</span>
+                <XCircleIcon 
+                  className="h-3.5 w-3.5 ml-1 cursor-pointer" 
+                  onClick={() => {
+                    setType(null);
+                    const params = new URLSearchParams(searchParams.toString());
+                    params.delete('type');
+                    router.push(`${pathname}?${params.toString()}`);
+                  }}
+                />
+              </Badge>
+            )}
+            
+            {(startDate || endDate) && (
+              <Badge variant="outline" className="flex gap-1 items-center pl-2">
+                Date: {startDate ? formatDateString(startDate) : '...'} 
+                {endDate ? ` - ${formatDateString(endDate)}` : ''}
+                <XCircleIcon 
+                  className="h-3.5 w-3.5 ml-1 cursor-pointer" 
+                  onClick={() => {
+                    setStartDate(undefined);
+                    setEndDate(undefined);
+                    const params = new URLSearchParams(searchParams.toString());
+                    params.delete('startDate');
+                    params.delete('endDate');
+                    router.push(`${pathname}?${params.toString()}`);
+                  }}
+                />
+              </Badge>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* Filter UI */}
+      {isFiltersVisible && (
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Type Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="type-filter">Transaction Type</Label>
+                <Select 
+                  value={type || 'all'} 
+                  onValueChange={(value) => setType(value === 'all' ? null : value)}
+                >
+                  <SelectTrigger id="type-filter">
+                    <SelectValue placeholder="All types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All types</SelectItem>
+                    <SelectItem value="usage">Usage</SelectItem>
+                    <SelectItem value="purchase">Purchase</SelectItem>
+                    <SelectItem value="refund">Refund</SelectItem>
+                    <SelectItem value="promotional">Promotional</SelectItem>
+                    <SelectItem value="adjustment">Adjustment</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Date Range Filter - Start Date */}
+              <div className="space-y-2">
+                <Label htmlFor="start-date">Start Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="start-date"
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, 'MMM dd, yyyy') : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={setStartDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Date Range Filter - End Date */}
+              <div className="space-y-2">
+                <Label htmlFor="end-date">End Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="end-date"
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDate ? format(endDate, 'MMM dd, yyyy') : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={endDate}
+                      onSelect={setEndDate}
+                      initialFocus
+                      disabled={date => startDate ? date < startDate : false}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-2 mt-6">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={resetFilters}
+              >
+                Reset
+              </Button>
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={applyFilters}
+              >
+                Apply Filters
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="rounded-md border shadow-sm overflow-hidden">
         <Table>
           <TableHeader className="bg-muted/50">
@@ -281,4 +541,4 @@ export default function TransactionTable({
       </div>
     </div>
   );
-} 
+}

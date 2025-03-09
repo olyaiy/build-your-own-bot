@@ -22,6 +22,8 @@ import {
 export function SidebarUserNav({ user }: { user: User }) {
   const { setTheme, theme } = useTheme();
 
+  console.log("user", user);
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
