@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useTransition, useState } from "react";
+import React, { useTransition, useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +62,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
   const [alternateModelIds, setAlternateModelIds] = useState<string[]>(initialData?.alternateModelIds || []);
   const [selectedToolGroupIds, setSelectedToolGroupIds] = useState<string[]>(initialData?.toolGroupIds || []);
   const router = useRouter();
+  const systemPromptRef = useRef<HTMLTextAreaElement>(null);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     accept: {
@@ -160,6 +161,19 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
       }
     });
   };
+
+  const adjustSystemPromptHeight = () => {
+    if (systemPromptRef.current) {
+      systemPromptRef.current.style.height = 'auto';
+      systemPromptRef.current.style.height = `${systemPromptRef.current.scrollHeight}px`;
+    }
+  };
+
+  useEffect(() => {
+    if (systemPromptRef.current && initialData?.systemPrompt) {
+      adjustSystemPromptHeight();
+    }
+  }, [initialData?.systemPrompt]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10 max-w-7xl mx-auto px-4 sm:px-6 py-6">
@@ -527,9 +541,11 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                   placeholder={mode === "create" 
                     ? "e.g. You are a friendly assistant! Keep your responses concise and helpful." 
                     : "Enter system prompt"}
-                  className="min-h-[180px] font-mono text-sm leading-relaxed pr-4"
+                  className="min-h-[180px] max-h-[75vh] overflow-y-auto font-mono text-sm leading-relaxed pr-4"
                   required
                   defaultValue={initialData?.systemPrompt}
+                  ref={systemPromptRef}
+                  onInput={() => adjustSystemPromptHeight()}
                 />
                 <div className="absolute bottom-3 right-3">
                   <TooltipProvider>
