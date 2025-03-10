@@ -34,6 +34,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Separator } from "@/components/ui/separator";
 import { InfoIcon } from "@/components/icons/info-icon";
 import { colorSchemes, getColorScheme, getDefaultColorScheme } from "@/lib/colors";
+import { OverviewEditor } from "./customization-editor";
 
 interface AgentFormProps {
   mode: "create" | "edit";
@@ -76,6 +77,12 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
   const [colorSchemeId, setColorSchemeId] = useState<string>(
     initialData?.customization?.style?.colorSchemeId || getDefaultColorScheme().id
   );
+  const [overviewCustomization, setOverviewCustomization] = useState({
+    title: initialData?.customization?.overview?.title || "Welcome to your AI assistant!",
+    content: initialData?.customization?.overview?.content || "I'm here to help answer your questions and provide information. Feel free to ask me anything.",
+    showPoints: initialData?.customization?.overview?.showPoints || false,
+    points: initialData?.customization?.overview?.points || []
+  });
   const router = useRouter();
   const systemPromptRef = useRef<HTMLTextAreaElement>(null);
 
@@ -161,16 +168,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
           alternateModelIds: alternateModelIds, // Include alternate models
           toolGroupIds: selectedToolGroupIds, // Include tool groups
           customization: {
-            // Preserve existing customization if available
-            ...(initialData?.customization || {
-              overview: {
-                title: "Welcome to your AI assistant!",
-                content: "I'm here to help answer your questions and provide information. Feel free to ask me anything.",
-                showPoints: false,
-                points: []
-              }
-            }),
-            // Update style with new color scheme
+            overview: overviewCustomization,
             style: {
               colorSchemeId: colorSchemeId,
             }
@@ -667,6 +665,15 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Customization Section */}
+          <div className="space-y-5">
+            <h3 className="text-lg font-semibold">Customize Welcome Screen</h3>
+            <OverviewEditor 
+              overview={overviewCustomization} 
+              onChange={setOverviewCustomization} 
+            />
           </div>
         </CardContent>
         <CardFooter className="flex justify-between border-t pt-6">

@@ -3,14 +3,14 @@
 import type { ChatRequestOptions, Message } from 'ai';
 import cx from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
-import { memo, useMemo, useState } from 'react';
+import { memo, useState } from 'react';
+import Image from 'next/image';
 
 import type { Vote } from '@/lib/db/schema';
 
 
 import {
-  ChevronDownIcon,
-  LoaderIcon,
+
   PencilEditIcon,
   SparklesIcon,
 } from '@/components/util/icons';
@@ -58,6 +58,7 @@ const PurePreviewMessage = ({
   setMessages,
   reload,
   isReadonly,
+  agentImageUrl,
 }: {
   chatId: string;
   message: Message;
@@ -70,6 +71,7 @@ const PurePreviewMessage = ({
     chatRequestOptions?: ChatRequestOptions,
   ) => Promise<string | null | undefined>;
   isReadonly: boolean;
+  agentImageUrl?: string;
 }) => {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
 
@@ -145,10 +147,20 @@ const PurePreviewMessage = ({
           )}
         >
           {message.role === 'assistant' && (
-            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
-              <div className="translate-y-px">
-                <SparklesIcon size={14} />
-              </div>
+            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background overflow-hidden">
+              {agentImageUrl ? (
+                <Image 
+                  src={agentImageUrl} 
+                  alt="Agent avatar" 
+                  width={32} 
+                  height={32} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="translate-y-px">
+                  <SparklesIcon size={14} />
+                </div>
+              )}
             </div>
           )}
 
@@ -277,6 +289,9 @@ export const PreviewMessage = memo(
     if (prevHasParts !== nextHasParts) return false;
     if (prevHasParts && nextHasParts && 
         !equal(prevProps.message.parts, nextProps.message.parts)) return false;
+    
+    // Check if agentImageUrl changed
+    if (prevProps.agentImageUrl !== nextProps.agentImageUrl) return false;
     
     // Check content changes
     if (prevProps.message.content !== nextProps.message.content) return false;
