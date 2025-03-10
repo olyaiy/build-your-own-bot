@@ -15,7 +15,8 @@ export async function createAgent({
   artifactsEnabled,
   imageUrl,
   alternateModelIds = [],
-  toolGroupIds = []
+  toolGroupIds = [],
+  customization
 }: {
   agentDisplayName: string;
   systemPrompt: string;
@@ -27,6 +28,17 @@ export async function createAgent({
   imageUrl?: string | null;
   alternateModelIds?: string[];
   toolGroupIds?: string[];
+  customization?: {
+    overview: {
+      title: string;
+      content: string;
+      showPoints: boolean;
+      points: string[];
+    };
+    style: {
+      colorSchemeId: string;
+    };
+  };
 }) {
   try {
     // Create agent with primary model
@@ -38,7 +50,8 @@ export async function createAgent({
       visibility,
       creatorId,
       artifactsEnabled,
-      imageUrl
+      imageUrl,
+      customization
     });
     
     // If alternate models were provided, add them to the agent
@@ -80,7 +93,8 @@ export async function updateAgent({
   artifactsEnabled,
   imageUrl,
   alternateModelIds = [],
-  toolGroupIds = []
+  toolGroupIds = [],
+  customization
 }: {
   id: string;
   agentDisplayName: string;
@@ -92,6 +106,17 @@ export async function updateAgent({
   imageUrl?: string | null;
   alternateModelIds?: string[];
   toolGroupIds?: string[];
+  customization?: {
+    overview: {
+      title: string;
+      content: string;
+      showPoints: boolean;
+      points: string[];
+    };
+    style: {
+      colorSchemeId: string;
+    };
+  };
 }) {
   try {
     const agent = await getAgentById(id);
@@ -109,7 +134,8 @@ export async function updateAgent({
       modelId,
       visibility,
       artifactsEnabled,
-      imageUrl
+      imageUrl,
+      customization
     });
     
     // Handle alternate models

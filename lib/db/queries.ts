@@ -600,6 +600,7 @@ export async function createAgent({
   creatorId,
   artifactsEnabled,
   imageUrl,
+  customization
 }: {
   agentDisplayName: string;
   systemPrompt: string;
@@ -609,36 +610,51 @@ export async function createAgent({
   creatorId: string;
   artifactsEnabled?: boolean;
   imageUrl?: string | null;
+  customization?: {
+    overview: {
+      title: string;
+      content: string;
+      showPoints: boolean;
+      points: string[];
+    };
+    style: {
+      colorSchemeId: string;
+    };
+  };
 }) {
   try {
     // Generate slug from display name
     const slug = generateSlug(agentDisplayName);
 
-    // First create the agent without a model
-    const [result] = await db.insert(agents).values({
-      agent: slug, // Use the generated slug
-      agent_display_name: agentDisplayName,
-      system_prompt: systemPrompt,
-      description,
-      visibility,
-      creatorId,
-      artifacts_enabled: artifactsEnabled ?? true,
-      image_url: imageUrl,
-    }).returning({ id: agents.id });
+    // Insert the new agent
+    const [agent] = await db
+      .insert(agents)
+      .values({
+        agent: slug,
+        agent_display_name: agentDisplayName,
+        system_prompt: systemPrompt,
+        description,
+        visibility,
+        creatorId,
+        artifacts_enabled: artifactsEnabled !== undefined ? artifactsEnabled : true,
+        image_url: imageUrl,
+        customization: customization as any // Type cast for Drizzle JSON field
+      })
+      .returning();
 
     // Then create the agent-model relationship with isDefault=true
-    if (result?.id) {
+    if (agent?.id) {
       await db.insert(agentModels).values({
-        agentId: result.id,
+        agentId: agent.id,
         modelId,
         isDefault: true
       });
     }
 
-    return result;
+    return agent;
   } catch (error) {
-    console.error('Failed to create agent in database');
-    throw error;
+    console.error('Error creating agent:', error);
+    throw new Error('Failed to create agent');
   }
 }
 
@@ -697,6 +713,7 @@ export async function updateAgentById({
   visibility,
   artifactsEnabled,
   imageUrl,
+  customization
 }: {
   id: string;
   agentDisplayName: string;
@@ -706,6 +723,17 @@ export async function updateAgentById({
   visibility: 'public' | 'private' | 'link';
   artifactsEnabled?: boolean;
   imageUrl?: string | null;
+  customization?: {
+    overview: {
+      title: string;
+      content: string;
+      showPoints: boolean;
+      points: string[];
+    };
+    style: {
+      colorSchemeId: string;
+    };
+  };
 }) {
   try {
     // Generate slug from display name
@@ -721,6 +749,7 @@ export async function updateAgentById({
         visibility,
         artifacts_enabled: artifactsEnabled,
         image_url: imageUrl,
+        customization: customization as any // Type cast for Drizzle JSON field
       })
       .where(eq(agents.id, id));
 
@@ -764,8 +793,8 @@ export async function updateAgentById({
 
     return { success: true };
   } catch (error) {
-    console.error('Failed to update agent in database');
-    throw error;
+    console.error('Error updating agent:', error);
+    throw new Error('Failed to update agent');
   }
 }
 

@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { AlertCircle, Camera, ImageIcon, Loader2, Trash2 } from "lucide-react";
+import { AlertCircle, Camera, ImageIcon, Loader2, Trash2, Palette } from "lucide-react";
 import { ToolGroupSelector, ToolGroupInfo } from "./tool-group-selector";
 import { ModelSelectorSection, ModelInfo } from "./model-selector-section";
 import { 
@@ -33,6 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import { InfoIcon } from "@/components/icons/info-icon";
+import { colorSchemes, getColorScheme, getDefaultColorScheme } from "@/lib/colors";
 
 interface AgentFormProps {
   mode: "create" | "edit";
@@ -50,6 +51,17 @@ interface AgentFormProps {
     imageUrl?: string | null;
     alternateModelIds?: string[]; // Field for alternate models
     toolGroupIds?: string[]; // Field for tool groups
+    customization?: {
+      overview: {
+        title: string;
+        content: string;
+        showPoints: boolean;
+        points: string[];
+      };
+      style: {
+        colorSchemeId: string;
+      };
+    };
   };
 }
 
@@ -61,6 +73,9 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
   const [primaryModelId, setPrimaryModelId] = useState<string>(initialData?.modelId || "");
   const [alternateModelIds, setAlternateModelIds] = useState<string[]>(initialData?.alternateModelIds || []);
   const [selectedToolGroupIds, setSelectedToolGroupIds] = useState<string[]>(initialData?.toolGroupIds || []);
+  const [colorSchemeId, setColorSchemeId] = useState<string>(
+    initialData?.customization?.style?.colorSchemeId || getDefaultColorScheme().id
+  );
   const router = useRouter();
   const systemPromptRef = useRef<HTMLTextAreaElement>(null);
 
@@ -145,6 +160,21 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
           imageUrl: imageUrl,
           alternateModelIds: alternateModelIds, // Include alternate models
           toolGroupIds: selectedToolGroupIds, // Include tool groups
+          customization: {
+            // Preserve existing customization if available
+            ...(initialData?.customization || {
+              overview: {
+                title: "Welcome to your AI assistant!",
+                content: "I'm here to help answer your questions and provide information. Feel free to ask me anything.",
+                showPoints: false,
+                points: []
+              }
+            }),
+            // Update style with new color scheme
+            style: {
+              colorSchemeId: colorSchemeId,
+            }
+          }
         };
 
         if (mode === "edit") {
@@ -174,6 +204,58 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
       adjustSystemPromptHeight();
     }
   }, [initialData?.systemPrompt]);
+
+  // Add this component for color scheme selection
+  const ColorSchemeSelector = () => {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="colorScheme" className="text-sm font-medium flex items-center gap-1.5">
+            Color Scheme
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <AlertCircle className="size-3.5 text-gray-400" />
+                </TooltipTrigger>
+                <TooltipContent side="right" className="max-w-[250px]">
+                  <p>Choose a color scheme to customize the appearance of your agent.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </Label>
+        </div>
+        
+        <Select
+          value={colorSchemeId}
+          onValueChange={setColorSchemeId}
+        >
+          <SelectTrigger id="colorScheme" className="w-full">
+            <SelectValue placeholder="Select a color scheme" />
+          </SelectTrigger>
+          <SelectContent>
+            {colorSchemes.map((scheme) => (
+              <SelectItem key={scheme.id} value={scheme.id} className="flex items-center">
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-4 h-4 rounded-full" 
+                    style={{ backgroundColor: scheme.primary[500] }}
+                  />
+                  <span>{scheme.name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        
+        <div className="flex items-center gap-2 mt-2">
+          <Palette className="size-4 text-gray-500" />
+          <span className="text-xs text-gray-500">
+            Current: {colorSchemes.find(s => s.id === colorSchemeId)?.name || 'Default'}
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10 max-w-7xl mx-auto px-4 sm:px-6 py-6">
@@ -362,86 +444,91 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
 
             {/* Right Column - Basic Information - Improved layout */}
             <div className="col-span-1 md:col-span-4 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="agentDisplayName" className="text-sm font-medium flex items-center gap-1.5">
-                    Agent Name <span className="text-red-500">*</span>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <AlertCircle className="size-3.5 text-gray-400" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[250px]">
-                          <p>Choose a clear, descriptive name that reflects your agent&apos;s purpose or personality.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Label>
-                  <Input
-                    id="agentDisplayName"
-                    name="agentDisplayName"
-                    type="text"
-                    placeholder="Enter a name for your agent"
-                    className="h-10"
-                    required
-                    defaultValue={initialData?.agentDisplayName}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="visibility" className="text-sm font-medium flex items-center gap-1.5">
-                    Visibility
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <AlertCircle className="size-3.5 text-gray-400" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[250px]">
-                          <p>Public: Everyone can see and use your agent<br/>
-                             Private: Only you can access it<br/>
-                             Link: Anyone with the link can use it</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Label>
-                  <Select name="visibility" defaultValue={initialData?.visibility || "public"}>
-                    <SelectTrigger className="h-10">
-                      <SelectValue placeholder="Select visibility" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="public">Public</SelectItem>
-                      <SelectItem value="private">Private</SelectItem>
-                      <SelectItem value="link">Link</SelectItem>
-                    </SelectContent>
-                  </Select>
+              {/* Basic Agent Details */}
+              <div>
+                <h3 className="text-lg font-medium mb-4">Basic Information</h3>
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <Label htmlFor="agentDisplayName" className="text-sm font-medium flex items-center gap-1.5">
+                      Agent Name
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <AlertCircle className="size-3.5 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-[250px]">
+                            <p>The name of your agent as displayed to users.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </Label>
+                    <Input
+                      id="agentDisplayName"
+                      name="agentDisplayName"
+                      required
+                      placeholder="Enter a name for your agent"
+                      defaultValue={initialData?.agentDisplayName || ""}
+                      className="mt-2"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="description" className="text-sm font-medium flex items-center gap-1.5">
+                      Description
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <AlertCircle className="size-3.5 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-[250px]">
+                            <p>A brief description of what your agent does.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      placeholder="Describe what your agent does"
+                      defaultValue={initialData?.description || ""}
+                      className="mt-2 min-h-24"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm font-medium flex items-center gap-1.5">
-                  Description
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <AlertCircle className="size-3.5 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[250px]">
-                        <p>A brief explanation of what your agent does and how it can help users. This will be visible to users.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  placeholder="Describe what your agent does and how it can help users"
-                  className="resize-none h-[120px]"
-                  defaultValue={initialData?.description}
-                />
-                <div className="flex justify-end">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Recommended: 100-150 characters
-                  </p>
+              {/* Appearance Settings */}
+              <div>
+                <h3 className="text-lg font-medium mb-4">Appearance</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="visibility" className="text-sm font-medium flex items-center gap-1.5">
+                      Visibility
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <AlertCircle className="size-3.5 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-[250px]">
+                            <p>Controls who can see and use your agent.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </Label>
+                    <Select name="visibility" defaultValue={initialData?.visibility || "public"}>
+                      <SelectTrigger id="visibility" className="mt-2">
+                        <SelectValue placeholder="Select visibility" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="public">Public (Everyone can see)</SelectItem>
+                        <SelectItem value="private">Private (Only you can see)</SelectItem>
+                        <SelectItem value="link">Link sharing (Anyone with the link)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Color Scheme Selector */}
+                  <ColorSchemeSelector />
                 </div>
               </div>
 

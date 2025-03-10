@@ -104,6 +104,19 @@ export const agents = pgTable("agents", {
   creatorId: uuid("creator_id").references(() => user.id),
   artifacts_enabled: boolean("artifacts_enabled").default(true),
   image_url: text("image_url"),
+  customization: json("customization").default({
+    overview: {
+      title: "Welcome to your AI assistant!",
+      content: "Im here to help answer your questions and provide information. Feel free to ask me anything.",
+      showPoints: false,
+      points: []
+    },
+    style: {
+      colorSchemeId: "default",
+      // backgroundColor: "#ffffff",
+      // customColors: false
+    }
+  }),
 }, (table) => {
   return {
     creatorIdIdx: index("agents_creator_id_idx").on(table.creatorId),
@@ -112,6 +125,18 @@ export const agents = pgTable("agents", {
 });
  
 export type Agent = typeof agents.$inferSelect;
+
+export interface AgentCustomization {
+  overview: {
+    title: string;
+    content: string;
+    showPoints: boolean;
+    points: string[];
+  };
+  style: {
+    colorSchemeId: string;
+  };
+}
 
 export const document = pgTable(
   'Document',

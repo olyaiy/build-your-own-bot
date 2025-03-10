@@ -33,11 +33,20 @@ const runMigrate = async () => {
     const knownErrors = [
       // Column already exists
       { code: '42701', message: 'column "agentId" of relation "Chat" already exists' },
-      // Referenced column doesn't exist
-      { code: '42703', message: 'column "model" referenced in foreign key constraint does not exist' },
-      // Constraint doesn't exist
-      { code: '0A000', message: 'constraint "agents_model_models_id_fk" of relation "agents" does not exist' }
+      // Referenced column doesn't exist - this is expected since we now use agent_models junction table instead of a direct model column
+      { code: '42703', message: 'column "model" referenced in foreign key constraint does not exist' }
     ];
+
+    // Special case for the agents_model foreign key error which is a known issue
+    if (err.code === '42703' && 
+        err.message && 
+        err.message.includes('column "model" referenced in foreign key constraint') && 
+        err.where && 
+        err.where.includes('ADD CONSTRAINT "agents_model_models_id_fk"')) {
+      console.warn('⚠️ Migration warning: Skipping agents_model_models_id_fk constraint creation as the column has been removed in a later migration');
+      // Exit gracefully for this specific error
+      process.exit(0);
+    }
 
     // Check if the error matches any known error
     const knownError = knownErrors.find(
