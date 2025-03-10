@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { addCreditsToUser } from '@/lib/stripe/actions';
+import { creditPackages } from '@/app/profile/credits/page';
 
 // Initialize Stripe with the secret key from environment variables
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -62,12 +63,6 @@ export async function POST(request: NextRequest) {
         const priceId = lineItems[0]?.price?.id;
         
         // Define credit packages (should match those in the credits page)
-        const creditPackages = [
-          { id: "price_1R0II9Pikexl2RtDVzeHL5pL", credits: 5, price: "$5"},
-          { id: "price_1R0IIvPikexl2RtD3pYbOXbb", credits: 10, price: "$10"},
-          { id: "price_1R0IJLPikexl2RtDK5ggIlxS", credits: 15, price: "$15"},
-          { id: "price_1R0IKvPikexl2RtD7sr7rLM3", credits: 20, price: "$20"}
-        ];
         
         // Find the matching credit package
         const purchasedPackage = creditPackages.find(pkg => pkg.id === priceId);

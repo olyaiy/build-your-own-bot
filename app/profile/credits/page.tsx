@@ -11,6 +11,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { createOrRetrieveCustomer } from "@/lib/stripe/actions";
 
+export const creditPackages = [
+    { id: "price_1R1CQHPikexl2RtD7kNr3Z4f", credits: 5, price: "$5", popular: false },
+    { id: "price_1R1CQVPikexl2RtDjXiSeoIL", credits: 10, price: "$10", popular: true },
+    { id: "price_1R1CR6Pikexl2RtDm0uXxc2T", credits: 20, price: "$20", popular: false }
+  ];
+
 export const metadata: Metadata = {
   title: "Buy Credits",
   description: "Purchase additional credits for your account",
@@ -49,13 +55,11 @@ export default async function BuyCreditsPage({
     ? `$${parseFloat(user.credit_balance.toString()).toFixed(2)}`
     : '$0.00';
 
+
+
+
   // Credit package options
-  const creditPackages = [
-    { id: "price_1R0II9Pikexl2RtDVzeHL5pL", credits: 5, price: "$5", popular: false },
-    { id: "price_1R0IIvPikexl2RtD3pYbOXbb", credits: 10, price: "$10", popular: true },
-    { id: "price_1R0IJLPikexl2RtDK5ggIlxS", credits: 15, price: "$15", popular: false },
-    { id: "price_1R0IKvPikexl2RtD7sr7rLM3", credits: 20, price: "$20", popular: false }
-  ];
+
 
   return (
     <>
