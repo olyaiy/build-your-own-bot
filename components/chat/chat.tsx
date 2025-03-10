@@ -127,7 +127,7 @@ export function Chat({
   // console.log('THE BG COLOR CLASS:', bgColorClass);
 
 
-  console.log(agent)
+  console.log('Agent object:', agent)
   return (
     <>
       <div className={`flex flex-col min-w-0 h-dvh overflow-hidden 
@@ -139,6 +139,8 @@ export function Chat({
           selectedModelId={currentModel}
           selectedVisibilityType={selectedVisibilityType}
           isReadonly={isReadonly}
+          agent_display_name={agent.agent_display_name}
+          image_url={agent.image_url}
         />
 
         <div className="flex-1 min-h-0 relative">

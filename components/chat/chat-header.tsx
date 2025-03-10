@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useWindowSize } from 'usehooks-ts';
 import { SidebarToggle } from '@/components/layout/sidebar-toggle';
@@ -10,6 +11,7 @@ import { useSidebar } from '@/components/ui/sidebar';
 import { memo } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { VisibilityType, VisibilitySelector } from '@/components/util/visibility-selector';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 function PureChatHeader({
   chatId,
@@ -17,12 +19,16 @@ function PureChatHeader({
   selectedVisibilityType,
   isReadonly,
   agentId,
+  agent_display_name,
+  image_url,
 }: {
   chatId: string;
   selectedModelId: string;
   selectedVisibilityType: VisibilityType;
   isReadonly: boolean;
   agentId: string;
+  agent_display_name?: string;
+  image_url?: string | null;
 }) {
   const router = useRouter();
   const { open } = useSidebar();
@@ -49,7 +55,7 @@ function PureChatHeader({
   return (
     <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2 z-50">
       <SidebarToggle />
-
+      
       {(!open || windowWidth < 768) && (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -69,8 +75,6 @@ function PureChatHeader({
         </Tooltip>
       )}
 
-     
-
       {!isReadonly && (
         <VisibilitySelector
           chatId={chatId}
@@ -79,26 +83,43 @@ function PureChatHeader({
         />
       )}
 
-
       {!isReadonly && (
-        <div className="order-1 md:order-4">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-            variant="outline"
-              size="icon"
-              className="size-8"
-              asChild
-            >
-              <Link href={`/agents/${agentId}/edit`}>
-                
-                <SettingsIcon />
-                <span className="sr-only">Agent Settings</span>
-              </Link>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Agent Settings</TooltipContent>
-        </Tooltip>
+        <div className="order-1 md:order-4 ml-auto">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 h-8 px-3"
+                asChild
+              >
+                <Link href={`/agents/${agentId}/edit`} className="flex items-center gap-2">
+                  <Avatar className="size-6 border border-border relative">
+                    {image_url ? (
+                      <>
+                        <Image 
+                          src={image_url} 
+                          alt={agent_display_name || "Agent"} 
+                          fill
+                          sizes="24px"
+                          className="object-cover rounded-full"
+                          priority
+                        />
+                        <AvatarImage src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" className="opacity-0" />
+                      </>
+                    ) : (
+                      <AvatarFallback className="text-xs">{agent_display_name?.charAt(0) || "A"}</AvatarFallback>
+                    )}
+                  </Avatar>
+                  <span className="font-medium text-sm hidden md:inline-block">
+                    {agent_display_name || "Agent"}
+                  </span>
+                  <SettingsIcon />
+                  <span className="sr-only">Agent Settings</span>
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Agent Settings</TooltipContent>
+          </Tooltip>
         </div>
       )}
     </header>
@@ -106,5 +127,7 @@ function PureChatHeader({
 }
 
 export const ChatHeader = memo(PureChatHeader, (prevProps, nextProps) => {
-  return prevProps.selectedModelId === nextProps.selectedModelId;
+  return prevProps.selectedModelId === nextProps.selectedModelId && 
+         prevProps.agent_display_name === nextProps.agent_display_name &&
+         prevProps.image_url === nextProps.image_url;
 });
