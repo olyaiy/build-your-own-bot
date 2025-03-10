@@ -42,9 +42,22 @@ export default async function ProfilePage() {
 
 
   // Fetch user's agents
-  const userAgents = await getAgents(userId);
+  const userAgents = await getAgents(userId, true);
   // Limit to just a preview (3 agents)
-  const agentPreview = userAgents.slice(0, 3);
+  const agentPreview = userAgents.slice(0, 3).map(agent => ({
+    ...agent,
+    customization: (agent as any).customization || {
+      overview: {
+        title: "Welcome to your AI assistant!",
+        content: "I'm here to help answer your questions and provide information.",
+        showPoints: false,
+        points: []
+      },
+      style: {
+        colorSchemeId: "default"
+      }
+    }
+  }));
 
   return (
     <>

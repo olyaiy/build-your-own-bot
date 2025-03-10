@@ -137,14 +137,10 @@ export async function saveMessages({
   messages, 
   model_id,
   user_id,
-  inputCost,
-  outputCost
 }: { 
-  messages: Array<Message>; 
+  messages: Array <Message>; 
   model_id?: string;
   user_id?: string;
-  inputCost?: number;
-  outputCost?: number;
 }) {
   try {
     // Add generated UUIDs and apply model_id if provided
@@ -154,88 +150,21 @@ export async function saveMessages({
       model_id: model_id || msg.model_id,
     }));
 
-    
+  
     // Use a transaction to ensure both operations are atomic
     await db.transaction(async (tx) => {
-      // Insert messages
-      await tx.insert(message).values(messagesToSave);
-      
-      // Insert transaction records for the entire batch if user_id is provided
-      if (user_id && messagesToSave.length > 0) {
-        // Define the type for transaction records
-        type TransactionRecord = {
-          userId: string;
-          amount: string;
-          type: 'usage';
-          description: string;
-          messageId: string;
-        };
-        
-        const transactionRecords: TransactionRecord[] = [];
-        
-        // Find user and assistant messages
-        const userMessage = messagesToSave.find(msg => msg.role === 'user');
-        const assistantMessage = messagesToSave.find(msg => msg.role === 'assistant');
-        
-        // Calculate total cost for credit deduction
-        let totalCost = 0;
-        
-        // Add input cost transaction if it exists (associated with user message)
-        if (inputCost && inputCost > 0 && userMessage) {
-          transactionRecords.push({
-            userId: user_id,
-            amount: (-inputCost).toString(), // Store as negative value to indicate deduction
-            type: 'usage' as const,
-            description: 'Input tokens',
-            messageId: userMessage.id,
-          });
-          totalCost += inputCost;
-        }
-        
-        // Add output cost transaction if it exists (associated with assistant message)
-        if (outputCost && outputCost > 0 && assistantMessage) {
-          transactionRecords.push({
-            userId: user_id,
-            amount: (-outputCost).toString(), // Store as negative value to indicate deduction
-            type: 'usage' as const,
-            description: 'Output tokens',
-            messageId: assistantMessage.id,
-          });
-          totalCost += outputCost;
-        }
-        
-        // Only proceed if there are costs to process
-        if (totalCost > 0) {
-          // Insert transaction records
-          await tx.insert(userTransactions).values(transactionRecords);
-          
-          // Check if user has a credits record
-          const userCreditRows = await tx
-            .select()
-            .from(userCredits)
-            .where(eq(userCredits.user_id, user_id));
-          
-          if (userCreditRows.length > 0) {
-            // User has a record, update it with the subtraction
-            await tx
-              .update(userCredits)
-              .set({
-                credit_balance: sql`${userCredits.credit_balance} - ${totalCost.toString()}`
-              })
-              .where(eq(userCredits.user_id, user_id));
-          } else {
-            // User doesn't have a record yet, create one with negative balance
-            // (or starting from 0 and subtracting the cost)
-            await tx
-              .insert(userCredits)
-              .values({
-                user_id: user_id,
-                credit_balance: (-totalCost).toString(),
-                lifetime_credits: '0'
-              });
+      // Upsert messages - insert or update if they already exist
+      await tx.insert(message)
+        .values(messagesToSave)
+        .onConflictDoUpdate({
+          target: message.id,
+          set: {
+            content: sql`EXCLUDED.content`,
+            role: sql`EXCLUDED.role`,
+            model_id: sql`EXCLUDED.model_id`,
+            // Note: we don't update chatId or createdAt as those should remain constant
           }
-        }
-      }
+        });
     });
     
     // Return the messages with their generated IDs
@@ -1142,14 +1071,12 @@ export async function getUserTokenUsage(userId: string) {
     const messagesWithTokens = await db
       .select({
         role: message.role,
-        tokenUsage: message.token_usage,
         modelId: message.model_id,
       })
       .from(message)
       .where(
         and(
-          inArray(message.chatId, chatIds),
-          isNotNull(message.token_usage)
+          inArray(message.chatId, chatIds)
         )
       );
     
@@ -1225,7 +1152,6 @@ export async function getUserTokenUsage(userId: string) {
     
     // Process each message and attribute to the right model
     messagesWithTokens.forEach(message => {
-      if (!message.tokenUsage) return;
       
       let modelKey = 'unknown';
       let modelName = 'Unknown Model';
@@ -1255,11 +1181,7 @@ export async function getUserTokenUsage(userId: string) {
       
       // Add token usage to appropriate category
       const modelData = tokenUsageByModel.get(modelKey);
-      if (message.role === 'user') {
-        modelData.inputTokens += message.tokenUsage;
-      } else {
-        modelData.outputTokens += message.tokenUsage;
-      }
+   
     });
     
     // Calculate costs for each model
@@ -1363,5 +1285,81 @@ export async function getUserTransactions(
       totalCount: 0,
       pageCount: 0
     };
+  }
+}
+
+export async function recordTransaction({
+  userId,
+  amount,
+  type,
+  description,
+  messageId,
+  tokenAmount,
+  tokenType,
+  modelId
+}: {
+  userId: string;
+  amount: number;
+  type: 'usage' | 'purchase' | 'refund' | 'promotional' | 'adjustment';
+  description?: string;
+  messageId?: string;
+  tokenAmount?: number;
+  tokenType?: 'input' | 'output';
+  modelId?: string;
+}) {
+  try {
+    // Use a transaction to ensure both operations are atomic
+    const [transaction] = await db.transaction(async (tx) => {
+      // 1. Record the transaction
+      const [newTransaction] = await tx
+        .insert(userTransactions)
+        .values({
+          userId,
+          amount: amount.toString(), // Convert to string for numeric type
+          type,
+          description,
+          messageId,
+          tokenAmount,
+          tokenType,
+          modelId
+        })
+        .returning();
+      
+      // 2. Update the user's credit balance
+      // For usage, refund, or adjustment types, we modify the credit balance
+      if (type === 'usage') {
+        // For usage transactions, reduce the credit balance
+        await tx
+          .update(userCredits)
+          .set({
+            credit_balance: sql`${userCredits.credit_balance} - ${amount.toString()}`
+          })
+          .where(eq(userCredits.user_id, userId));
+      } else if (type === 'purchase' || type === 'promotional') {
+        // For purchase or promotional transactions, increase the credit balance
+        await tx
+          .update(userCredits)
+          .set({
+            credit_balance: sql`${userCredits.credit_balance} + ${amount.toString()}`,
+            lifetime_credits: sql`${userCredits.lifetime_credits} + ${amount.toString()}`
+          })
+          .where(eq(userCredits.user_id, userId));
+      } else if (type === 'refund' || type === 'adjustment') {
+        // For refund or adjustment transactions, modify based on amount sign
+        await tx
+          .update(userCredits)
+          .set({
+            credit_balance: sql`${userCredits.credit_balance} + ${amount.toString()}`
+          })
+          .where(eq(userCredits.user_id, userId));
+      }
+      
+      return [newTransaction];
+    });
+    
+    return transaction;
+  } catch (error) {
+    console.error('Failed to record transaction:', error);
+    throw new Error('Failed to record transaction');
   }
 }

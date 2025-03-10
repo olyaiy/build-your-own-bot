@@ -244,7 +244,6 @@ export const message = pgTable('Message', {
   role: varchar('role').notNull(),
   content: json('content').notNull(),
   createdAt: timestamp('createdAt').notNull(),
-  token_usage: integer('token_usage'),
   model_id: uuid("model_id")
     .references(() => models.id, { onDelete: "cascade" }),
 }, (table) => {
@@ -336,6 +335,12 @@ export const transactionTypeEnum = pgEnum("transaction_type", [
   "adjustment"
 ]);
 
+// Enum for token types
+export const tokenTypeEnum = pgEnum("token_type", [
+  "input",
+  "output"
+]);
+
 export const userTransactions = pgTable('user_transactions', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => user.id),
@@ -343,11 +348,15 @@ export const userTransactions = pgTable('user_transactions', {
   type: transactionTypeEnum('type').notNull(),
   description: text('description'),
   messageId: uuid('message_id').references(() => message.id, { onDelete: 'set null' }),
+  modelId: uuid('model_id').references(() => models.id, { onDelete: 'set null' }),
+  tokenAmount: integer('token_amount'),
+  tokenType: tokenTypeEnum('token_type'),
   created_at: timestamp('created_at').notNull().defaultNow(),
 }, (table) => {
   return {
     userIdIdx: index("user_transactions_user_id_idx").on(table.userId),
     messageIdIdx: index("user_transactions_message_id_idx").on(table.messageId),
+    modelIdIdx: index("user_transactions_model_id_idx").on(table.modelId),
     typeIdx: index("user_transactions_type_idx").on(table.type),
     createdAtIdx: index("user_transactions_created_at_idx").on(table.created_at),
   };

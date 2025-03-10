@@ -15,6 +15,7 @@ import {
   getToolGroupsByAgentId,
   getToolsByToolGroupId,
   getModelById,
+  recordTransaction
 } from '@/lib/db/queries';
 import {
   generateUUID,
@@ -26,6 +27,7 @@ import {
 import { generateTitleFromUserMessage } from '../../actions';
 
 import { toolRegistry } from '@/lib/ai/tools/registry';
+import { steps } from 'framer-motion';
 
 
 export const maxDuration = 60;
@@ -156,32 +158,36 @@ export async function POST(request: Request) {
         experimental_transform: smoothStream({ chunking: 'word' }),
         experimental_generateMessageId: generateUUID,
         tools,
-        onFinish: async ({ response, reasoning, usage }) => {
+
+
+        onStepFinish: async (step) => {
+
           if (session.user?.id) {
+
             try {
               const sanitizedResponseMessages = sanitizeResponseMessages({
-                messages: response.messages,
-                reasoning,
+                messages: step.response.messages,
+                reasoning: step.reasoning,
               });
 
 
               // Wait for the usage promise to resolve
-              const tokenUsage = await usage;
-
-              // Calculate cost based on token usage and model rates
-              const inputCost = ((tokenUsage?.promptTokens || 0) * parseFloat(modelDetails?.cost_per_million_input_tokens || '0')) / 1000000;
-              const outputCost = ((tokenUsage?.completionTokens || 0) * parseFloat(modelDetails?.cost_per_million_output_tokens || '0')) / 1000000;
-
+              const tokenUsage = await step.usage;
               
-              // Prepare all messages to save, including the user message with prompt tokens
-              const messagesWithTokenUsage = [
-                // Add the user message first with prompt tokens
-                {
+              // Calculate cost based on token usage and model rates
+              const inputCost = (((tokenUsage?.promptTokens || 0) * parseFloat(modelDetails?.cost_per_million_input_tokens || '0')) / 1000000) * 1.18 ;
+              const outputCost = (((tokenUsage?.completionTokens || 0) * parseFloat(modelDetails?.cost_per_million_output_tokens || '0')) / 1000000) * 1.18;
+
+
+              const messagesToSave = [
+                // First add user message
+                ...(step.stepType === 'initial' ? [{
                   ...userMessage,
+                  id: userMessage.id,
                   chatId: id,
                   createdAt: new Date(),
-                  token_usage: tokenUsage?.promptTokens || null,
-                },
+                  model_id: null // Add model_id with null default
+                }] : []),
                 // Then add assistant and tool messages with completion tokens
                 ...sanitizedResponseMessages.map((message) => {
                   return {
@@ -190,32 +196,48 @@ export async function POST(request: Request) {
                     role: message.role,
                     content: message.content,
                     createdAt: new Date(),
-                    token_usage: message.role === 'assistant' 
-                      ? tokenUsage?.completionTokens || null 
-                      : tokenUsage?.totalTokens || null,
+                    model_id: selectedModelId
+            
                   };
                 })
               ];
-              
-              // Map the messages to include the model_id for each message
-              const messagesWithTokenUsageAndModel = messagesWithTokenUsage.map(msg => ({
-                ...msg,
-                model_id: selectedModelId, // Use the database model ID for saving
-              }));
 
-              
+
+              await recordTransaction({
+                userId: session.user.id,
+                amount: inputCost,
+                type: 'usage',
+                description: 'Chat completion',
+                // messageId: userMessage.id,
+                tokenType: 'input',
+                tokenAmount: tokenUsage?.promptTokens || 0,
+                modelId: selectedModelId
+                });
+
+              await recordTransaction({
+                userId: session.user.id,
+                amount: outputCost,
+                type: 'usage',
+                description: 'Chat completion',
+                // messageId: messagesToSave[messagesToSave.length - 1]?.id,
+                tokenType: 'output',
+                tokenAmount: tokenUsage?.completionTokens || 0,
+                modelId: selectedModelId
+              });
+
               // Save all messages including the user message in one operation
               await saveMessages({
-                messages: messagesWithTokenUsageAndModel,
+                messages: messagesToSave,
                 user_id: session.user.id,
-                inputCost,
-                outputCost
               });
+
+
             } catch (error) {
               console.error('Failed to save chat');
             }
           }
         },
+
         experimental_telemetry: {
           isEnabled: true,
           functionId: 'stream-text',
@@ -244,7 +266,6 @@ export async function POST(request: Request) {
                 ...userMessage,
                 chatId: id,
                 createdAt: new Date(),
-                token_usage: null, // No token usage available in error case
                 model_id: selectedModelId // Use the database model ID for saving
               }]
             });

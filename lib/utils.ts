@@ -131,7 +131,6 @@ export function convertToUIMessages(
       content: textContent,
       reasoning,
       toolInvocations,
-      token_usage: message.token_usage, // Add token_usage from the DB message
     });
 
     return chatMessages;
