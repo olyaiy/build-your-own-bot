@@ -190,7 +190,7 @@ export function useScrollToBottom<T extends HTMLElement>(): [
                     (tagName === 'span' && className === 'flex') ||
                     
                     // Avatar parent checks 
-                    el.parentElement?.className?.includes('rounded-full') ||
+                    (el.parentElement && typeof el.parentElement.className === 'string' && el.parentElement.className.includes('rounded-full')) ||
                     
                     // Detect avatar loading images
                     (tagName === 'img' && className.includes('aspect-square')) ||
