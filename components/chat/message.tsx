@@ -74,7 +74,7 @@ const PurePreviewMessage = ({
   const [mode, setMode] = useState<'view' | 'edit'>('view');
 
   // Process the message to extract content and reasoning from either format
-  const processMessage = (message: Message) => {
+  const processMessageContent = (message: Message) => {
     // For messages with parts (new format)
     if (message.parts && Array.isArray(message.parts)) {
       let textContent = '';
@@ -101,7 +101,31 @@ const PurePreviewMessage = ({
     };
   };
 
-  const { content, reasoning } = processMessage(message);
+  // Create interleaved content items that represent the true chronological order
+  const createInterleavedContent = (message: Message) => {
+    const { content, reasoning } = processMessageContent(message);
+    const hasToolInvocations = message.toolInvocations && message.toolInvocations.length > 0;
+    
+    // If no tool invocations, just return the content
+    if (!hasToolInvocations) {
+      return {
+        reasoning,
+        contentItems: [{ type: 'text' as const, content: content as string }]
+      };
+    }
+    
+    // For now, assume we don't have positional information about where tools should appear in the content.
+    // So we'll display content followed by tools in the order they appear in the array.
+    // In a real implementation, you would need positional data or markers in the content.
+    const contentItems = [
+      { type: 'text' as const, content: content as string },
+      ...(message.toolInvocations || []).map(tool => ({ type: 'tool' as const, tool }))
+    ];
+    
+    return { reasoning, contentItems };
+  };
+
+  const { reasoning, contentItems } = createInterleavedContent(message);
 
   return (
     <AnimatePresence>
@@ -147,49 +171,51 @@ const PurePreviewMessage = ({
               />
             )}
 
-            {message.toolInvocations && message.toolInvocations.length > 0 && (
-              <div className="flex flex-col gap-4">
-                {message.toolInvocations.map((toolInvocation) => (
+            {/* Edit button for user messages */}
+            {message.role === 'user' && !isReadonly && mode === 'view' && (
+              <div className="flex justify-end">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
+                      onClick={() => {
+                        setMode('edit');
+                      }}
+                    >
+                      <PencilEditIcon />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Edit message</TooltipContent>
+                </Tooltip>
+              </div>
+            )}
+
+            {/* Chronologically ordered content and tool calls */}
+            {mode === 'view' && contentItems && contentItems.map((item, index) => (
+              <div key={index} className="overflow-hidden">
+                {item.type === 'text' && item.content && (
+                  <div
+                    className={cn('flex flex-col gap-4', {
+                      'bg-primary text-primary-foreground px-3 py-2 rounded-xl max-w-full':
+                        message.role === 'user',
+                    })}
+                  >
+                    <Markdown>{item.content}</Markdown>
+                  </div>
+                )}
+                
+                {item.type === 'tool' && (
                   <ToolInvocationItem 
-                    key={toolInvocation.toolCallId} 
-                    toolInvocation={toolInvocation} 
+                    key={item.tool.toolCallId} 
+                    toolInvocation={item.tool} 
                     isReadonly={isReadonly} 
                   />
-                ))}
-              </div>
-            )}
-
-            {(content || reasoning) && mode === 'view' && (
-              <div className="flex flex-row gap-2 items-start  p-2 overflow-hidden">
-                {message.role === 'user' && !isReadonly && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
-                        onClick={() => {
-                          setMode('edit');
-                        }}
-                      >
-                        <PencilEditIcon />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Edit message</TooltipContent>
-                  </Tooltip>
                 )}
-
-                <div
-                  className={cn('flex flex-col gap-4', {
-                    'bg-primary text-primary-foreground px-3 py-2 rounded-xl  max-w-full overflow-hidden':
-                      message.role === 'user',
-                  })}
-                >
-                  <Markdown>{content as string}</Markdown>
-                </div>
               </div>
-            )}
+            ))}
 
-            {content && mode === 'edit' && (
+            {mode === 'edit' && contentItems && contentItems.length > 0 && (
               <div className="flex flex-row gap-2 items-start">
                 <div className="size-8" />
 
@@ -197,7 +223,7 @@ const PurePreviewMessage = ({
                   key={message.id}
                   message={{
                     ...message,
-                    content: content as string  // Make sure we edit the processed content
+                    content: contentItems.find(item => item.type === 'text')?.content || ''
                   }}
                   setMode={setMode}
                   setMessages={setMessages}
@@ -225,8 +251,6 @@ const PurePreviewMessage = ({
                 {(message as any).token_usage.toLocaleString()} {message.role === 'user' ? "input tokens" : "output tokens"}
               </div>
             )}
-
-
           </div>
         </div>
       </motion.div>

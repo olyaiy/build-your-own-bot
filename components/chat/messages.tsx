@@ -69,8 +69,6 @@ function PureMessages({
   // State to track open/closed state of tool sections
   const [openStates, setOpenStates] = useState<Record<string, boolean>>({});
   
-
-  
   // Process the last tool data from the provided data array for conditional rendering
   const lastToolData = useMemo(() => {
     if (!toolCallData || !Array.isArray(toolCallData) || toolCallData.length === 0) return null;
@@ -131,11 +129,18 @@ function PureMessages({
         />
       ))}
 
-      {/* Show either a tool section or the thinking message based on context */}
+      {/* Show thinking message when waiting for first assistant response */}
       {isLoading &&
         messages.length > 0 &&
         messages[messages.length - 1].role === 'user' && 
-        (lastToolData ? (
+        !lastToolData && <ThinkingMessage />
+      }
+
+      {/* Show tool section when actively processing a tool call */}
+      {isLoading &&
+        messages.length > 0 &&
+        messages[messages.length - 1].role === 'user' && 
+        lastToolData && (
           <ToolSection
             tool={lastToolData}
             isOpen={openStates[lastToolData.toolCallId] ?? true}
@@ -143,9 +148,7 @@ function PureMessages({
             isReadonly={isReadonly}
             addToolResult={addToolResult}
           />
-        ) : (
-          <ThinkingMessage />
-        ))
+        )
       }
 
       {/* Empty div at the end for scroll targeting */}
