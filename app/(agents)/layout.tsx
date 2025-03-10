@@ -7,7 +7,7 @@ export default function AgentsLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col overflow-hidden ">
       <MainHeader />
       <main className="flex-1 overflow-auto">{children}</main>
     </div>

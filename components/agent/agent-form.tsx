@@ -260,7 +260,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-10 max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <form onSubmit={handleSubmit} className="space-y-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 overflow-hidden">
       <Card className="shadow-sm">
         <CardHeader className="pb-6 flex flex-row justify-between items-center">
           <div>
