@@ -4,7 +4,8 @@ import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { generateUUID } from '@/lib/utils';
 import { Chat } from '@/components/chat/chat';
 import { DataStreamHandler } from '@/components/util/data-stream-handler';
-
+import { getColorScheme, getDefaultColorScheme } from '@/lib/colors';
+import type { Agent } from '@/lib/db/schema';
 
 export default async function Page({ params }: { params: Promise<{ agent: string }> }) {
   const { agent: agentId } = await params;
@@ -20,12 +21,14 @@ export default async function Page({ params }: { params: Promise<{ agent: string
   // Generate a unique ID for this chat session
   const id = generateUUID();
 
+ 
+
   return (
     <>
       <Chat
         key={id}
         id={id}
-        agent={agentData.agent}
+        agent={agentData.agent as Agent}
         availableModels={agentData.availableModels}
         initialMessages={[]}
         selectedChatModel={defaultModelId}

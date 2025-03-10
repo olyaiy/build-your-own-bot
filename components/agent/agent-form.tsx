@@ -236,10 +236,14 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
             {colorSchemes.map((scheme) => (
               <SelectItem key={scheme.id} value={scheme.id} className="flex items-center">
                 <div className="flex items-center gap-2">
-                  <div 
-                    className="w-4 h-4 rounded-full" 
-                    style={{ backgroundColor: scheme.primary[500] }}
-                  />
+                  {scheme.primary === 'default' ? (
+                    <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-gray-200 to-gray-400 border border-gray-300" />
+                  ) : (
+                    <div 
+                      className="w-4 h-4 rounded-full" 
+                      style={{ backgroundColor: scheme.primary[500] }}
+                    />
+                  )}
                   <span>{scheme.name}</span>
                 </div>
               </SelectItem>

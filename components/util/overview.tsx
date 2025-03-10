@@ -2,8 +2,11 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 import { MessageIcon, VercelIcon } from './icons';
+import type { AgentCustomization } from '@/lib/db/schema';
 
-export const Overview = () => {
+export const Overview = ({ customization }: { customization: AgentCustomization }) => {
+  const { title, content, showPoints, points } = customization.overview;
+
   return (
     <motion.div
       key="overview"
@@ -13,24 +16,28 @@ export const Overview = () => {
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ delay: 0.5 }}
     >
-      <div className="rounded-xl p-6 flex flex-col gap-8 leading-relaxed text-center max-w-xl">
+      <div className="rounded-xl p-6 flex flex-col gap-8 leading-relaxed text-center mx-auto max-w-xl">
         <p className="flex flex-row justify-center gap-4 items-center">
           <MessageIcon size={32} />
         </p>
-        <p>
-          Welcome to your AI assistant! I&#39;m here to help answer your questions
-          and provide information on a wide range of topics. Feel free to ask me
-          anything - I&#39;ll do my best to give you clear, helpful responses.
-        </p>
-        <p>
-          Start typing your question in the chat box below. You can ask about:
-          {/* <ul className="list-disc list-inside text-left mt-2 space-y-1 text-muted-foreground">
-            <li>General knowledge topics</li>
-            <li>Practical how-to guides</li>
-            <li>Creative ideas and suggestions</li>
-            <li>Problem-solving strategies</li>
-          </ul> */}
-        </p>
+        
+        {title && (
+          <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
+        )}
+        
+        {content && (
+          <p className="text-base text-muted-foreground">{content}</p>
+        )}
+        
+        {showPoints && points.length > 0 && (
+          <div>
+            <ul className="list-disc list-inside text-left mt-2 space-y-2 text-muted-foreground">
+              {points.map((point, index) => (
+                <li key={index} className="pl-1">{point}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </motion.div>
   );

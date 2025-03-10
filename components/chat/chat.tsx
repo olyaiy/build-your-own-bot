@@ -4,7 +4,7 @@ import type { Attachment, Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useState, useEffect } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
-import type { Agent, Model, Vote } from '@/lib/db/schema';
+import type { Agent, Vote, AgentCustomization } from '@/lib/db/schema';
 import { useLocalStorage } from 'usehooks-ts';
 
 import { ChatHeader } from '@/components/chat/chat-header';
@@ -139,6 +139,7 @@ export function Chat({
             isArtifactVisible={isArtifactVisible}
             toolCallData={toolCallData}
             addToolResult={addToolResult}
+            customization={agent.customization as AgentCustomization}
           />
         </div>
 
