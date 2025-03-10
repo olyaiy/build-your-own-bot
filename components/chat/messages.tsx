@@ -6,7 +6,7 @@ import { Vote } from '@/lib/db/schema';
 import equal from 'fast-deep-equal';
 import { Overview } from '../util/overview';
 import { ToolSection } from '../agent/tool-section';
-import type { AgentCustomization } from '@/lib/db/schema';
+import type { Agent, AgentCustomization } from '@/lib/db/schema';
 
 /**
  * Interface defining the props for the Messages component
@@ -37,7 +37,7 @@ interface MessagesProps {
   isArtifactVisible: boolean;
   toolCallData?: Array<any>;
   addToolResult?: (result: { toolCallId: string; result: string }) => void;
-  customization?: AgentCustomization;
+  agent: Agent;
 }
 
 /**
@@ -62,7 +62,7 @@ function PureMessages({
   isReadonly,
   toolCallData,
   addToolResult,
-  customization,
+  agent,
 }: MessagesProps) {
 
   // Custom hook that provides refs for container and end element
@@ -111,7 +111,7 @@ function PureMessages({
       className="flex flex-col min-w-0 gap-6 absolute inset-0 overflow-y-auto pt-4 px-4 md:px-0"
     >
       {/* Show the Overview component when there are no messages */}
-      {messages.length === 0 && <Overview customization={customization as AgentCustomization} />}
+      {messages.length === 0 && <Overview agent={agent} />}
 
       {/* Render each message with its associated metadata and interactions */}
       {messages.map((message, index) => (

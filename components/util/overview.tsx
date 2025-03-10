@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 
 import { MessageIcon, VercelIcon } from './icons';
-import type { AgentCustomization } from '@/lib/db/schema';
+import type { Agent, AgentCustomization } from '@/lib/db/schema';
 
-export const Overview = ({ customization }: { customization: AgentCustomization }) => {
-  const { title, content, showPoints, points } = customization.overview;
+export const Overview = ({ agent }: { agent: Agent }) => {
+  const { title, content, showPoints, points } = (agent.customization as AgentCustomization).overview;
 
   return (
     <motion.div
@@ -17,13 +18,31 @@ export const Overview = ({ customization }: { customization: AgentCustomization 
       transition={{ delay: 0.5 }}
     >
       <div className="rounded-xl p-6 flex flex-col gap-8 leading-relaxed text-center mx-auto max-w-xl">
-        <p className="flex flex-row justify-center gap-4 items-center">
-          <MessageIcon size={32} />
-        </p>
-        
-        {title && (
-          <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
+        {(agent.image_url || agent.agent_display_name) && (
+          <div className="flex items-center justify-center gap-4">
+            {agent.image_url && (
+              <div className="relative h-20 w-20 overflow-hidden rounded-full border border-muted">
+                <Image
+                  src={agent.image_url}
+                  alt={agent.agent_display_name || "Agent"}
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                  priority
+                />
+              </div>
+            )}
+            
+            {agent.agent_display_name && (
+              <h1 className="text-3xl font-bold tracking-tight">
+                {agent.agent_display_name}
+              </h1>
+            )}
+          </div>
         )}
+        
+        
+     
         
         {content && (
           <p className="text-base text-muted-foreground">{content}</p>

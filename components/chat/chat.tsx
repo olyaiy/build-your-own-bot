@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { ModelWithDefault } from './chat-model-selector';
 import { VisibilityType } from '../util/visibility-selector';
 import { Artifact } from '../artifact/artifact';
+import { getColorScheme } from "@/lib/colors";
 
 
 export function Chat({
@@ -115,10 +116,23 @@ export function Chat({
     // We don't need to update the chat - next message will use the new model
   };
 
+  // Get the background color based on agent's color scheme
+  const customization = (agent as any).customization as AgentCustomization | undefined;
+  // const colorSchemeId = customization?.style?.colorSchemeId || 'default';
+  // const colorScheme = getColorScheme(colorSchemeId);
+  // const bgColorClass = colorSchemeId === 'default' || !colorScheme ? 'bg-background' : `bg-${colorSchemeId}-50`;
 
+  // console.log('THE COLOR SCHEME:', colorSchemeId);
+  // console.log('THE COLOR SCHEME:', colorScheme);
+  // console.log('THE BG COLOR CLASS:', bgColorClass);
+
+
+  console.log(agent)
   return (
     <>
-      <div className="flex flex-col min-w-0 h-dvh overflow-hidden bg-background">
+      <div className={`flex flex-col min-w-0 h-dvh overflow-hidden 
+      bg-background
+      `}>
         <ChatHeader
           chatId={id}
           agentId={agent.id}
@@ -139,7 +153,7 @@ export function Chat({
             isArtifactVisible={isArtifactVisible}
             toolCallData={toolCallData}
             addToolResult={addToolResult}
-            customization={agent.customization as AgentCustomization}
+            agent={agent}
           />
         </div>
 

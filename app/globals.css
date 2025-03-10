@@ -140,6 +140,8 @@
         --sidebar-accent-foreground: 240 5.9% 10%;
         --sidebar-border: 220 13% 91%;
         --sidebar-ring: 217.2 91.2% 59.8%;
+        --plum-bg: 356 83% 51%;
+        --plum-text: 0 0% 98%;
     }
     .dark {
         --background: 240 10% 3.9%;
@@ -174,8 +176,12 @@
         --sidebar-accent-foreground: 240 4.8% 95.9%;
         --sidebar-border: 240 3.7% 15.9%;
         --sidebar-ring: 217.2 91.2% 59.8%;
+
+      
+
     }
 }
+
 
 @layer base {
     * {
@@ -259,7 +265,6 @@
 .suggestion-highlight {
     @apply bg-blue-200 hover:bg-blue-300 dark:hover:bg-blue-400/50 dark:text-blue-50 dark:bg-blue-500/40;
 }
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -268,3 +273,4 @@
     @apply bg-background text-foreground;
     }
 }
+
