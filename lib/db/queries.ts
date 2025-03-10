@@ -1055,75 +1055,16 @@ export async function searchChatsByContent({
 
 export async function getUserTokenUsage(userId: string) {
   try {
-    // Fetch all messages from user's chats with token usage and model information
-    const userChats = await db
-      .select({ id: chat.id })
-      .from(chat)
-      .where(eq(chat.userId, userId));
-    
-    const chatIds = userChats.map(chat => chat.id);
-    
-    if (chatIds.length === 0) {
-      return [];
-    }
-    
-    // Get all messages with token usage and model_id from these chats
-    const messagesWithTokens = await db
+    // Fetch model data for all models
+    const modelsData = await db
       .select({
-        role: message.role,
-        modelId: message.model_id,
+        id: models.id,
+        modelName: models.model_display_name,
+        provider: models.provider,
+        costPerMillionInputTokens: models.cost_per_million_input_tokens,
+        costPerMillionOutputTokens: models.cost_per_million_output_tokens
       })
-      .from(message)
-      .where(
-        and(
-          inArray(message.chatId, chatIds)
-        )
-      );
-    
-    // If no messages with token usage, return empty array
-    if (messagesWithTokens.length === 0) {
-      return [];
-    }
-    
-    // Get unique model IDs from messages
-    const modelIds = Array.from(
-      new Set(
-        messagesWithTokens
-          .filter(msg => msg.modelId !== null)
-          .map(msg => msg.modelId)
-      )
-    ) as string[];
-    
-    // Fetch model information for these model IDs
-    let modelsData: Array<{
-      id: string;
-      modelName: string;
-      provider: string | null;
-      costPerMillionInputTokens: number | null;
-      costPerMillionOutputTokens: number | null;
-    }> = [];
-    
-    if (modelIds.length > 0) {
-      const rawModelsData = await db
-        .select({
-          id: models.id,
-          modelName: models.model_display_name,
-          provider: models.provider,
-          costPerMillionInputTokens: models.cost_per_million_input_tokens,
-          costPerMillionOutputTokens: models.cost_per_million_output_tokens
-        })
-        .from(models)
-        .where(inArray(models.id, modelIds));
-      
-      // Convert string values to numbers
-      modelsData = rawModelsData.map(model => ({
-        id: model.id,
-        modelName: model.modelName,
-        provider: model.provider,
-        costPerMillionInputTokens: model.costPerMillionInputTokens ? Number(model.costPerMillionInputTokens) : null,
-        costPerMillionOutputTokens: model.costPerMillionOutputTokens ? Number(model.costPerMillionOutputTokens) : null
-      }));
-    }
+      .from(models);
     
     // Create a map of model ID to model info
     const modelInfoMap = new Map();
@@ -1131,15 +1072,31 @@ export async function getUserTokenUsage(userId: string) {
       modelInfoMap.set(model.id, {
         modelName: model.modelName,
         provider: model.provider,
-        costPerMillionInputTokens: model.costPerMillionInputTokens,
-        costPerMillionOutputTokens: model.costPerMillionOutputTokens
+        costPerMillionInputTokens: model.costPerMillionInputTokens ? Number(model.costPerMillionInputTokens) : null,
+        costPerMillionOutputTokens: model.costPerMillionOutputTokens ? Number(model.costPerMillionOutputTokens) : null
       });
     });
+    
+    // Fetch usage transactions for the user
+    const transactions = await db
+      .select({
+        modelId: userTransactions.modelId,
+        tokenAmount: userTransactions.tokenAmount,
+        tokenType: userTransactions.tokenType,
+        amount: userTransactions.amount,
+      })
+      .from(userTransactions)
+      .where(
+        and(
+          eq(userTransactions.userId, userId),
+          eq(userTransactions.type, 'usage')
+        )
+      );
     
     // Prepare data structure for token usage by model
     const tokenUsageByModel = new Map();
     
-    // Default "unknown model" for messages without model info
+    // Default "unknown model" for transactions without model info
     tokenUsageByModel.set('unknown', {
       modelName: 'Unknown Model',
       provider: '',
@@ -1150,17 +1107,19 @@ export async function getUserTokenUsage(userId: string) {
       cost: 0
     });
     
-    // Process each message and attribute to the right model
-    messagesWithTokens.forEach(message => {
+    // Process each transaction and attribute to the right model
+    transactions.forEach(transaction => {
+      if (!transaction.modelId || !transaction.tokenAmount || !transaction.tokenType) {
+        return; // Skip transactions with missing data
+      }
       
-      let modelKey = 'unknown';
+      let modelKey = transaction.modelId || 'unknown';
       let modelName = 'Unknown Model';
       let provider = '';
       
       // If we can determine the model, use it
-      if (message.modelId && modelInfoMap.has(message.modelId)) {
-        modelKey = message.modelId;
-        const modelInfo = modelInfoMap.get(message.modelId);
+      if (modelInfoMap.has(modelKey)) {
+        const modelInfo = modelInfoMap.get(modelKey);
         modelName = modelInfo.modelName;
         provider = modelInfo.provider;
       }
@@ -1181,20 +1140,17 @@ export async function getUserTokenUsage(userId: string) {
       
       // Add token usage to appropriate category
       const modelData = tokenUsageByModel.get(modelKey);
-   
-    });
-    
-    // Calculate costs for each model
-    tokenUsageByModel.forEach((modelData) => {
-      const inputCost = modelData.costPerMillionInputTokens 
-        ? (modelData.inputTokens / 1000000) * Number(modelData.costPerMillionInputTokens) 
-        : 0;
       
-      const outputCost = modelData.costPerMillionOutputTokens 
-        ? (modelData.outputTokens / 1000000) * Number(modelData.costPerMillionOutputTokens) 
-        : 0;
+      if (transaction.tokenType === 'input') {
+        modelData.inputTokens += transaction.tokenAmount;
+      } else if (transaction.tokenType === 'output') {
+        modelData.outputTokens += transaction.tokenAmount;
+      }
       
-      modelData.cost = inputCost + outputCost;
+      // Add the cost directly from the transaction amount
+      if (transaction.amount) {
+        modelData.cost += Number(transaction.amount);
+      }
     });
     
     // Convert map to array and sort by total usage
@@ -1361,5 +1317,33 @@ export async function recordTransaction({
   } catch (error) {
     console.error('Failed to record transaction:', error);
     throw new Error('Failed to record transaction');
+  }
+}
+
+export async function doesAgentHaveSearchTool(agentId: string): Promise<boolean> {
+  try {
+    // Get all tool groups associated with the agent
+    const agentToolGroups = await getToolGroupsByAgentId(agentId);
+    
+    // If no tool groups, return false
+    if (!agentToolGroups.length) return false;
+    
+    // Check each tool group for a search tool
+    for (const toolGroup of agentToolGroups) {
+      const tools = await getToolsByToolGroupId(toolGroup.id);
+      
+      // Look for a tool with 'search' or 'web_search' in the name or tool identifier
+      const hasSearchTool = tools.some(tool => 
+        tool.displayName.toLowerCase().includes('search') || 
+        tool.tool.toLowerCase().includes('search')
+      );
+      
+      if (hasSearchTool) return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Failed to check if agent has search tool:', error);
+    return false;
   }
 }

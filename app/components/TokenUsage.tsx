@@ -81,6 +81,8 @@ export async function TokenUsage({ userId }: TokenUsageProps) {
   
   // Helper to determine badge color by provider
   const getProviderColor = (provider: string) => {
+    if (!provider) return 'bg-gray-100 text-gray-800 border-gray-300';
+    
     const lowerProvider = provider.toLowerCase();
     
     if (lowerProvider.includes('claude') || lowerProvider.includes('anthropic')) {

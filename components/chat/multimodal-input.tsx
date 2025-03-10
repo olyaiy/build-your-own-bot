@@ -37,6 +37,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { PreviewAttachment } from '../util/preview-attachment';
+import { checkAgentHasSearchTool } from '@/lib/db/actions';
 
 function PureMultimodalInput({
   chatId,
@@ -89,6 +90,7 @@ function PureMultimodalInput({
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
+  const [hasSearchTool, setHasSearchTool] = useState(false);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -221,6 +223,25 @@ function PureMultimodalInput({
     [setAttachments],
   );
 
+  // Check if agent has search capability
+  useEffect(() => {
+    const checkSearchCapability = async () => {
+      try {
+        const hasSearchTool = await checkAgentHasSearchTool(agentId);
+        setHasSearchTool(hasSearchTool);
+        
+        // If agent doesn't have search tool, make sure search is disabled
+        if (!hasSearchTool && searchEnabled) {
+          setSearchEnabled(false);
+        }
+      } catch (error) {
+        console.error('Failed to check agent search capability:', error);
+      }
+    };
+    
+    checkSearchCapability();
+  }, [agentId, searchEnabled, setSearchEnabled]);
+
   return (
     <div className="relative w-full flex flex-col gap-2 sm:gap-4">
       {messages.length === 0 &&
@@ -263,24 +284,26 @@ function PureMultimodalInput({
             </Select>
           )}
           
-          {/* Search Toggle */}
-          <div className="flex items-center space-x-2 cursor-pointer">
-            <Switch
-              id="search-toggle"
-              checked={searchEnabled}
-              onCheckedChange={handleSearchToggle}
-              disabled={isLoading}
-              className="cursor-pointer"
-            />
-            <Label 
-              htmlFor="search-toggle" 
-              className="text-xs flex items-center gap-1 cursor-pointer"
-              onClick={() => !isLoading && setSearchEnabled(!searchEnabled)}
-            >
-              <SearchIcon size={12} />
-              <span>Web Search {searchEnabled ? 'On' : 'Off'}</span>
-            </Label>
-          </div>
+          {/* Search Toggle - Only show if agent has search tool */}
+          {hasSearchTool && (
+            <div className="flex items-center space-x-2 cursor-pointer">
+              <Switch
+                id="search-toggle"
+                checked={searchEnabled}
+                onCheckedChange={handleSearchToggle}
+                disabled={isLoading}
+                className="cursor-pointer"
+              />
+              <Label 
+                htmlFor="search-toggle" 
+                className="text-xs flex items-center gap-1 cursor-pointer"
+                onClick={() => !isLoading && setSearchEnabled(!searchEnabled)}
+              >
+                <SearchIcon size={12} />
+                <span>Web Search {searchEnabled ? 'On' : 'Off'}</span>
+              </Label>
+            </div>
+          )}
         </div>
       )}
 
