@@ -1288,7 +1288,7 @@ export async function recordTransaction({
         await tx
           .update(userCredits)
           .set({
-            credit_balance: sql`${userCredits.credit_balance} - ${amount.toString()}`
+            credit_balance: sql`${userCredits.credit_balance} + ${amount.toString()}`
           })
           .where(eq(userCredits.user_id, userId));
       } else if (type === 'purchase' || type === 'promotional') {

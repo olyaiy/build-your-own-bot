@@ -54,7 +54,6 @@ type Transaction = {
   amount: string;
   type: string;
   description: string;
-  message: string;
   date: Date;
   formattedDate: string;
 };
@@ -177,17 +176,19 @@ export default function TransactionTable({
   const formatAmount = (amount: string) => {
     const numAmount = parseFloat(amount);
     const isNegative = numAmount < 0;
-    return `${isNegative ? '-' : ''}$${Math.abs(numAmount).toLocaleString('en-US', {
+    const absAmount = Math.abs(numAmount);
+    
+    // Use 6 decimal places for very small values (less than 0.01)
+    const maxDecimals = absAmount < 0.01 ? 6 : 2;
+    
+    return `${isNegative ? '-' : ''}$${absAmount.toLocaleString('en-US', {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: maxDecimals
     })}`;
   };
 
   // Function to determine text color based on amount (positive/negative)
-  const getAmountColorClass = (amount: string): string => {
-    const numAmount = parseFloat(amount);
-    return numAmount < 0 ? 'text-destructive' : 'text-emerald-600';
-  };
+
 
   return (
     <div className="space-y-4">
@@ -365,14 +366,13 @@ export default function TransactionTable({
               <TableHead className="font-semibold">Type</TableHead>
               <TableHead className="font-semibold">Amount</TableHead>
               <TableHead className="font-semibold">Description</TableHead>
-              <TableHead className="font-semibold">Message Content</TableHead>
               <TableHead className="sr-only">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {transactions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center">
                   No transactions found.
                 </TableCell>
               </TableRow>
@@ -388,20 +388,11 @@ export default function TransactionTable({
                       {transaction.type}
                     </Badge>
                   </TableCell>
-                  <TableCell className={`font-medium ${getAmountColorClass(transaction.amount)}`}>
+                  <TableCell className={`font-medium `}>
                     {formatAmount(transaction.amount)}
                   </TableCell>
                   <TableCell className="max-w-[200px] truncate" title={transaction.description}>
                     {transaction.description}
-                  </TableCell>
-                  <TableCell className="max-w-[300px]">
-                    {transaction.message === 'N/A' ? (
-                      <span className="text-muted-foreground italic text-xs">N/A</span>
-                    ) : (
-                      <div className="max-h-[60px] overflow-hidden text-ellipsis line-clamp-2 text-xs bg-muted/30 p-1.5 rounded-sm">
-                        {transaction.message}
-                      </div>
-                    )}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -419,14 +410,6 @@ export default function TransactionTable({
                         >
                           Copy transaction ID
                         </DropdownMenuItem>
-                        {transaction.message !== 'N/A' && (
-                          <DropdownMenuItem 
-                            onClick={() => navigator.clipboard.writeText(transaction.message)}
-                            className="cursor-pointer"
-                          >
-                            Copy message content
-                          </DropdownMenuItem>
-                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
