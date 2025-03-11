@@ -197,6 +197,55 @@ function PureMultimodalInput({
     }
   };
 
+  const handlePaste = useCallback(
+    async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const clipboardItems = event.clipboardData.items;
+      const imageItems = Array.from(clipboardItems).filter(
+        item => item.type.startsWith('image/')
+      );
+
+      if (imageItems.length === 0) {
+        // No images in clipboard, proceed with normal paste
+        return;
+      }
+
+      // Get the images from clipboard
+      const imageFiles = imageItems.map(item => {
+        const blob = item.getAsFile();
+        if (!blob) return null;
+        
+        // Create a new file with a reasonable name
+        const fileExtension = blob.type.split('/')[1] || 'png';
+        const fileName = `clipboard-image-${Date.now()}.${fileExtension}`;
+        return new File([blob], fileName, { type: blob.type });
+      }).filter(Boolean) as File[];
+
+      if (imageFiles.length === 0) return;
+
+      // Add files to upload queue
+      setUploadQueue(imageFiles.map(file => file.name));
+
+      try {
+        const uploadPromises = imageFiles.map(file => uploadFile(file));
+        const uploadedAttachments = await Promise.all(uploadPromises);
+        const successfullyUploadedAttachments = uploadedAttachments.filter(
+          attachment => attachment !== undefined
+        );
+
+        setAttachments(currentAttachments => [
+          ...currentAttachments,
+          ...successfullyUploadedAttachments,
+        ]);
+      } catch (error) {
+        console.error('Error uploading clipboard images!', error);
+        toast.error('Failed to upload clipboard image, please try again!');
+      } finally {
+        setUploadQueue([]);
+      }
+    },
+    [setAttachments, setUploadQueue, uploadFile]
+  );
+
   const handleFileChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(event.target.files || []);
@@ -333,6 +382,7 @@ function PureMultimodalInput({
           placeholder="Send a message..."
           value={input}
           onChange={handleInput}
+          onPaste={handlePaste}
           className={cx(
             'min-h-[24px] max-h-[calc(50vh)] sm:max-h-[calc(50vh)] overflow-auto resize-none rounded-2xl !text-base bg-muted pb-8 sm:pb-10 dark:border-zinc-700',
             className

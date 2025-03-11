@@ -21,8 +21,6 @@ export default async function Page({ params }: { params: Promise<{ agent: string
   // Generate a unique ID for this chat session
   const id = generateUUID();
 
-  // console.log(agentData.agent);
- 
 
   return (
     <>

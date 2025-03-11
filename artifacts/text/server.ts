@@ -16,13 +16,7 @@ export const textDocumentHandler = createDocumentHandler<'text'>({
 
     });
 
-    console.log('!!! this was passed to the artifact model')
-    console.log('--------------------------------')
-    console.log('Write about the given topic. Markdown is supported. Use headings wherever appropriate.')
-    console.log('--------------------------------')
-    console.log('title', title);
-    console.log(messages);
-    console.log('--------------------------------')
+
 
     for await (const delta of fullStream) {
       const { type } = delta;

@@ -22,15 +22,12 @@ import {
   getMostRecentUserMessage,
   sanitizeResponseMessages,
 } from '@/lib/utils';
-
-
 import { generateTitleFromUserMessage } from '../../actions';
-
 import { toolRegistry } from '@/lib/ai/tools/registry';
-import { steps } from 'framer-motion';
+import { hasCredits, INSUFFICIENT_CREDITS_MESSAGE } from '@/lib/credits';
 
 
-export const maxDuration = 60;
+
 
 
 
@@ -58,6 +55,12 @@ export async function POST(request: Request) {
 
   if (!session || !session.user || !session.user.id) {
     return new Response('Unauthorized', { status: 401 });
+  }
+
+  // Check if user has enough credits
+  const userHasCredits = await hasCredits(session.user.id);
+  if (!userHasCredits) {
+    return new Response(INSUFFICIENT_CREDITS_MESSAGE, { status: 402 });
   }
 
   const userMessage = getMostRecentUserMessage(messages);

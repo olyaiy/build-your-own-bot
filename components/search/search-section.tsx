@@ -53,9 +53,6 @@ export function SearchSection({
   )
 
 
-  // console.log('THE TOOL:', tool);
-  // console.log('THE STATE:', state);
-
   return (
     <CollapsibleMessage
       role="assistant"
