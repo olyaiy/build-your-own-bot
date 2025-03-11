@@ -157,6 +157,9 @@ export async function POST(request: Request) {
           perplexity: {
             return_images: true, // Enable image responses (Tier-2 Perplexity users only)
           },
+          anthropic: {
+            thinking: { type: 'enabled', budgetTokens: 12000 },
+          },
          
         },
         experimental_transform: smoothStream({ chunking: 'word' }),
