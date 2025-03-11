@@ -8,6 +8,7 @@ import { groq } from '@ai-sdk/groq';
 import { deepseek } from '@ai-sdk/deepseek';
 import { anthropic } from '@ai-sdk/anthropic';
 
+
 export const DEFAULT_CHAT_MODEL: string = 'gpt-4o';
 
 export const myProvider = customProvider({
@@ -18,6 +19,9 @@ export const myProvider = customProvider({
     'gpt-4o': openai('gpt-4o'),
     'sonar-pro': perplexity('sonar-pro'),
     'sonar': perplexity('sonar'),
+    'sonar-reasoning-pro': perplexity('sonar-reasoning-pro'),
+    'sonar-reasoning': perplexity('sonar-reasoning'),
+    'r1-1776': perplexity('r1-1776'),
     'pixtral-large-latest': mistral('pixtral-large-latest'),
     'mistral-small-latest': mistral('mistral-small-latest'),
     'mistral-large-latest': mistral('mistral-large-latest'),

@@ -185,6 +185,13 @@ importers:
       papaparse:
         specifier: ^5.5.2
         version: 5.5.2
+      "perplexitygp updates\n\n":
+        specifier: |+
+          link:@ai-sdk/perplexitygp updates
+
+        version: |+
+          link:@ai-sdk/perplexitygp updates
+
       postgres:
         specifier: ^3.4.4
         version: 3.4.5

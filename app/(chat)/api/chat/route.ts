@@ -152,12 +152,13 @@ export async function POST(request: Request) {
             ? activeToolNames
             : [],
 
-        providerOptions,
-        // providerOptions: {
-        //   anthropic: {
-        //     thinking: { type: 'enabled', budgetTokens: 12000 },
-        //   },
-        // },      
+     
+        providerOptions: {
+          perplexity: {
+            return_images: true, // Enable image responses (Tier-2 Perplexity users only)
+          },
+         
+        },
         experimental_transform: smoothStream({ chunking: 'word' }),
         experimental_generateMessageId: generateUUID,
         tools,
@@ -241,13 +242,16 @@ export async function POST(request: Request) {
           }
         },
 
+        onFinish: async (result) => {
+          // console.log('sonar-reasoning-pro', result.sources);
+          // console.log('sonar-reasoning-pro', result.providerMetadata);
+        },
         experimental_telemetry: {
           isEnabled: true,
           functionId: 'stream-text',
         },
         toolCallStreaming: true,
       });
-
 
       result.consumeStream();
 
