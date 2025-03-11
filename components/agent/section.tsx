@@ -115,7 +115,9 @@ export function ToolArgsSection({
       )}
       {state && state !== 'result' && (
         <span className="flex items-center text-xs text-muted-foreground">
-          <span>{tool.includes('retrieve') ? 'Reading page' : 'Searching the web'}</span>
+          <span className="inline-block animate-[pulse_2s_ease-in-out_infinite] text-muted-foreground/80 dark:text-muted-foreground/90">
+            {tool.includes('retrieve') ? 'Reading page' : 'Searching the web'}
+          </span>
           <span className="inline-flex ml-1">
             <span className="animate-pulse">.</span>
             <span className="animate-pulse" style={{ animationDelay: '300ms' }}>.</span>

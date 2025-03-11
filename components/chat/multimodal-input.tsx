@@ -390,8 +390,11 @@ function PureMultimodalInput({
           rows={2}
           autoFocus
           onKeyDown={(event) => {
-            if (event.key === 'Enter' && !event.shiftKey) {
-              event.preventDefault();
+            if (
+              event.key === "Enter" &&
+              !event.shiftKey &&
+              !event.nativeEvent.isComposing
+            ) {
 
               if (isLoading) {
                 toast.error('Please wait for the model to finish its response!');

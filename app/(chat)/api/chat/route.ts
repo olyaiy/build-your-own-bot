@@ -26,10 +26,40 @@ import { generateTitleFromUserMessage } from '../../actions';
 import { toolRegistry } from '@/lib/ai/tools/registry';
 import { hasCredits, INSUFFICIENT_CREDITS_MESSAGE } from '@/lib/credits';
 
-
-
-
-
+/**
+ * Utility function to log message details
+ * Provides clear information about message structure, especially tool calls
+ */
+function logMessageDetails(messages: Array<any>) {
+  console.log(`\n🔄 Saving ${messages.length} messages:`);
+  
+  messages.forEach((msg, index) => {
+    // Basic message info
+    console.log(`\n[${index + 1}/${messages.length}] Role: ${msg.role}, ID: ${msg.id}`);
+    
+    // Handle different content types
+    if (typeof msg.content === 'string') {
+      console.log(`  Content: ${msg.content.substring(0, 50)}${msg.content.length > 50 ? '...' : ''}`);
+    } else if (Array.isArray(msg.content)) {
+      // Check for tool calls specifically
+      msg.content.forEach((content: any) => {
+        if (content.type === 'tool-call') {
+          console.log(`  🛠️ Tool Call: ${content.toolName}`);
+          console.log(`    ID: ${content.toolCallId}`);
+          console.log(`    Args: ${JSON.stringify(content.args)}`);
+          console.log(`    Has Result: ${false}`); // Initial tool calls don't have results yet
+        } else if (content.type === 'tool-result') {
+          console.log(`  ✅ Tool Result: ${content.toolCallId}`);
+          console.log(`    Success: ${!!content.result}`);
+        } else if (content.type === 'text') {
+          const text = content.text || '';
+          console.log(`  📝 Text: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`);
+        }
+      });
+    }
+  });
+  console.log('\n');
+}
 
 export async function POST(request: Request) {
 
@@ -137,55 +167,8 @@ export async function POST(request: Request) {
       // Get the list of tool names that are actually available
       const activeToolNames = Object.keys(tools);
 
-      console.log('🔧 Available tools:', activeToolNames);
-      console.log('🔧 searchTool included:', activeToolNames.includes('searchTool'));
 
-
-      // Create a custom search tool with additional logging
-      if (tools.searchTool) {
-        const originalSearchTool = tools.searchTool;
-        tools.searchTool = {
-          description: originalSearchTool.description,
-          parameters: originalSearchTool.parameters,
-          execute: async (args: any, options: any) => {
-            console.log('🔍 Custom searchTool execution started with args:', 
-              JSON.stringify(args).substring(0, 100) + '...');
-            console.log('🔍 Tool call ID:', options?.toolCallId);
-            
-            try {
-              const result = await originalSearchTool.execute(args, options);
-              console.log('✅ searchTool execution successful, got result:', 
-                typeof result === 'object' ? 
-                  `object with ${Object.keys(result).length} properties` : 
-                  typeof result);
-              
-              // Ensure proper result format
-              if (!result || typeof result !== 'object') {
-                console.error('🚨 Invalid result format from searchTool, returning empty result');
-                return {
-                  results: [],
-                  query: args.query || '',
-                  images: [],
-                  number_of_results: 0
-                };
-              }
-              
-              return result;
-            } catch (error) {
-              console.error('🚨 searchTool execution error:', error);
-              // Return fallback result to prevent stream breaking
-              return {
-                results: [],
-                query: args.query || '',
-                images: [],
-                number_of_results: 0,
-                error: 'Search failed'
-              };
-            }
-          }
-        };
-        console.log('🔧 Enhanced searchTool with logging and error handling');
-      }
+     
 
       const result = streamText({
         model: myProvider.languageModel(selectedChatModel),
@@ -210,31 +193,6 @@ export async function POST(request: Request) {
         providerOptions: providerOptions as any,
         
         onStepFinish: async (step) => {
-          console.log('🔄 onStepFinish called, step type:', step.stepType);
-          
-          // Safely check for tool invocations
-          const hasToolCalls = step.response.messages.some(msg => 
-            // @ts-ignore - toolInvocations might not be in the type but can exist at runtime
-            msg.toolInvocations && Array.isArray(msg.toolInvocations) && msg.toolInvocations.length > 0
-          );
-          console.log('🔄 Response contains tool calls:', hasToolCalls);
-
-          // Log any tool invocations in the response
-          step.response.messages.forEach(msg => {
-            // @ts-ignore - toolInvocations might not be in the type but can exist at runtime
-            const toolInvocations = msg.toolInvocations;
-            if (toolInvocations && Array.isArray(toolInvocations) && toolInvocations.length > 0) {
-              console.log('🛠️ Found tool invocations in message:', 
-                // @ts-ignore - safely access tool properties
-                toolInvocations.map(tool => ({
-                  id: tool.toolCallId,
-                  name: tool.toolName,
-                  state: tool.state,
-                  hasResult: tool && typeof tool === 'object' && 'result' in tool
-                }))
-              );
-            }
-          });
 
           if (session.user?.id) {
 
@@ -299,6 +257,8 @@ export async function POST(request: Request) {
                 modelId: selectedModelId
               });
 
+              logMessageDetails(messagesToSave);
+              
               // Save all messages including the user message in one operation
               await saveMessages({
                 messages: messagesToSave,
@@ -311,9 +271,7 @@ export async function POST(request: Request) {
             }
           }
         },
-        onFinish: async (result) => {
-          console.log('messagesToSave', messages);
-        },
+
 
    
         experimental_telemetry: {

@@ -160,7 +160,19 @@ export function sanitizeResponseMessages({
     }
   }
 
-  const messagesBySanitizedContent = messages.map((message) => {
+  const filteredMessages = messages.filter(message => {
+    if (message.role !== 'assistant') return true;
+    
+    if (typeof message.content === 'string') return true;
+    
+    const hasToolCallWithoutResult = message.content.some(
+      content => content.type === 'tool-call' && !toolResultIds.includes(content.toolCallId)
+    );
+    
+    return !hasToolCallWithoutResult;
+  });
+
+  const messagesBySanitizedContent = filteredMessages.map((message) => {
     if (message.role !== 'assistant') return message;
 
     if (typeof message.content === 'string') return message;
