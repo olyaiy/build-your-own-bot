@@ -86,7 +86,8 @@ const PurePreviewMessage = ({
         if (part.type === 'text' && part.text) {
           textContent += part.text;
         } else if (part.type === 'reasoning') {
-          reasoningContent = part;
+          // Extract the reasoning content from the part
+          reasoningContent = part.reasoning || '';
         }
       });
       
@@ -179,7 +180,7 @@ const PurePreviewMessage = ({
             {reasoning && (
               <MessageReasoning
                 isLoading={isLoading}
-                reasoning={reasoning}
+                reasoning={typeof reasoning === 'string' ? reasoning : JSON.stringify(reasoning)}
               />
             )}
 

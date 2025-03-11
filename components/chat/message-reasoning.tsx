@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ChevronDownIcon, LoaderIcon } from '@/components/util/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Markdown } from '@/components/util/markdown';
+import { cn } from '@/lib/utils';
 
 interface MessageReasoningProps {
   isLoading: boolean;
@@ -14,8 +15,11 @@ export function MessageReasoning({
   isLoading,
   reasoning,
 }: MessageReasoningProps) {
+  // Ensure reasoning is always a string
+  const reasoningText = typeof reasoning === 'string' ? reasoning : JSON.stringify(reasoning);
+  
   const [isExpanded, setIsExpanded] = useState(true);
-
+  
   const variants = {
     collapsed: {
       height: 0,
@@ -66,7 +70,7 @@ export function MessageReasoning({
             style={{ overflow: 'hidden' }}
             className="pl-4 text-zinc-600 dark:text-zinc-400 border-l flex flex-col gap-4"
           >
-            <Markdown>{reasoning}</Markdown>
+            <Markdown>{reasoningText}</Markdown>
           </motion.div>
         )}
       </AnimatePresence>
