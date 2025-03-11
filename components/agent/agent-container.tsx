@@ -21,7 +21,7 @@ export async function AgentContainer({ userId }: AgentContainerProps) {
   
   // Fetch agents and sort them
   const agents = await getAgents(finalUserId, true);
-  const sortedAgents = await sortAgentsByRecentUsage(agents);
+  const sortedAgents = await sortAgentsByRecentUsage(agents as any);
   
   return <AgentList agents={sortedAgents} userId={finalUserId} />;
 } 

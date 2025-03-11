@@ -51,14 +51,18 @@ export function AgentCard({ agent, userId, onClick }: AgentCardProps) {
           </div>
 
           <h3 className="text-lg font-semibold mb-1 line-clamp-1">{agent.agent_display_name}</h3>
-          <p className="text-xs text-muted-foreground mb-1 line-clamp-2 flex-1">
-            {agent.description}
-          </p>
-          
-          <div className="flex flex-col gap-1 mt-auto">
+      
+          <div className="flex flex-col gap-1 mt-auto ">
+
+            { agent.description && (
+              <p className="text-xs text-muted-foreground mb-1 line-clamp-2 flex-1">
+                {agent.description}
+              </p>
+            )}
+
             {/* Models display */}
             {agent.models && agent.models.length > 0 && (
-              <div className="flex items-center gap-1 max-w-full overflow-hidden">
+              <div className="flex items-center gap-1 max-w-full overflow-hidden ">
                 <div className="text-xs text-muted-foreground mr-1">Models:</div>
                 {/* Display first two models */}
                 {agent.models.slice(0, 2).map((model) => (
@@ -85,8 +89,8 @@ export function AgentCard({ agent, userId, onClick }: AgentCardProps) {
 
             {/* Tool Groups display */}
             {agent.toolGroups && agent.toolGroups.length > 0 && (
-              <div className="flex items-center gap-1 max-w-full overflow-hidden">
-                <div className="text-xs text-muted-foreground mr-1">Tools:</div>
+              <div className="flex items-center gap-1 max-w-full overflow-hidden ">
+                <div className="text-xs text-muted-foreground mr-1 ">Tools:</div>
                 {/* Display first two tool groups */}
                 {agent.toolGroups.slice(0, 2).map((toolGroup) => (
                   <Badge 
@@ -110,14 +114,14 @@ export function AgentCard({ agent, userId, onClick }: AgentCardProps) {
               </div>
             )}
             
-            <div className="flex items-center justify-end">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity z-20">
+
+              <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
                 <AgentCardSettings 
                   agentId={agent.id}
                   userId={userId}
                   creatorId={agent.creatorId}
                 />
-              </div>
+
             </div>
           </div>
         </Card>
