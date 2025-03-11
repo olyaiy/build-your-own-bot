@@ -232,6 +232,27 @@
       "when": 1741656918521,
       "tag": "0032_clumsy_supernaut",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1741666414064,
+      "tag": "0033_parched_talon",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1741666836518,
+      "tag": "0034_aspiring_ikaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1741666866092,
+      "tag": "0035_charming_guardsmen",
+      "breakpoints": true
     }
   ]
 }

@@ -32,6 +32,7 @@ import { hasCredits, INSUFFICIENT_CREDITS_MESSAGE } from '@/lib/credits';
 
 
 export async function POST(request: Request) {
+
   const {
     id,
     messages,
@@ -49,7 +50,6 @@ export async function POST(request: Request) {
     agentSystemPrompt?: string;
     searchEnabled?: boolean;
   } = await request.json();
-
   
   const session = await auth();
 
@@ -82,8 +82,9 @@ export async function POST(request: Request) {
   }
 
   const modelDetails = await getModelById(selectedModelId);
-  const jsonProviderOptions = modelDetails?.provider_options as Record<string, Record<string, any>> | undefined;
-  const providerOptions = JSON.parse(JSON.stringify(jsonProviderOptions));
+  const providerOptions = modelDetails?.provider_options;
+
+
 
   return createDataStreamResponse({
     execute: async (dataStream) => {
@@ -136,7 +137,55 @@ export async function POST(request: Request) {
       // Get the list of tool names that are actually available
       const activeToolNames = Object.keys(tools);
 
+      console.log('🔧 Available tools:', activeToolNames);
+      console.log('🔧 searchTool included:', activeToolNames.includes('searchTool'));
 
+
+      // Create a custom search tool with additional logging
+      if (tools.searchTool) {
+        const originalSearchTool = tools.searchTool;
+        tools.searchTool = {
+          description: originalSearchTool.description,
+          parameters: originalSearchTool.parameters,
+          execute: async (args: any, options: any) => {
+            console.log('🔍 Custom searchTool execution started with args:', 
+              JSON.stringify(args).substring(0, 100) + '...');
+            console.log('🔍 Tool call ID:', options?.toolCallId);
+            
+            try {
+              const result = await originalSearchTool.execute(args, options);
+              console.log('✅ searchTool execution successful, got result:', 
+                typeof result === 'object' ? 
+                  `object with ${Object.keys(result).length} properties` : 
+                  typeof result);
+              
+              // Ensure proper result format
+              if (!result || typeof result !== 'object') {
+                console.error('🚨 Invalid result format from searchTool, returning empty result');
+                return {
+                  results: [],
+                  query: args.query || '',
+                  images: [],
+                  number_of_results: 0
+                };
+              }
+              
+              return result;
+            } catch (error) {
+              console.error('🚨 searchTool execution error:', error);
+              // Return fallback result to prevent stream breaking
+              return {
+                results: [],
+                query: args.query || '',
+                images: [],
+                number_of_results: 0,
+                error: 'Search failed'
+              };
+            }
+          }
+        };
+        console.log('🔧 Enhanced searchTool with logging and error handling');
+      }
 
       const result = streamText({
         model: myProvider.languageModel(selectedChatModel),
@@ -153,13 +202,39 @@ export async function POST(request: Request) {
             : [],
 
      
-        providerOptions: providerOptions,
         experimental_transform: smoothStream({ chunking: 'word' }),
         experimental_generateMessageId: generateUUID,
         tools,
-
-
+        
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        providerOptions: providerOptions as any,
+        
         onStepFinish: async (step) => {
+          console.log('🔄 onStepFinish called, step type:', step.stepType);
+          
+          // Safely check for tool invocations
+          const hasToolCalls = step.response.messages.some(msg => 
+            // @ts-ignore - toolInvocations might not be in the type but can exist at runtime
+            msg.toolInvocations && Array.isArray(msg.toolInvocations) && msg.toolInvocations.length > 0
+          );
+          console.log('🔄 Response contains tool calls:', hasToolCalls);
+
+          // Log any tool invocations in the response
+          step.response.messages.forEach(msg => {
+            // @ts-ignore - toolInvocations might not be in the type but can exist at runtime
+            const toolInvocations = msg.toolInvocations;
+            if (toolInvocations && Array.isArray(toolInvocations) && toolInvocations.length > 0) {
+              console.log('🛠️ Found tool invocations in message:', 
+                // @ts-ignore - safely access tool properties
+                toolInvocations.map(tool => ({
+                  id: tool.toolCallId,
+                  name: tool.toolName,
+                  state: tool.state,
+                  hasResult: tool && typeof tool === 'object' && 'result' in tool
+                }))
+              );
+            }
+          });
 
           if (session.user?.id) {
 
@@ -236,10 +311,11 @@ export async function POST(request: Request) {
             }
           }
         },
-
         onFinish: async (result) => {
-         console.log('providerOptions', providerOptions);
+          console.log('messagesToSave', messages);
         },
+
+   
         experimental_telemetry: {
           isEnabled: true,
           functionId: 'stream-text',
@@ -254,8 +330,36 @@ export async function POST(request: Request) {
         sendReasoning: true,
       });
     },
-    onError: (error) => {
+    onError: (error: unknown) => {
       console.error('THE MASSIVE Error in chat:', error);
+      
+      // Add detailed debugging for tool invocation errors
+      if (error instanceof Error && error.message && error.message.includes('ToolInvocation must have a result')) {
+        console.error('🚨 ToolInvocation Error Details:');
+        try {
+          // Extract the tool invocation data from the error message
+          const match = error.message.match(/ToolInvocation must have a result: (.*)/);
+          if (match && match[1]) {
+            const toolData = JSON.parse(match[1]);
+            console.error('🚨 Failed Tool Invocation:', {
+              toolName: toolData.toolName,
+              toolCallId: toolData.toolCallId,
+              args: toolData.args,
+              state: toolData.state
+            });
+            
+            // Log search configuration info
+            if (toolData.toolName === 'searchTool') {
+              console.error('🚨 Search tool config:', {
+                searchEnabled,
+                isTavilyEnabled: !!process.env.TAVILY_API_KEY
+              });
+            }
+          }
+        } catch (parseError) {
+          console.error('🚨 Failed to parse tool invocation data:', parseError);
+        }
+      }
       
       // Save at least the user message if we encounter an error
       // We'll do this in a fire-and-forget manner to avoid changing the return type

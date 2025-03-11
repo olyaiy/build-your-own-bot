@@ -13,6 +13,7 @@ import {
   integer,
   numeric,
   index,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 
 // Enums
@@ -68,7 +69,7 @@ export const models = pgTable("models", {
   description: text("description"),
   cost_per_million_input_tokens: numeric("cost_per_million_input_tokens", { precision: 10, scale: 4 }),
   cost_per_million_output_tokens: numeric("cost_per_million_output_tokens", { precision: 10, scale: 4 }),
-  provider_options: json("provider_options"), 
+  provider_options: jsonb("provider_options"), 
 }, (table) => {
   return {
     modelIdx: index("model_idx").on(table.model),

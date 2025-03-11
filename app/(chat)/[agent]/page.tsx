@@ -18,6 +18,7 @@ export default async function Page({ params }: { params: Promise<{ agent: string
   const defaultModel = agentData.availableModels.find(model => model.isDefault);
   const defaultModelId = defaultModel?.id || DEFAULT_CHAT_MODEL;
 
+
   // Generate a unique ID for this chat session
   const id = generateUUID();
 

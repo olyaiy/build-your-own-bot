@@ -71,7 +71,7 @@ export function Chat({
       selectedModelId: currentModel, // The actual database model ID for saving
       agentId: agent.id,
       agentSystemPrompt: agent?.system_prompt,
-      searchEnabled // Pass the search toggle state to the API
+      searchEnabled, // Pass the search toggle state to the API
     },
     initialMessages,
     experimental_throttle: 100,
@@ -110,9 +110,10 @@ export function Chat({
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
 
   // Handler for changing the model
-  const handleModelChange = (modelId: string) => {
+  const handleModelChange = async (modelId: string) => {
     setCurrentModel(modelId);
     // We don't need to update the chat - next message will use the new model
+  
   };
 
 

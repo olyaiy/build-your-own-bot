@@ -131,6 +131,14 @@ export const chatModels: Array<ChatModel> = [
     defaultReasoningConfig: REASONING_CONFIGS.anthropic
   },
   {
+    id: 'claude-3-7-sonnet-20250219',
+    name: 'Claude 3.7 Sonnet Thinking',
+    description: 'Anthropic Claude 3.7 Sonnet',
+    provider: 'Anthropic',
+    supportsReasoning: true,
+    defaultReasoningConfig: REASONING_CONFIGS.anthropic
+  },
+  {
     id: 'claude-3-5-sonnet-20241022',
     name: 'Claude 3.5 Sonnet',
     description: 'Anthropic Claude 3.5 Sonnet',
@@ -226,17 +234,4 @@ export const supportsObjectGeneration = (modelId: string): boolean => {
 
 export const supportsReasoningEffort = (modelId: string): boolean => {
   return ['o1', 'o1-mini', 'o3-mini', 'claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022'].includes(modelId);
-};
-
-// Helper function to get default provider options for a model
-export const getDefaultProviderOptions = (modelId: string): Record<string, Record<string, any>> | undefined => {
-  const model = chatModels.find(m => m.id === modelId);
-  
-  if (model?.supportsReasoning && model?.defaultReasoningConfig) {
-    return {
-      [model.provider.toLowerCase()]: model.defaultReasoningConfig
-    };
-  }
-  
-  return undefined;
 };
