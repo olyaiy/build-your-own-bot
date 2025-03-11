@@ -206,7 +206,7 @@ export async function POST(request: Request) {
         experimental_generateMessageId: generateUUID,
         tools,
         
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         providerOptions: providerOptions as any,
         
         onStepFinish: async (step) => {
