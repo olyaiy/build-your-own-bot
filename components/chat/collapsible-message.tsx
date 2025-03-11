@@ -43,12 +43,12 @@ export function CollapsibleMessage({
   const content = <div className="py-2 flex-1">{children}</div>
 
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-3 w-full px-0 overflow-hidden ">
     
       {isCollapsible ? (
         <div
           className={cn(
-            'flex-1 rounded-2xl p-4',
+            'flex-1 rounded-2xl p-4 relative w-full',
             showBorder && 'border border-border/50'
           )}
         >

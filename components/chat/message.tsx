@@ -28,15 +28,23 @@ import { ToolSection } from '../agent/tool-section';
 
 const ToolInvocationItem = memo(({ 
   toolInvocation, 
-  isReadonly 
+  isReadonly,
+  isCompact = false
 }: { 
   toolInvocation: any; 
   isReadonly: boolean;
+  isCompact?: boolean;
 }) => {
   const [isToolOpen, setIsToolOpen] = useState(false);
   
   return (
-    <div key={toolInvocation.toolCallId} className="w-full max-w-full overflow-hidden">
+    <div 
+      key={toolInvocation.toolCallId} 
+      className={cn(
+        "w-full max-w-full overflow-scroll",
+        isCompact && "max-w-[310px]"
+      )}
+    >
       <ToolSection
         tool={toolInvocation}
         isOpen={isToolOpen}
@@ -59,6 +67,7 @@ const PurePreviewMessage = ({
   reload,
   isReadonly,
   agentImageUrl,
+  isCompact = false,
 }: {
   chatId: string;
   message: Message;
@@ -72,6 +81,7 @@ const PurePreviewMessage = ({
   ) => Promise<string | null | undefined>;
   isReadonly: boolean;
   agentImageUrl?: string;
+  isCompact?: boolean;
 }) => {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
 
@@ -129,26 +139,27 @@ const PurePreviewMessage = ({
   };
 
   const { reasoning, contentItems } = createInterleavedContent(message);
-
+console.log(isCompact)
   return (
     <AnimatePresence>
       <motion.div
-        className="w-full mx-auto max-w-3xl px-4 group/message"
+        className="w-full mx-auto max-w-3xl px-0 group/message relative"
         initial={{ y: 5, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         data-role={message.role}
       >
         <div
           className={cn(
-            'flex gap-4 w-full group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl',
+            'flex gap-4 w-full group-data-[role=user]/message:ml-auto',
             {
               'w-full': mode === 'edit',
               'group-data-[role=user]/message:w-fit': mode !== 'edit',
+              'group-data-[role=user]/message:max-w-2xl': !isCompact,
             },
           )}
         >
           {message.role === 'assistant' && (
-            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background overflow-hidden">
+            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background overflow-hidden relative">
               {agentImageUrl ? (
                 <Image 
                   src={agentImageUrl} 
@@ -165,7 +176,9 @@ const PurePreviewMessage = ({
             </div>
           )}
 
-          <div className="flex flex-col gap-4 w-full">
+          <div className={cn("flex flex-col gap-4 w-full relative ", {
+            "max-w-full": !isCompact,
+          })}>
             {message.experimental_attachments && (
               <div className="flex flex-row justify-end gap-2">
                 {message.experimental_attachments.map((attachment) => (
@@ -180,7 +193,7 @@ const PurePreviewMessage = ({
             {reasoning && (
               <MessageReasoning
                 isLoading={isLoading}
-                reasoning={typeof reasoning === 'string' ? reasoning : JSON.stringify(reasoning)}
+                reasoning={reasoning}
               />
             )}
 
@@ -206,11 +219,11 @@ const PurePreviewMessage = ({
 
             {/* Chronologically ordered content and tool calls */}
             {mode === 'view' && contentItems && contentItems.map((item, index) => (
-              <div key={index} className="overflow-hidden">
+              <div key={index} >
                 {item.type === 'text' && item.content && (
                   <div
                     className={cn('flex flex-col gap-4', {
-                      'bg-primary text-primary-foreground px-3 py-2 rounded-xl max-w-full':
+                      'bg-primary text-primary-foreground px-3 ml-12 py-4 rounded-xl max-w-full':
                         message.role === 'user',
                     })}
                   >
@@ -223,6 +236,7 @@ const PurePreviewMessage = ({
                     key={item.tool.toolCallId} 
                     toolInvocation={item.tool} 
                     isReadonly={isReadonly} 
+                    isCompact={isCompact}
                   />
                 )}
               </div>
@@ -283,6 +297,9 @@ export const PreviewMessage = memo(
     if (prevReasoning !== nextReasoning) return false;
     if (prevReasoning && nextReasoning && 
         !equal(prevProps.message.reasoning, nextProps.message.reasoning)) return false;
+        
+    // Check if compact mode changed
+    if (prevProps.isCompact !== nextProps.isCompact) return false;
     
     // Check for parts array updates
     const prevHasParts = Array.isArray(prevProps.message.parts);
@@ -328,13 +345,13 @@ export const ThinkingMessage = () => {
     >
       <div
         className={cx(
-          'flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl',
+          'flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl ',
           {
-            'group-data-[role=user]/message:bg-muted': true,
+            'group-data-[role=user]/message:bg-muted ': true,
           },
         )}
       >
-        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
+        <div className="size-8  flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
           <SparklesIcon size={14} />
         </div>
 
