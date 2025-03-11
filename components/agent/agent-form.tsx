@@ -18,7 +18,18 @@ import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { AlertCircle, Camera, ImageIcon, Loader2, Trash2, Palette } from "lucide-react";
+import { 
+  AlertCircle, 
+  Camera, 
+  ImageIcon, 
+  Loader2, 
+  Trash2, 
+  Palette,
+  X, 
+  Check, 
+  ChevronsUpDown, 
+  PlusCircle 
+} from "lucide-react";
 import { ToolGroupSelector, ToolGroupInfo } from "./tool-group-selector";
 import { ModelSelectorSection, ModelInfo } from "./model-selector-section";
 import { 
@@ -49,7 +60,6 @@ import {
   PopoverTrigger 
 } from "@/components/ui/popover";
 import { Tag as TagType } from "@/lib/db/schema";
-import { X, Check, ChevronsUpDown, PlusCircle } from "lucide-react";
 
 // Tag interface for dropdown selection
 interface TagInfo {
@@ -271,10 +281,10 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
               <SelectItem key={scheme.id} value={scheme.id} className="flex items-center">
                 <div className="flex items-center gap-2">
                   {scheme.primary === 'default' ? (
-                    <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-gray-200 to-gray-400 border border-gray-300" />
+                    <div className="size-4 rounded-full bg-gradient-to-tr from-gray-200 to-gray-400 border border-gray-300" />
                   ) : (
                     <div 
-                      className="w-4 h-4 rounded-full" 
+                      className="size-4 rounded-full" 
                       style={{ backgroundColor: scheme.primary[500] }}
                     />
                   )}
@@ -689,7 +699,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
                       onClick={() => handleRemoveTag(tag.id)}
                       className="ml-1 rounded-full outline-none hover:text-red-500 focus:ring-2 focus:ring-primary"
                     >
-                      <X className="h-3.5 w-3.5" />
+                      <X className="size-3.5" />
                     </button>
                   </Badge>
                 ))}
@@ -704,7 +714,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
                     className="justify-between w-full bg-background"
                   >
                     <span>Add tags...</span>
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-full p-0" align="start">
@@ -722,8 +732,8 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
                             className="flex items-center gap-2 cursor-pointer"
                             onSelect={handleAddNewTag}
                           >
-                            <PlusCircle className="h-4 w-4" />
-                            <span>Create "{newTagInput}"</span>
+                            <PlusCircle className="size-4" />
+                            <span>Create &quot;{newTagInput}&quot;</span>
                           </CommandItem>
                         )}
                         {newTagInput.trim() === "" && (
@@ -747,7 +757,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
                             >
                               <span>{tag.name}</span>
                               <Check
-                                className={`h-4 w-4 ${
+                                className={`size-4 ${
                                   selectedTags.some(selected => selected.id === tag.id)
                                     ? "opacity-100"
                                     : "opacity-0"
