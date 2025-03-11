@@ -1,12 +1,12 @@
 import AgentForm from "@/components/agent/agent-form";
 import { auth } from "@/app/(auth)/auth";
-import { db, getAllToolGroups } from "@/lib/db/queries";
+import { db, getAllToolGroups, getAllTags } from "@/lib/db/queries";
 import { models } from "@/lib/db/schema";
 
 export default async function CreateAgentPage() {
   const session = await auth();
   
-  const [modelsList, toolGroups] = await Promise.all([
+  const [modelsList, toolGroups, tags] = await Promise.all([
     db.select({
       id: models.id,
       displayName: models.model_display_name,
@@ -14,7 +14,8 @@ export default async function CreateAgentPage() {
       description: models.description,
       provider: models.provider
     }).from(models),
-    getAllToolGroups()
+    getAllToolGroups(),
+    getAllTags()
   ]);
 
   return (
@@ -25,6 +26,7 @@ export default async function CreateAgentPage() {
         userId={session?.user?.id}
         models={modelsList}
         toolGroups={toolGroups}
+        tags={tags}
       />
     </div>
   );

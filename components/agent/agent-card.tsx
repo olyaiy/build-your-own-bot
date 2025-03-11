@@ -12,6 +12,7 @@ interface AgentCardProps {
   agent: Omit<InferSelectModel<typeof agents>, 'model'> & {
     models?: InferSelectModel<typeof models>[] | null;
     toolGroups?: { id: string; name: string; display_name: string; description: string | null }[] | null;
+    tags?: { id: string; name: string; createdAt: Date; updatedAt: Date }[] | null;
   };
   userId?: string;
   onClick?: (agentId: string) => void;
@@ -25,7 +26,7 @@ export function AgentCard({ agent, userId, onClick }: AgentCardProps) {
   return (
     <div className="w-full">
       <Link href={`/${agent.id}`} onClick={handleClick}>
-        <Card className="p-4 hover:shadow-lg transition-shadow cursor-pointer relative group h-[270px] min-w-[240px] max-w-[400px] w-full mx-auto flex flex-col">
+        <Card className="p-4 hover:shadow-lg transition-shadow cursor-pointer relative group h-full min-w-[240px] max-w-[400px] w-full mx-auto flex flex-col">
           {agent.visibility !== 'public' && (
             <div className="absolute top-2 right-2 z-10">
               <Badge variant="secondary" className="text-[10px] px-2 py-0 h-5 bg-muted">
@@ -34,7 +35,7 @@ export function AgentCard({ agent, userId, onClick }: AgentCardProps) {
             </div>
           )}
           
-          <div className="h-36 mb-2 rounded-lg bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 relative">
+          <div className="aspect-[4/3] w-full mb-2 rounded-lg bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 relative">
             {agent.image_url ? (
               <div className="absolute inset-0 overflow-hidden rounded-lg">
                 <Image
@@ -60,41 +61,34 @@ export function AgentCard({ agent, userId, onClick }: AgentCardProps) {
               </p>
             )}
 
-            {/* Models display */}
-            {agent.models && agent.models.length > 0 && (
-              <div className="flex items-center gap-1 max-w-full overflow-hidden ">
-                <div className="text-xs text-muted-foreground mr-1">Models:</div>
-                {/* Display first two models */}
-                {agent.models.slice(0, 2).map((model) => (
+            {/* Combined Tags and Tool Groups display */}
+            {((agent.tags && agent.tags.length > 0) || (agent.toolGroups && agent.toolGroups.length > 0)) && (
+              <div className="flex flex-wrap items-start gap-1 max-w-full max-h-[42px] overflow-hidden">
+                {/* Display tags first */}
+                {agent.tags && agent.tags.slice(0, 2).map((tag) => (
                   <Badge 
-                    key={model.id} 
+                    key={`tag-${tag.id}`} 
                     variant="secondary" 
                     className="text-[10px] px-2 py-0 h-5 truncate max-w-28"
                   >
-                    {model.model_display_name}
+                    {tag.name}
                   </Badge>
                 ))}
                 
-                {/* If there are more than 2 models, show a +n badge */}
-                {agent.models.length > 2 && (
+                {/* More tags indicator */}
+                {agent.tags && agent.tags.length > 2 && (
                   <Badge 
                     variant="secondary" 
                     className="text-[10px] px-2 py-0 h-5"
                   >
-                    +{agent.models.length - 2}
+                    +{agent.tags.length - 2}
                   </Badge>
                 )}
-              </div>
-            )}
-
-            {/* Tool Groups display */}
-            {agent.toolGroups && agent.toolGroups.length > 0 && (
-              <div className="flex items-center gap-1 max-w-full overflow-hidden ">
-                <div className="text-xs text-muted-foreground mr-1 ">Tools:</div>
-                {/* Display first two tool groups */}
-                {agent.toolGroups.slice(0, 2).map((toolGroup) => (
+                
+                {/* Display tool groups */}
+                {agent.toolGroups && agent.toolGroups.slice(0, 2).map((toolGroup) => (
                   <Badge 
-                    key={toolGroup.id} 
+                    key={`tool-${toolGroup.id}`} 
                     variant="outline" 
                     className="text-[10px] px-2 py-0 h-5 truncate max-w-28 border-dashed"
                   >
@@ -102,8 +96,8 @@ export function AgentCard({ agent, userId, onClick }: AgentCardProps) {
                   </Badge>
                 ))}
                 
-                {/* If there are more than 2 tool groups, show a +n badge */}
-                {agent.toolGroups.length > 2 && (
+                {/* More tool groups indicator */}
+                {agent.toolGroups && agent.toolGroups.length > 2 && (
                   <Badge 
                     variant="outline" 
                     className="text-[10px] px-2 py-0 h-5 border-dashed"
@@ -114,14 +108,12 @@ export function AgentCard({ agent, userId, onClick }: AgentCardProps) {
               </div>
             )}
             
-
-              <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                <AgentCardSettings 
-                  agentId={agent.id}
-                  userId={userId}
-                  creatorId={agent.creatorId}
-                />
-
+            <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+              <AgentCardSettings 
+                agentId={agent.id}
+                userId={userId}
+                creatorId={agent.creatorId}
+              />
             </div>
           </div>
         </Card>

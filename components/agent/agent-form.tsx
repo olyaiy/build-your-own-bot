@@ -35,12 +35,34 @@ import { Separator } from "@/components/ui/separator";
 import { InfoIcon } from "@/components/icons/info-icon";
 import { colorSchemes, getColorScheme, getDefaultColorScheme } from "@/lib/colors";
 import { OverviewEditor } from "./customization-editor";
+import { 
+  Command, 
+  CommandEmpty, 
+  CommandGroup, 
+  CommandInput, 
+  CommandItem, 
+  CommandList 
+} from "@/components/ui/command";
+import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger 
+} from "@/components/ui/popover";
+import { Tag as TagType } from "@/lib/db/schema";
+import { X, Check, ChevronsUpDown, PlusCircle } from "lucide-react";
+
+// Tag interface for dropdown selection
+interface TagInfo {
+  id: string;
+  name: string;
+}
 
 interface AgentFormProps {
   mode: "create" | "edit";
   userId?: string;
   models: ModelInfo[];
   toolGroups: ToolGroupInfo[];
+  tags: TagInfo[];
   initialData?: {
     id: string;
     agentDisplayName: string;
@@ -52,6 +74,7 @@ interface AgentFormProps {
     imageUrl?: string | null;
     alternateModelIds?: string[]; // Field for alternate models
     toolGroupIds?: string[]; // Field for tool groups
+    tagIds?: string[]; // Field for tags
     customization?: {
       overview: {
         title: string;
@@ -66,14 +89,26 @@ interface AgentFormProps {
   };
 }
 
-export default function AgentForm({ mode, userId, models, toolGroups, initialData }: AgentFormProps) {
+export default function AgentForm({ mode, userId, models, toolGroups, tags, initialData }: AgentFormProps) {
   const [isPending, startTransition] = useTransition();
   const [imageUrl, setImageUrl] = useState<string | null>(initialData?.imageUrl || null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeletingImage, setIsDeletingImage] = useState(false);
   const [primaryModelId, setPrimaryModelId] = useState<string>(initialData?.modelId || "");
   const [alternateModelIds, setAlternateModelIds] = useState<string[]>(initialData?.alternateModelIds || []);
-  const [selectedToolGroupIds, setSelectedToolGroupIds] = useState<string[]>(initialData?.toolGroupIds || []);
+  const [selectedToolGroupIds, setSelectedToolGroupIds] = useState<string[]>(
+    initialData?.toolGroupIds || []
+  );
+  const [selectedTags, setSelectedTags] = useState<TagInfo[]>(
+    initialData?.tagIds 
+      ? initialData.tagIds.map(id => {
+          const tag = tags.find(t => t.id === id);
+          return tag ? tag : { id, name: "Unknown Tag" };
+        })
+      : []
+  );
+  const [newTagInput, setNewTagInput] = useState("");
+  const [tagPopoverOpen, setTagPopoverOpen] = useState(false);
   const [colorSchemeId, setColorSchemeId] = useState<string>(
     initialData?.customization?.style?.colorSchemeId || getDefaultColorScheme().id
   );
@@ -167,6 +202,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
           imageUrl: imageUrl,
           alternateModelIds: alternateModelIds, // Include alternate models
           toolGroupIds: selectedToolGroupIds, // Include tool groups
+          tagIds: selectedTags.map(tag => tag.id), // Include tag IDs
           customization: {
             overview: overviewCustomization,
             style: {
@@ -257,6 +293,48 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
         </div>
       </div>
     );
+  };
+
+  // Tag input change handler
+  const handleTagInputChange = (value: string) => {
+    setNewTagInput(value);
+  };
+
+  // Add a new tag (client-side only - will be created on server during form submission)
+  const handleAddNewTag = () => {
+    if (newTagInput.trim() === "") return;
+    
+    // Check if tag already exists in the list
+    const existingTag = tags.find(tag => 
+      tag.name.toLowerCase() === newTagInput.trim().toLowerCase()
+    );
+    
+    if (existingTag) {
+      // If it exists but not selected, select it
+      if (!selectedTags.some(tag => tag.id === existingTag.id)) {
+        setSelectedTags([...selectedTags, existingTag]);
+      }
+    } else {
+      // Create a temporary ID for new tag (will be replaced with actual ID on form submission)
+      const tempId = `new-${Date.now()}`;
+      setSelectedTags([...selectedTags, { id: tempId, name: newTagInput.trim() }]);
+    }
+    
+    setNewTagInput("");
+    setTagPopoverOpen(false);
+  };
+
+  // Remove a tag from selection
+  const handleRemoveTag = (tagId: string) => {
+    setSelectedTags(selectedTags.filter(tag => tag.id !== tagId));
+  };
+
+  // Select an existing tag
+  const handleSelectTag = (tag: TagInfo) => {
+    if (!selectedTags.some(t => t.id === tag.id)) {
+      setSelectedTags([...selectedTags, tag]);
+    }
+    setTagPopoverOpen(false);
   };
 
   return (
@@ -583,11 +661,8 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
             />
           </div>
 
-          
-
-          {/* Tool Groups Section - Improved header */}
-          <div className="space-y-4">
-           
+          {/* Tool Groups */}
+          <div className="mb-6">
             <ToolGroupSelector
               toolGroups={toolGroups}
               selectedToolGroupIds={selectedToolGroupIds}
@@ -595,7 +670,101 @@ export default function AgentForm({ mode, userId, models, toolGroups, initialDat
             />
           </div>
 
-          <Separator className="my-8" />
+          {/* Tags Selector */}
+          <div className="mb-6">
+            <div className="flex flex-col space-y-2">
+              <Label htmlFor="tags" className="text-base font-semibold">
+                Tags
+              </Label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {selectedTags.map(tag => (
+                  <Badge 
+                    key={tag.id} 
+                    variant="secondary"
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm"
+                  >
+                    {tag.name}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTag(tag.id)}
+                      className="ml-1 rounded-full outline-none hover:text-red-500 focus:ring-2 focus:ring-primary"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <Popover open={tagPopoverOpen} onOpenChange={setTagPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    type="button"
+                    aria-expanded={tagPopoverOpen}
+                    className="justify-between w-full bg-background"
+                  >
+                    <span>Add tags...</span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Search or create tags..." 
+                      value={newTagInput}
+                      onValueChange={handleTagInputChange}
+                    />
+                    <CommandList>
+                      <CommandEmpty>
+                        {newTagInput.trim() !== "" && (
+                          <CommandItem
+                            value={`create-${newTagInput}`}
+                            className="flex items-center gap-2 cursor-pointer"
+                            onSelect={handleAddNewTag}
+                          >
+                            <PlusCircle className="h-4 w-4" />
+                            <span>Create "{newTagInput}"</span>
+                          </CommandItem>
+                        )}
+                        {newTagInput.trim() === "" && (
+                          <p className="py-3 px-4 text-sm text-muted-foreground">
+                            No tags found. Type to create a new tag.
+                          </p>
+                        )}
+                      </CommandEmpty>
+                      <CommandGroup heading="Available Tags">
+                        {tags
+                          .filter(tag => 
+                            tag.name.toLowerCase().includes(newTagInput.toLowerCase()) &&
+                            !selectedTags.some(selected => selected.id === tag.id)
+                          )
+                          .map(tag => (
+                            <CommandItem
+                              key={tag.id}
+                              value={tag.name}
+                              onSelect={() => handleSelectTag(tag)}
+                              className="flex items-center justify-between cursor-pointer"
+                            >
+                              <span>{tag.name}</span>
+                              <Check
+                                className={`h-4 w-4 ${
+                                  selectedTags.some(selected => selected.id === tag.id)
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                }`}
+                              />
+                            </CommandItem>
+                          ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <p className="text-sm text-muted-foreground">
+                Tags help users find your agent. You can add existing tags or create new ones.
+              </p>
+            </div>
+          </div>
 
           {/* System Prompt Section - Improved with better guidance */}
           <div className="space-y-4">

@@ -218,6 +218,20 @@
       "when": 1741649416746,
       "tag": "0030_gorgeous_naoko",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1741656707498,
+      "tag": "0031_regular_victor_mancha",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1741656918521,
+      "tag": "0032_clumsy_supernaut",
+      "breakpoints": true
     }
   ]
 }

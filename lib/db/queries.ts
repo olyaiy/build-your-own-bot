@@ -29,6 +29,8 @@ import {
   userCredits,
   userTransactions,
   transactionTypeEnum,
+  tags,
+  agentTags,
 } from './schema';  
 import { ArtifactKind } from '@/components/artifact/artifact';
 
@@ -435,7 +437,7 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean) => 
     ))
     .orderBy(desc(agents.id));
 
-    // For each agent, fetch their models and tool groups
+    // For each agent, fetch their models, tool groups, and tags
     const agentsWithModels = await Promise.all(
       result.map(async (agent) => {
         // Fetch models
@@ -473,17 +475,31 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean) => 
             display_name: tg.display_name!
           }));
 
+        // Fetch tags
+        const tagResults = await db.select({
+          id: tags.id,
+          name: tags.name,
+          createdAt: tags.createdAt,
+          updatedAt: tags.updatedAt
+        })
+        .from(agentTags)
+        .innerJoin(tags, eq(agentTags.tagId, tags.id)) // Will use the index on agentTags.tagId
+        .where(eq(agentTags.agentId, agent.id)) // Will use the index on agentTags.agentId
+        .orderBy(tags.name);
+
         if (includeAllModels) {
           return {
             ...agent,
             models: agentModelsArray,
-            toolGroups: toolGroupsArray
+            toolGroups: toolGroupsArray,
+            tags: tagResults
           };
         } else {
           return {
             ...agent,
             model: defaultModel,
-            toolGroups: toolGroupsArray
+            toolGroups: toolGroupsArray,
+            tags: tagResults
           };
         }
       })
@@ -529,7 +545,8 @@ export async function createAgent({
   creatorId,
   artifactsEnabled,
   imageUrl,
-  customization
+  customization,
+  tagIds
 }: {
   agentDisplayName: string;
   systemPrompt: string;
@@ -550,6 +567,7 @@ export async function createAgent({
       colorSchemeId: string;
     };
   };
+  tagIds?: string[];
 }) {
   try {
     // Generate slug from display name
@@ -571,19 +589,24 @@ export async function createAgent({
       })
       .returning();
 
-    // Then create the agent-model relationship with isDefault=true
-    if (agent?.id) {
-      await db.insert(agentModels).values({
+    // Add primary model association
+    await db
+      .insert(agentModels)
+      .values({
         agentId: agent.id,
         modelId,
-        isDefault: true
+        isDefault: true,
       });
+    
+    // Add tags if provided
+    if (tagIds && tagIds.length > 0) {
+      await updateAgentTags(agent.id, tagIds);
     }
 
     return agent;
   } catch (error) {
     console.error('Error creating agent:', error);
-    throw new Error('Failed to create agent');
+    throw error;
   }
 }
 
@@ -642,7 +665,8 @@ export async function updateAgentById({
   visibility,
   artifactsEnabled,
   imageUrl,
-  customization
+  customization,
+  tagIds
 }: {
   id: string;
   agentDisplayName: string;
@@ -663,67 +687,53 @@ export async function updateAgentById({
       colorSchemeId: string;
     };
   };
+  tagIds?: string[];
 }) {
   try {
     // Generate slug from display name
     const slug = generateSlug(agentDisplayName);
 
     // Update the agent
-    await db.update(agents)
+    const [updatedAgent] = await db
+      .update(agents)
       .set({
-        agent: slug, // Use the generated slug
+        agent: slug,
         agent_display_name: agentDisplayName,
         system_prompt: systemPrompt,
         description,
         visibility,
-        artifacts_enabled: artifactsEnabled,
+        artifacts_enabled: artifactsEnabled !== undefined ? artifactsEnabled : true,
         image_url: imageUrl,
-        customization: customization as any // Type cast for Drizzle JSON field
+        customization: customization as any, // Type cast for Drizzle JSON field
       })
-      .where(eq(agents.id, id));
+      .where(eq(agents.id, id))
+      .returning();
 
-    // Check if the agent already has this model
-    const existingModels = await db.select()
-      .from(agentModels)
+    // Update primary model association
+    await db
+      .delete(agentModels)
       .where(and(
         eq(agentModels.agentId, id),
-        eq(agentModels.modelId, modelId)
+        eq(agentModels.isDefault, true)
       ));
 
-    if (existingModels.length === 0) {
-      // If the model doesn't exist for this agent, add it
-      
-      // First, set all existing models to not default
-      await db.update(agentModels)
-        .set({ isDefault: false })
-        .where(eq(agentModels.agentId, id));
-      
-      // Then add the new model as default
-      await db.insert(agentModels).values({
+    await db
+      .insert(agentModels)
+      .values({
         agentId: id,
         modelId,
-        isDefault: true
+        isDefault: true,
       });
-    } else {
-      // If the model exists, make it the default
-      // First, set all models to not default
-      await db.update(agentModels)
-        .set({ isDefault: false })
-        .where(eq(agentModels.agentId, id));
-      
-      // Then set this one to default
-      await db.update(agentModels)
-        .set({ isDefault: true })
-        .where(and(
-          eq(agentModels.agentId, id),
-          eq(agentModels.modelId, modelId)
-        ));
+    
+    // Update tags if provided
+    if (tagIds) {
+      await updateAgentTags(id, tagIds);
     }
 
-    return { success: true };
+    return updatedAgent;
   } catch (error) {
     console.error('Error updating agent:', error);
-    throw new Error('Failed to update agent');
+    throw error;
   }
 }
 
@@ -1345,5 +1355,90 @@ export async function doesAgentHaveSearchTool(agentId: string): Promise<boolean>
   } catch (error) {
     console.error('Failed to check if agent has search tool:', error);
     return false;
+  }
+}
+
+export async function getAllTags() {
+  try {
+    const result = await db.select().from(tags).orderBy(tags.name);
+    return result;
+  } catch (error) {
+    console.error('Error getting all tags:', error);
+    throw error;
+  }
+}
+
+export async function searchTags(searchTerm: string) {
+  try {
+    const result = await db
+      .select()
+      .from(tags)
+      .where(sql`${tags.name} ILIKE ${`%${searchTerm}%`}`)
+      .orderBy(tags.name);
+    return result;
+  } catch (error) {
+    console.error('Error searching tags:', error);
+    throw error;
+  }
+}
+
+export async function getTagsByAgentId(agentId: string) {
+  try {
+    const result = await db
+      .select({
+        id: tags.id,
+        name: tags.name,
+        createdAt: tags.createdAt,
+        updatedAt: tags.updatedAt
+      })
+      .from(agentTags)
+      .innerJoin(tags, eq(agentTags.tagId, tags.id))
+      .where(eq(agentTags.agentId, agentId))
+      .orderBy(tags.name);
+    
+    return result;
+  } catch (error) {
+    console.error('Error getting tags by agent ID:', error);
+    throw error;
+  }
+}
+
+export async function createTag(name: string) {
+  try {
+    const [newTag] = await db
+      .insert(tags)
+      .values({ name })
+      .returning();
+    
+    return newTag;
+  } catch (error) {
+    console.error('Error creating tag:', error);
+    throw error;
+  }
+}
+
+export async function updateAgentTags(agentId: string, tagIds: string[]) {
+  try {
+    // Delete existing tags for this agent
+    await db
+      .delete(agentTags)
+      .where(eq(agentTags.agentId, agentId));
+    
+    // If there are no tags to add, we're done
+    if (!tagIds.length) return;
+    
+    // Add new tags
+    const values = tagIds.map(tagId => ({
+      agentId,
+      tagId
+    }));
+    
+    await db
+      .insert(agentTags)
+      .values(values);
+      
+  } catch (error) {
+    console.error('Error updating agent tags:', error);
+    throw error;
   }
 }

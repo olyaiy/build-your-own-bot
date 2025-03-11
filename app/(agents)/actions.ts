@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createAgent as createAgentQuery, deleteAgentQuery, getAgentById, updateAgentById, db } from '@/lib/db/queries';
+import { createAgent as createAgentQuery, deleteAgentQuery, getAgentById, updateAgentById, createTag, db } from '@/lib/db/queries';
 import { agentModels, agentToolGroups } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
 
@@ -16,6 +16,7 @@ export async function createAgent({
   imageUrl,
   alternateModelIds = [],
   toolGroupIds = [],
+  tagIds = [],
   customization
 }: {
   agentDisplayName: string;
@@ -28,6 +29,7 @@ export async function createAgent({
   imageUrl?: string | null;
   alternateModelIds?: string[];
   toolGroupIds?: string[];
+  tagIds?: string[];
   customization?: {
     overview: {
       title: string;
@@ -41,6 +43,9 @@ export async function createAgent({
   };
 }) {
   try {
+    // Process any new tags (those with IDs starting with "new-")
+    const processedTagIds = await processNewTags(tagIds);
+    
     // Create agent with primary model
     const result = await createAgentQuery({
       agentDisplayName,
@@ -51,7 +56,8 @@ export async function createAgent({
       creatorId,
       artifactsEnabled,
       imageUrl,
-      customization
+      customization,
+      tagIds: processedTagIds
     });
     
     // If alternate models were provided, add them to the agent
@@ -94,6 +100,7 @@ export async function updateAgent({
   imageUrl,
   alternateModelIds = [],
   toolGroupIds = [],
+  tagIds = [],
   customization
 }: {
   id: string;
@@ -106,6 +113,7 @@ export async function updateAgent({
   imageUrl?: string | null;
   alternateModelIds?: string[];
   toolGroupIds?: string[];
+  tagIds?: string[];
   customization?: {
     overview: {
       title: string;
@@ -119,14 +127,11 @@ export async function updateAgent({
   };
 }) {
   try {
-    const agent = await getAgentById(id);
+    // Process any new tags (those with IDs starting with "new-")
+    const processedTagIds = await processNewTags(tagIds);
     
-    if (!agent) {
-      throw new Error('Agent not found');
-    }
-    
-    // Update the agent with primary model
-    await updateAgentById({
+    // Update the agent
+    const result = await updateAgentById({
       id,
       agentDisplayName,
       systemPrompt,
@@ -135,92 +140,45 @@ export async function updateAgent({
       visibility,
       artifactsEnabled,
       imageUrl,
-      customization
+      customization,
+      tagIds: processedTagIds
     });
     
-    // Handle alternate models
-    // First, get existing alternate models (non-default ones)
-    const existingModels = await db.select({
-      modelId: agentModels.modelId,
-      isDefault: agentModels.isDefault
-    })
-    .from(agentModels)
-    .where(eq(agentModels.agentId, id));
+    // Update alternate models - first delete all existing non-default models
+    await db.delete(agentModels).where(
+      and(
+        eq(agentModels.agentId, id),
+        eq(agentModels.isDefault, false)
+      )
+    );
     
-    const existingAlternateModelIds = existingModels
-      .filter(m => !m.isDefault)
-      .map(m => m.modelId);
-    
-    // Models to remove (they exist but aren't in the new list)
-    const modelIdsToRemove = existingAlternateModelIds
-      .filter(existingId => !alternateModelIds.includes(existingId));
-    
-    // Models to add (they're in the new list but don't exist yet)
-    const modelIdsToAdd = alternateModelIds
-      .filter(newId => !existingAlternateModelIds.includes(newId));
-    
-    // Remove models that are no longer needed
-    if (modelIdsToRemove.length > 0) {
-      await Promise.all(modelIdsToRemove.map(modelId => 
-        db.delete(agentModels)
-          .where(and(
-            eq(agentModels.agentId, id), 
-            eq(agentModels.modelId, modelId)
-          ))
-      ));
-    }
-    
-    // Add new alternate models
-    if (modelIdsToAdd.length > 0) {
-      const newModelsData = modelIdsToAdd.map(modelId => ({
+    // Then add the new alternate models
+    if (alternateModelIds.length > 0) {
+      const alternateModelsData = alternateModelIds.map(alternateModelId => ({
         agentId: id,
-        modelId,
+        modelId: alternateModelId,
         isDefault: false
       }));
       
-      await db.insert(agentModels).values(newModelsData);
+      await db.insert(agentModels).values(alternateModelsData);
     }
     
-    // Handle tool groups
-    // Get existing tool groups
-    const existingToolGroups = await db.select({
-      toolGroupId: agentToolGroups.toolGroupId
-    })
-    .from(agentToolGroups)
-    .where(eq(agentToolGroups.agentId, id));
+    // Update tool groups - first delete all existing tool groups
+    await db.delete(agentToolGroups).where(eq(agentToolGroups.agentId, id));
     
-    const existingToolGroupIds = existingToolGroups.map(tg => tg.toolGroupId);
-    
-    // Tool groups to remove
-    const toolGroupIdsToRemove = existingToolGroupIds
-      .filter(existingId => !toolGroupIds.includes(existingId));
-      
-    // Tool groups to add
-    const toolGroupIdsToAdd = toolGroupIds
-      .filter(newId => !existingToolGroupIds.includes(newId));
-      
-    // Remove tool groups that are no longer needed
-    if (toolGroupIdsToRemove.length > 0) {
-      await Promise.all(toolGroupIdsToRemove.map(toolGroupId => 
-        db.delete(agentToolGroups)
-          .where(and(
-            eq(agentToolGroups.agentId, id),
-            eq(agentToolGroups.toolGroupId, toolGroupId)
-          ))
-      ));
-    }
-    
-    // Add new tool groups
-    if (toolGroupIdsToAdd.length > 0) {
-      const newToolGroupsData = toolGroupIdsToAdd.map(toolGroupId => ({
+    // Then add the new tool groups
+    if (toolGroupIds.length > 0) {
+      const toolGroupsData = toolGroupIds.map(toolGroupId => ({
         agentId: id,
         toolGroupId
       }));
       
-      await db.insert(agentToolGroups).values(newToolGroupsData);
+      await db.insert(agentToolGroups).values(toolGroupsData);
     }
     
-    revalidatePath('/');
+    revalidatePath('/agents');
+    revalidatePath(`/agents/${id}`);
+    return { success: true };
   } catch (error) {
     console.error('Failed to update agent:', error);
     throw new Error('Failed to update agent');
@@ -323,4 +281,36 @@ export async function deleteAgentImage(id: string, imageUrl: string) {
     console.error('Failed to delete agent image:', error);
     throw new Error('Failed to delete agent image');
   }
+}
+
+// Helper function to process new tags and return processed tag IDs
+async function processNewTags(tagIds: string[] = []) {
+  if (!tagIds.length) return [];
+  
+  const processedTagIds = [];
+  
+  for (const tagId of tagIds) {
+    // If it's a new tag (created in the UI), create it in the database
+    if (tagId.startsWith('new-')) {
+      // Extract the tag name from the temporary ID
+      // Format is "new-timestamp-tagName" or similar
+      const tagName = tagId.substring(tagId.indexOf('-') + 1);
+      
+      try {
+        // Create the new tag
+        const newTag = await createTag(tagName);
+        if (newTag) {
+          processedTagIds.push(newTag.id);
+        }
+      } catch (error) {
+        console.error(`Failed to create tag "${tagName}":`, error);
+        // Continue processing other tags
+      }
+    } else {
+      // It's an existing tag, just add it to the processed list
+      processedTagIds.push(tagId);
+    }
+  }
+  
+  return processedTagIds;
 }

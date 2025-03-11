@@ -11,6 +11,7 @@ interface AgentListProps {
   agents: (Omit<InferSelectModel<typeof agents>, 'model'> & {
     models?: InferSelectModel<typeof models>[] | null;
     toolGroups?: { id: string; name: string; display_name: string; description: string | null }[] | null;
+    tags?: { id: string; name: string; createdAt: Date; updatedAt: Date }[] | null;
   })[];
   userId?: string;
 }
