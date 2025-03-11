@@ -77,6 +77,7 @@ export const getReasoningInstructions = (modelId: string): string => {
   </think>
   
   15 * 17 = 255
+  
     ${artifactsPrompt}
     
     `;

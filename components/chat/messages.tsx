@@ -108,7 +108,7 @@ function PureMessages({
   return (
     <div
       ref={messagesContainerRef}
-      className="flex flex-col min-w-0 gap-6 absolute inset-0 overflow-y-auto pt-4 px-4 md:px-0"
+      className="flex flex-col min-w-0 gap-6 absolute inset-0 overflow-y-auto pt-4 px-4 md:px-8"
     >
       {/* Show the Overview component when there are no messages */}
       {messages.length === 0 && <Overview agent={agent} />}
