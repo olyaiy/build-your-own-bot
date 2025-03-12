@@ -33,16 +33,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
   useEffect(() => {
   }, [effectiveIsOpen, tool.toolCallId])
 
-  // Helper function to submit tool results when needed
-  const handleToolResult = (result: string) => {
-    if (addToolResult && tool.state === 'call' && tool.toolCallId) {
-      addToolResult({
-        toolCallId: tool.toolCallId,
-        result
-      });
-    }
-  };
-  
+ 
   // Common wrapper for all tool sections to ensure proper width constraints
   const ToolWrapper = ({ children }: { children: React.ReactNode }) => (
     <div className="w-full max-w-full overflow-hidden">
@@ -134,13 +125,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, ad
       return !isReadonly ? (
         <ToolWrapper>
           <div className="p-4 border rounded-md">
-            <pre className="mb-4 whitespace-pre-wrap break-all">{JSON.stringify(args, null, 2)}</pre>
-            <button 
-              className="bg-primary text-primary-foreground px-4 py-2 rounded-md"
-              onClick={() => handleToolResult(JSON.stringify({ success: true }))}
-            >
-              Submit Result
-            </button>
+           
           </div>
         </ToolWrapper>
       ) : null;

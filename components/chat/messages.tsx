@@ -1,4 +1,4 @@
-import { ChatRequestOptions, Message } from 'ai';
+import { Message } from 'ai';
 import { PreviewMessage, ThinkingMessage } from '@/components/chat/message';
 import { useScrollToBottom } from '@/components/hooks/use-scroll-to-bottom';
 import { useState, useMemo, memo, useEffect } from 'react';
@@ -7,6 +7,7 @@ import equal from 'fast-deep-equal';
 import { Overview } from '../util/overview';
 import { ToolSection } from '../agent/tool-section';
 import type { Agent, AgentCustomization } from '@/lib/db/schema';
+import { UseChatHelpers } from 'ai/react';
 
 /**
  * Interface defining the props for the Messages component
@@ -24,15 +25,13 @@ import type { Agent, AgentCustomization } from '@/lib/db/schema';
  */
 interface MessagesProps {
   chatId: string;
-  isLoading: boolean;
+  status: UseChatHelpers['status'];
   votes: Array<Vote> | undefined;
   messages: Array<Message>;
-  setMessages: (
-    messages: Message[] | ((messages: Message[]) => Message[]),
-  ) => void;
-  reload: (
-    chatRequestOptions?: ChatRequestOptions,
-  ) => Promise<string | null | undefined>;
+  setMessages: UseChatHelpers['setMessages'];
+  reload: UseChatHelpers['reload'];
+
+
   isReadonly: boolean;
   isArtifactVisible: boolean;
   toolCallData?: Array<any>;
@@ -54,7 +53,7 @@ interface MessagesProps {
  */
 function PureMessages({
   chatId,
-  isLoading,
+  status,
   votes,
   messages,
   setMessages,
@@ -119,8 +118,11 @@ function PureMessages({
           key={message.id}
           chatId={chatId}
           message={message}
+
           // Only show loading state on the last message when it's an AI response being generated
-          isLoading={isLoading && messages.length - 1 === index}
+          isLoading={status === 'streaming' && messages.length - 1 === index}
+
+          
           // Find the vote for this specific message if votes exist
           vote={
             votes
@@ -135,14 +137,14 @@ function PureMessages({
       ))}
 
       {/* Show thinking message when waiting for first assistant response */}
-      {isLoading &&
+      {status === 'submitted' &&
         messages.length > 0 &&
         messages[messages.length - 1].role === 'user' && 
         !lastToolData && <ThinkingMessage />
       }
 
       {/* Show tool section when actively processing a tool call */}
-      {isLoading &&
+      {status === 'submitted' &&
         messages.length > 0 &&
         messages[messages.length - 1].role === 'user' && 
         lastToolData && (
@@ -187,9 +189,9 @@ export const Messages = memo(PureMessages, (prevProps: MessagesProps, nextProps:
     if (prevProps.isArtifactVisible && nextProps.isArtifactVisible) return true;
 
     // Force re-render if loading state changes
-    if (prevProps.isLoading !== nextProps.isLoading) return false;
+    if (prevProps.status !== nextProps.status) return false;
     // Continue rendering during loading state to show progress
-    if (prevProps.isLoading && nextProps.isLoading) return false;
+    if (prevProps.status && nextProps.status) return false;
     // Re-render if messages are added or removed
     if (prevProps.messages.length !== nextProps.messages.length) return false;
     // Deep comparison of messages to detect content changes

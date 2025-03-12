@@ -38,13 +38,14 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { PreviewAttachment } from '../util/preview-attachment';
 import { checkAgentHasSearchTool } from '@/lib/db/actions';
+import { UseChatHelpers } from 'ai/react';
 
 function PureMultimodalInput({
   chatId,
   agentId,
   input,
   setInput,
-  isLoading,
+  status,
   stop,
   attachments,
   setAttachments,
@@ -62,24 +63,18 @@ function PureMultimodalInput({
 }: {
   chatId: string;
   agentId: string;
-  input: string;
-  setInput: (value: string) => void;
-  isLoading: boolean;
+  input: UseChatHelpers['input'];
+  setInput: UseChatHelpers['setInput'];
+  status: UseChatHelpers['status'];
   stop: () => void;
   attachments: Array<Attachment>;
   setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
   messages: Array<Message>;
   setMessages: Dispatch<SetStateAction<Array<Message>>>;
-  append: (
-    message: Message | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions,
-  ) => Promise<string | null | undefined>;
-  handleSubmit: (
-    event?: {
-      preventDefault?: () => void;
-    },
-    chatRequestOptions?: ChatRequestOptions,
-  ) => void;
+  append: UseChatHelpers['append'];
+  handleSubmit: UseChatHelpers['handleSubmit'];
+
+
   className?: string;
   availableModels: ModelWithDefault[];
   currentModel: string;
@@ -340,13 +335,13 @@ function PureMultimodalInput({
                 id="search-toggle"
                 checked={searchEnabled}
                 onCheckedChange={handleSearchToggle}
-                disabled={isLoading}
+                disabled={status !== 'ready'}
                 className="cursor-pointer"
               />
               <Label 
                 htmlFor="search-toggle" 
                 className="text-xs flex items-center gap-1 cursor-pointer"
-                onClick={() => !isLoading && setSearchEnabled(!searchEnabled)}
+                onClick={() => status !== 'ready' && setSearchEnabled(!searchEnabled)}
               >
                 <SearchIcon size={12} />
                 <span>Web Search {searchEnabled ? 'On' : 'Off'}</span>
@@ -396,7 +391,7 @@ function PureMultimodalInput({
               !event.nativeEvent.isComposing
             ) {
 
-              if (isLoading) {
+              if (status !== 'ready') {
                 toast.error('Please wait for the model to finish its response!');
               } else {
                 submitForm();
@@ -406,11 +401,11 @@ function PureMultimodalInput({
         />
 
         <div className="absolute bottom-0 p-1 sm:p-2 w-fit flex flex-row justify-start">
-          <AttachmentsButton fileInputRef={fileInputRef} isLoading={isLoading} />
+        <AttachmentsButton fileInputRef={fileInputRef} status={status} />
         </div>
 
         <div className="absolute bottom-0 right-0 p-1 sm:p-2 w-fit flex flex-row justify-end">
-          {isLoading ? (
+          {status === 'submitted' ? (
             <StopButton stop={stop} setMessages={setMessages} />
           ) : (
             <SendButton
@@ -429,7 +424,7 @@ export const MultimodalInput = memo(
   PureMultimodalInput,
   (prevProps, nextProps) => {
     if (prevProps.input !== nextProps.input) return false;
-    if (prevProps.isLoading !== nextProps.isLoading) return false;
+    if (prevProps.status !== nextProps.status) return false;
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
     if (prevProps.currentModel !== nextProps.currentModel) return false;
     if (prevProps.searchEnabled !== nextProps.searchEnabled) return false;
@@ -440,10 +435,10 @@ export const MultimodalInput = memo(
 
 function PureAttachmentsButton({
   fileInputRef,
-  isLoading,
+  status
 }: {
   fileInputRef: React.MutableRefObject<HTMLInputElement | null>;
-  isLoading: boolean;
+  status: UseChatHelpers['status'];
 }) {
   return (
     <Button
@@ -452,7 +447,7 @@ function PureAttachmentsButton({
         event.preventDefault();
         fileInputRef.current?.click();
       }}
-      disabled={isLoading}
+      disabled={status !== 'ready'}
       variant="ghost"
     >
       <PaperclipIcon size={14} />
