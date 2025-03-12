@@ -223,7 +223,7 @@ console.log(isCompact)
                 {item.type === 'text' && item.content && (
                   <div
                     className={cn('flex flex-col gap-4', {
-                      'bg-primary text-primary-foreground px-3 ml-12 py-4 rounded-xl max-w-full':
+                      'bg-primary text-primary-foreground px-3 ml-12 py-2 rounded-xl max-w-full':
                         message.role === 'user',
                     })}
                   >
