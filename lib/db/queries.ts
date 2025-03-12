@@ -1,5 +1,3 @@
-
-
 import { genSaltSync, hashSync } from 'bcrypt-ts';
 import { and, asc, desc, eq, gt, gte, inArray, isNotNull, or, sql} from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -140,15 +138,15 @@ export async function saveMessages({
   model_id,
   user_id,
 }: { 
-  messages: Array <Message>; 
+  messages: Array<Message>; 
   model_id?: string;
   user_id?: string;
 }) {
   try {
-    // Add generated UUIDs and apply model_id if provided
+    // Maps model_id to messages
     const messagesToSave = messages.map(msg => ({
       ...msg,
-      id: msg.id || generateUUID(), // Generate UUID if not already present
+      id: msg.id || generateUUID(),
       model_id: model_id || msg.model_id,
     }));
 

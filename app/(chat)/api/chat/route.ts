@@ -81,8 +81,10 @@ export async function POST(request: Request) {
     searchEnabled?: boolean;
   } = await request.json();
   
+  // Get the session
   const session = await auth();
 
+  // If the user is not logged in, return an error
   if (!session || !session.user || !session.user.id) {
     return new Response('Unauthorized', { status: 401 });
   }
@@ -93,14 +95,22 @@ export async function POST(request: Request) {
     return new Response(INSUFFICIENT_CREDITS_MESSAGE, { status: 402 });
   }
 
+  // Get the most recent user message
   const userMessage = getMostRecentUserMessage(messages);
 
+  // If the user message is not found, return an error
   if (!userMessage) {
-    return new Response('No user message found', { status: 400 });
+return new Response('No user message found', { status: 400 });
   }
 
+  // Get the chat
   const chat = await getChatById({ id });
 
+  console.log('selected model id', selectedModelId);
+  console.log('user message', userMessage);
+  console.log('chat id', id);
+
+  // If the chat is not found, generate a title and save the chat FIRST
   if (!chat) {
     const title = await generateTitleFromUserMessage({ message: userMessage });
     try {
@@ -111,105 +121,114 @@ export async function POST(request: Request) {
     }
   }
 
+  // THEN save messages
+  await saveMessages({
+    messages: [{
+      ...userMessage, 
+      model_id: selectedModelId,
+      chatId: id,
+      createdAt: new Date(),
+    }],
+    user_id: session.user.id,
+  });
+
   const modelDetails = await getModelById(selectedModelId);
   const providerOptions = modelDetails?.provider_options;
-
-
 
   return createDataStreamResponse({
     execute: async (dataStream) => {
 
+      /* -------- TOOLS SET UP -------- */
+        // Fetch the tool groups for this agent
+        const agentToolGroups = await getToolGroupsByAgentId(agentId);
+        // Get all the tools from the agent's tool groups
+        const toolsPromises = agentToolGroups.map(toolGroup => 
+          getToolsByToolGroupId(toolGroup.id)
+        );
+        const toolsResults = await Promise.all(toolsPromises);
+        // Flatten and get unique tool names
+        const availableToolNames = [...new Set(
+          toolsResults
+            .flat()
+            .map(tool => tool.tool)
+        )];
+        // Create tools object with the appropriate tools
+        const registry = toolRegistry({ 
+          session, 
+          dataStream,
+          messages // Pass the messages to the tool registry
+        });
+        const tools: Record<string, any> = {};
+        for (const toolName of availableToolNames) {
+          // Special handling for searchTool based on the searchEnabled flag
+          // Only exclude the search tool if searchEnabled is explicitly false
+          if (toolName === 'searchTool' && searchEnabled === false) {
+            continue; // Skip adding the search tool if searchEnabled is false
+          }
 
-      // Fetch the tool groups for this agent
-      const agentToolGroups = await getToolGroupsByAgentId(agentId);
-      
-      // Get all the tools from the agent's tool groups
-      const toolsPromises = agentToolGroups.map(toolGroup => 
-        getToolsByToolGroupId(toolGroup.id)
-      );
-      
-      const toolsResults = await Promise.all(toolsPromises);
-      
-      // Flatten and get unique tool names
-      const availableToolNames = [...new Set(
-        toolsResults
-          .flat()
-          .map(tool => tool.tool)
-      )];
+          if (toolName === 'retrieveTool' && searchEnabled === false) {
+            continue; // Skip adding the search tool if searchEnabled is false
+          }
 
-      
-      
-      // Create tools object with the appropriate tools
-      const registry = toolRegistry({ 
-        session, 
-        dataStream,
-        messages // Pass the messages to the tool registry
-      });
-
-      const tools: Record<string, any> = {};
-      for (const toolName of availableToolNames) {
-        // Special handling for searchTool based on the searchEnabled flag
-        // Only exclude the search tool if searchEnabled is explicitly false
-        if (toolName === 'searchTool' && searchEnabled === false) {
-          continue; // Skip adding the search tool if searchEnabled is false
+          
+          if (toolName in registry && registry[toolName as keyof typeof registry]) {
+            tools[toolName] = registry[toolName as keyof typeof registry];
+          }
         }
-
-        if (toolName === 'retrieveTool' && searchEnabled === false) {
-          continue; // Skip adding the search tool if searchEnabled is false
-        }
-
-        
-        if (toolName in registry && registry[toolName as keyof typeof registry]) {
-          tools[toolName] = registry[toolName as keyof typeof registry];
-        }
-      }
-
-      // Get the list of tool names that are actually available
-      const activeToolNames = Object.keys(tools);
+        // Get the list of tool names that are actually available
+        const activeToolNames = Object.keys(tools);
 
 
      
-
+    /* -------- STREAM TEXT -------- */
       const result = streamText({
-        model: myProvider.languageModel(selectedChatModel),
-        system: systemPrompt({ 
-          selectedChatModel, 
-          agentSystemPrompt,
-          hasSearchTool: activeToolNames.includes('searchTool')
-        }),
-        messages,
-        maxSteps: 10,
-        experimental_activeTools:
-          supportsTools(selectedChatModel) && activeToolNames.length > 0
-            ? activeToolNames
-            : [],
+        // Model
+          model: myProvider.languageModel(selectedChatModel),
+        // System Prompt
+          system: systemPrompt({ 
+            selectedChatModel, 
+            agentSystemPrompt,
+            hasSearchTool: activeToolNames.includes('searchTool')
+          }),
+        // Messages
+          messages,
+        // Max Steps
+          maxSteps: 10,
+        // Active Tools
+          experimental_activeTools:
+            supportsTools(selectedChatModel) && activeToolNames.length > 0
+              ? activeToolNames
+              : [],
+        // Tools
+          tools,
 
-     
-        experimental_transform: smoothStream({ chunking: 'word' }),
-        experimental_generateMessageId: generateUUID,
-        tools,
+        // config
+          experimental_transform: smoothStream({ chunking: 'word' }),
+          providerOptions: providerOptions as any,
+          experimental_generateMessageId: generateUUID,
+          experimental_telemetry: {
+            isEnabled: true,
+            functionId: 'stream-text',
+          },
+          toolCallStreaming: true,
         
-
-        providerOptions: providerOptions as any,
-        
+      /* -------- ON STEP FINISH -------- */
         onStepFinish: async (step) => {
 
+        // IF user is logged in
           if (session.user?.id) {
 
+          // Sanitize the response messages
             try {
               const sanitizedResponseMessages = sanitizeResponseMessages({
                 messages: step.response.messages,
                 reasoning: step.reasoning,
               });
 
-
-              // Wait for the usage promise to resolve
-              const tokenUsage = await step.usage;
+          // Wait for the usage promise to resolve
+            const tokenUsage = await step.usage;
               
-              // Calculate cost based on token usage and model rates
-              const inputCost = (((tokenUsage?.promptTokens || 0) * parseFloat(modelDetails?.cost_per_million_input_tokens || '0')) / 1000000) * -1.18 ;
-              const outputCost = (((tokenUsage?.completionTokens || 0) * parseFloat(modelDetails?.cost_per_million_output_tokens || '0')) / 1000000) * -1.18;
-
+        
 
               const messagesToSave = [
                 // First add user message
@@ -234,7 +253,11 @@ export async function POST(request: Request) {
                 })
               ];
 
+          // Calculate cost based on token usage and model rates
+            const inputCost = (((tokenUsage?.promptTokens || 0) * parseFloat(modelDetails?.cost_per_million_input_tokens || '0')) / 1000000) * -1.18 ;
+            const outputCost = (((tokenUsage?.completionTokens || 0) * parseFloat(modelDetails?.cost_per_million_output_tokens || '0')) / 1000000) * -1.18;
 
+          // Record the transaction
               await recordTransaction({
                 userId: session.user.id,
                 amount: inputCost,
@@ -244,8 +267,7 @@ export async function POST(request: Request) {
                 tokenType: 'input',
                 tokenAmount: tokenUsage?.promptTokens || 0,
                 modelId: selectedModelId
-                });
-
+              });
               await recordTransaction({
                 userId: session.user.id,
                 amount: outputCost,
@@ -257,6 +279,7 @@ export async function POST(request: Request) {
                 modelId: selectedModelId
               });
 
+              // Log the message details
               logMessageDetails(messagesToSave);
               
               // Save all messages including the user message in one operation
@@ -274,20 +297,17 @@ export async function POST(request: Request) {
 
 
    
-        experimental_telemetry: {
-          isEnabled: true,
-          functionId: 'stream-text',
-        },
-        toolCallStreaming: true,
+        
       });
 
-      result.consumeStream();
 
-      
+      result.consumeStream();      
       result.mergeIntoDataStream(dataStream, {
         sendReasoning: true,
       });
     },
+    
+    /* -------- ERROR HANDLING -------- */
     onError: (error: unknown) => {
       console.error('THE MASSIVE Error in chat:', error);
       
