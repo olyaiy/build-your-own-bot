@@ -34,7 +34,6 @@ export function SearchSection({
 
 
   
-  const isToolLoading = state === 'call' || tool.state === 'call'
   const searchResults: TypeSearchResults =
     (state === 'result' || tool.state === 'result') ? 
     ('result' in tool ? tool.result : undefined) : undefined

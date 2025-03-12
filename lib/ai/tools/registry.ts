@@ -11,13 +11,12 @@ import { DataStreamWriter, Message } from 'ai';
 interface ToolRegistryProps {
   session?: Session;
   dataStream?: DataStreamWriter;
-  messages?: Array<Message>;
 }
 
-export const toolRegistry = ({ session, dataStream, messages }: ToolRegistryProps = {}) => ({
+export const toolRegistry = ({ session, dataStream }: ToolRegistryProps = {}) => ({
   getWeather,
-  createDocument: session && dataStream ? createDocument({ session, dataStream, messages }) : undefined,
-  updateDocument: session && dataStream ? updateDocument({ session, dataStream, messages }) : undefined,
+  createDocument: session && dataStream ? createDocument({ session, dataStream }) : undefined,
+  updateDocument: session && dataStream ? updateDocument({ session, dataStream }) : undefined,
   requestSuggestions: session && dataStream ? requestSuggestions({ session, dataStream }) : undefined,
   retrieveTool,
   searchTool,

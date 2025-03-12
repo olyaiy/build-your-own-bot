@@ -1,0 +1,116 @@
+Chat ID: 2be2166b-a005-4247-ad84-4ef8aaea6e19
+Date: 2025-03-12T20:33:30.064Z
+User ID: 09a76b0b-78a8-4d7e-9d9e-4ea3b09832d8
+
+[
+  {
+    "id": "4845ec16-2300-4dc5-862e-bdf86ff16938",
+    "createdAt": "2025-03-12T20:33:21.576Z",
+    "role": "user",
+    "content": "help me write an article about vancouver housing prices that is only one paragraph. only use the search tool max three times and retrieve tool max 3 times. use artifacts afterwards to write the paragraph",
+    "parts": [
+      {
+        "type": "text",
+        "text": "help me write an article about vancouver housing prices that is only one paragraph. only use the search tool max three times and retrieve tool max 3 times. use artifacts afterwards to write the paragraph"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "I'll help you write a one-paragraph article about Vancouver housing prices. I'll use the search tool to gather information and then create a concise paragraph for you.\n\nLet me start by searching for current information about Vancouver housing prices:"
+      },
+      {
+        "type": "tool-call",
+        "toolCallId": "toolu_0128grjE62Su4zyUcs4ZWAWq",
+        "toolName": "searchTool",
+        "args": {
+          "query": "Vancouver housing prices current trends 2025",
+          "max_results": 5,
+          "search_depth": "basic",
+          "include_domains": [],
+          "exclude_domains": []
+        }
+      }
+    ],
+    "id": "e0a4cd09-250f-4395-8a0e-f5c051d32d6b"
+  },
+  {
+    "role": "tool",
+    "id": "b47b3ae5-b624-4061-93ae-ce57061c4a57",
+    "content": [
+      {
+        "type": "tool-result",
+        "toolCallId": "toolu_0128grjE62Su4zyUcs4ZWAWq",
+        "toolName": "searchTool",
+        "result": {
+          "query": "Vancouver housing prices current trends 2025",
+          "follow_up_questions": null,
+          "answer": null,
+          "images": [
+            {
+              "url": "https://d3exkutavo4sli.cloudfront.net/wp-content/uploads/2018/01/Screen-Shot-2018-01-26-at-5.14.23-PM-1024x623.jpg",
+              "description": "The graph displays the residential average sale prices in Greater Vancouver from January 1977 to December 2017, showing a significant upward trend for detached homes, while condominiums, attached homes, and apartments exhibit comparatively lower growth."
+            },
+            {
+              "url": "https://images.squarespace-cdn.com/content/v1/5a171b1fbe42d6a948635e33/757da042-63a7-42f3-a719-737b6ca1f436/Real+Estate+Snapshots+-+Square+(17).jpg?format=1000w",
+              "description": "A risk assessment chart for the Vancouver property market highlights overall high risk, with notable concerns about significant market imbalance, price volatility, overvaluation, and an excess of new supply compared to historical trends."
+            },
+            {
+              "url": "https://cdn.canadianmortgagetrends.com/wp-content/uploads/2016/06/Vancouver-house-price-chart.png",
+              "description": "The graph illustrates the year-over-year change in Vancouver housing prices from 2009 to 2016, comparing the Teranet/National Bank Index and the CREA average price, showing fluctuations with peaks and troughs over the years."
+            },
+            {
+              "url": "https://www.noradarealestate.com/wp-content/uploads/2023/09/vancouver-housing-market.jpeg",
+              "description": "A circular aerial view showcases residential buildings with distinct rooftops, along with the text \"Vancouver Housing Market Report\" prominently displayed below."
+            },
+            {
+              "url": "https://s-i.huffpost.com/gen/4219186/original.jpg",
+              "description": "The chart illustrates Vancouver's house price projections from 2016 to 2026, showing anticipated growth in detached home prices, with linear growth estimated at $2.8 million and percentage growth potentially reaching $5.1 million."
+            }
+          ],
+          "results": [
+            {
+              "title": "Vancouver Housing Market 2025: Insights and Forecasts",
+              "url": "https://bestmortgageonline.ca/vancouver-housing-market/",
+              "content": "Examining the current key trends and statistics is essential to understanding the Vancouver housing market outlook for 2025. Vancouver Average Home Prices The average home price in Greater Vancouver was $1,275,672 in December 2024, representing a 2.5% increase from the previous year.",
+              "score": 0.92825955,
+              "raw_content": null
+            },
+            {
+              "title": "Vancouver Housing Market: Mar. 5th, 2025 Update - WOWA",
+              "url": "https://wowa.ca/vancouver-housing-market",
+              "content": "In January 2024, the benchmark price of homes in Metro Vancouver was $1,173,000, representing a 0.5% yearly increase and 0.1% monthly increase. Vancouver Housing Market: Price Movements for January 2025 Benchmark prices of detached houses in Vancouver rose 3.1% over the past year and 0.4% over the past month to reach $2,005,400 for January 2025. Vancouver has been a pricy housing market for many years, and its current benchmark price has increased by 13% over the past seven years, compared with the CPI inflation of 23% over the past seven years. This belief in perpetual home price appreciation gave mortgage rates a prominent role in determining the direction of the Canadian housing market.",
+              "score": 0.923268,
+              "raw_content": null
+            },
+            {
+              "title": "Vancouver Housing Market Report | March 2025 Real Estate Trends & Stats ...",
+              "url": "https://www.zolo.ca/vancouver-real-estate/trends",
+              "content": "Up-to-date real estate trends & stats for Vancouver. Research sales history, average house & condo prices, current listing inventory, and total active listings. ... Housing Market Report for March 2025. ... Media Inquiries press@zolo.ca. Vancouver Housing Prices. Current (Feb 06 - Mar 06) Past (Jan 09 - Feb 06) $1.4M. Avg sold price. 8.8%",
+              "score": 0.90039873,
+              "raw_content": null
+            },
+            {
+              "title": "Vancouver Housing Market | 2025 Home Prices - nesto.ca",
+              "url": "https://www.nesto.ca/home-buying/vancouver-housing-market-outlook/",
+              "content": "Mortgage Rates All mortgage rates All mortgage rates Vancouver mortgage rates ### What Is a Mortgage? The average selling price of a home in Vancouver increased by 0.4% year-over-year to $1,171,500 in December 2024. The average selling price of a single-family home in Vancouver increased by 1.9% year-over-year to $1,994,600 in December 2024. February 7, 2025: Today’s lowest mortgage rate in Vancouver is for a 5-year fixed. This robust finish capped what has been termed a “pivot year,” during which stabilizing prices and easing mortgage rates shaped market dynamics. Each $100,000 in mortgage balance costs an average of $533.64 per month on nesto’s lowest fixed 5-year rate at and $550.17 per month on nesto’s lowest adjustable 5-year rate at . Compare Vancouver Mortgage Rates next read Mortgage Rates Vancouver’s mortgage rates",
+              "score": 0.80625874,
+              "raw_content": null
+            },
+            {
+              "title": "Greater Vancouver Housing Market Outlook (2025) - RE/MAX Canada",
+              "url": "https://blog.remax.ca/vancouver-housing-market-outlook/",
+              "content": "The average sale price in the Greater Vancouver housing market has increased by 3.1 per cent year-over-year across all property types, between January 1 and July 31, 2024 (from $1,258,179 in 2023 to $1,309,596 in 2024). RE/MAX Canada anticipates healthy housing price growth at the national level, with move-up and move-over buyers continuing to drive activity in many regions across the Canadian housing market. Edmonton’s housing market quickly bounced back to pre-COVID levels in June, while Saskatoon experienced its busiest June in years; this momentum is anticipated to continue into the fall market, with  RE/MAX brokers and agents estimating a three-per-cent increase in average residential sale prices for the remainder of the year.",
+              "score": 0.69498676,
+              "raw_content": null
+            }
+          ],
+          "response_time": 1.44
+        }
+      }
+    ]
+  }
+]

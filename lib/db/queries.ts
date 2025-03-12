@@ -136,11 +136,9 @@ export async function getChatById({ id }: { id: string }) {
 export async function saveMessages({ 
   messages, 
   model_id,
-  user_id,
 }: { 
   messages: Array<Message>; 
   model_id?: string;
-  user_id?: string;
 }) {
   try {
     // Maps model_id to messages
@@ -150,22 +148,8 @@ export async function saveMessages({
       model_id: model_id || msg.model_id,
     }));
 
-  
-    // Use a transaction to ensure both operations are atomic
-    await db.transaction(async (tx) => {
-      // Upsert messages - insert or update if they already exist
-      await tx.insert(message)
-        .values(messagesToSave)
-        .onConflictDoUpdate({
-          target: message.id,
-          set: {
-            content: sql`EXCLUDED.content`,
-            role: sql`EXCLUDED.role`,
-            model_id: sql`EXCLUDED.model_id`,
-            // Note: we don't update chatId or createdAt as those should remain constant
-          }
-        });
-    });
+
+    await db.insert(message).values(messagesToSave);
     
     // Return the messages with their generated IDs
     return messagesToSave;
@@ -178,7 +162,11 @@ export async function saveMessages({
 export async function getMessagesByChatId({ id }: { id: string }) {
   try {
     // Will use the index on message.chatId
-    return await db.select().from(message).where(eq(message.chatId, id)).orderBy(asc(message.createdAt));
+    return await db
+      .select()
+      .from(message)
+      .where(eq(message.chatId, id))
+      .orderBy(asc(message.createdAt));
   } catch (error) {
     console.error('Failed to get messages by chat id from database');
     throw error;

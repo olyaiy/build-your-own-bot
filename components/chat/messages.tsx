@@ -1,12 +1,11 @@
 import { Message } from 'ai';
 import { PreviewMessage, ThinkingMessage } from '@/components/chat/message';
 import { useScrollToBottom } from '@/components/hooks/use-scroll-to-bottom';
-import { useState, useMemo, memo, useEffect } from 'react';
+import { useMemo, memo} from 'react';
 import { Vote } from '@/lib/db/schema';
 import equal from 'fast-deep-equal';
 import { Overview } from '../util/overview';
-import { ToolSection } from '../agent/tool-section';
-import type { Agent, AgentCustomization } from '@/lib/db/schema';
+import type { Agent } from '@/lib/db/schema';
 import { UseChatHelpers } from 'ai/react';
 
 /**
@@ -20,7 +19,6 @@ import { UseChatHelpers } from 'ai/react';
  * @property {boolean} isReadonly - Flag to prevent message interaction when true
  * @property {boolean} isArtifactVisible - Flag for artifact visibility that affects render optimization
  * @property {Array<any>} toolCallData - Optional array of tool invocation data
- * @property {Function} addToolResult - Function to add a tool result to the chat
  * @property {Object} customization - Optional customization object for agent style information
  */
 interface MessagesProps {
@@ -30,12 +28,9 @@ interface MessagesProps {
   messages: Array<Message>;
   setMessages: UseChatHelpers['setMessages'];
   reload: UseChatHelpers['reload'];
-
-
   isReadonly: boolean;
   isArtifactVisible: boolean;
   toolCallData?: Array<any>;
-  addToolResult?: (result: { toolCallId: string; result: string }) => void;
   agent: Agent;
 }
 
@@ -60,7 +55,6 @@ function PureMessages({
   reload,
   isReadonly,
   toolCallData,
-  addToolResult,
   agent,
 }: MessagesProps) {
 
@@ -69,10 +63,8 @@ function PureMessages({
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
   
-  // State to track open/closed state of tool sections
-  const [openStates, setOpenStates] = useState<Record<string, boolean>>({});
   
-  // Process the last tool data from the provided data array for conditional rendering
+  // Process the last tool data from the provided data array for conditional rendering of the "thinking..." message.
   const lastToolData = useMemo(() => {
     if (!toolCallData || !Array.isArray(toolCallData) || toolCallData.length === 0) return null;
 
@@ -92,16 +84,7 @@ function PureMessages({
     };
   }, [toolCallData]);
 
-  // Handler for tool section open state changes
-  const handleOpenChange = (id: string, open: boolean) => {
-    setOpenStates(prev => {
-      const newState = {
-        ...prev,
-        [id]: open
-      };
-      return newState;
-    });
-  };
+
 
 
   return (
@@ -118,11 +101,8 @@ function PureMessages({
           key={message.id}
           chatId={chatId}
           message={message}
-
           // Only show loading state on the last message when it's an AI response being generated
           isLoading={status === 'streaming' && messages.length - 1 === index}
-
-          
           // Find the vote for this specific message if votes exist
           vote={
             votes
@@ -141,21 +121,6 @@ function PureMessages({
         messages.length > 0 &&
         messages[messages.length - 1].role === 'user' && 
         !lastToolData && <ThinkingMessage />
-      }
-
-      {/* Show tool section when actively processing a tool call */}
-      {status === 'submitted' &&
-        messages.length > 0 &&
-        messages[messages.length - 1].role === 'user' && 
-        lastToolData && (
-          <ToolSection
-            tool={lastToolData}
-            isOpen={openStates[lastToolData.toolCallId] ?? true}
-            onOpenChange={(open) => handleOpenChange(lastToolData.toolCallId, open)}
-            isReadonly={isReadonly}
-            addToolResult={addToolResult}
-          />
-        )
       }
 
       {/* Empty div at the end for scroll targeting */}

@@ -58,6 +58,7 @@ export function generateUUID(): string {
   });
 }
 
+// ----- 1 ----- //
 function addToolMessageToChat({
   toolMessage,
   messages,
@@ -91,16 +92,20 @@ function addToolMessageToChat({
   });
 }
 
+
+// ----- 2 ----- //
 export function convertToUIMessages(
   messages: Array<DBMessage>,
 ): Array<ExtendedMessage> {
   return messages.reduce((chatMessages: Array<ExtendedMessage>, message) => {
+
     if (message.role === 'tool') {
       return addToolMessageToChat({
         toolMessage: message as CoreToolMessage,
         messages: chatMessages,
       });
     }
+
 
     let textContent = '';
     let reasoning: string | undefined = undefined;
@@ -201,6 +206,9 @@ export function sanitizeResponseMessages({
   );
 }
 
+
+
+// ----- 3 ----- //
 export function sanitizeUIMessages(messages: Array<Message>): Array<Message> {
   const messagesBySanitizedToolInvocations = messages.map((message) => {
     if (message.role !== 'assistant') return message;

@@ -16,8 +16,10 @@ interface ToolSectionProps {
   addToolResult?: (result: { toolCallId: string; result: string }) => void
 }
 
-export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false, addToolResult }: ToolSectionProps) {
+export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: ToolSectionProps) {
   const { toolName, state, args } = tool;
+  console.log('THE TOOL STATE FOR TOOL:', toolName, 'IS:', state);
+  console.log('THE TOOL IS:', tool);
   const [internalIsOpen, setInternalIsOpen] = useState(false);
 
   

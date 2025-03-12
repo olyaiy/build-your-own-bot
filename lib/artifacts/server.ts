@@ -2,11 +2,11 @@ import { codeDocumentHandler } from '@/artifacts/code/server';
 import { imageDocumentHandler } from '@/artifacts/image/server';
 import { sheetDocumentHandler } from '@/artifacts/sheet/server';
 import { textDocumentHandler } from '@/artifacts/text/server';
+import { ArtifactKind } from '@/components/artifact/artifact';
 import { DataStreamWriter } from 'ai';
 import { Document } from '../db/schema';
 import { saveDocument } from '../db/queries';
 import { Session } from 'next-auth';
-import { ArtifactKind } from '@/components/artifact/artifact';
 
 export interface SaveDocumentProps {
   id: string;

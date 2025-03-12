@@ -5,10 +5,7 @@ import cx from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useState, useEffect } from 'react';
 import Image from 'next/image';
-
 import type { Vote } from '@/lib/db/schema';
-
-
 import {
   CopyIcon,
   PencilEditIcon,
@@ -25,6 +22,7 @@ import { MessageEditor } from '@/components/chat/message-editor';
 import { MessageReasoning } from '@/components/chat/message-reasoning';
 import { PreviewAttachment } from '../util/preview-attachment';
 import { ToolSection } from '../agent/tool-section';
+import { CopyButton } from '@/components/util/copy-button';
 
 const ToolInvocationItem = memo(({ 
   toolInvocation, 
@@ -84,15 +82,6 @@ const PurePreviewMessage = ({
   isCompact?: boolean;
 }) => {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
-  const [copySuccess, setCopySuccess] = useState(false);
-
-  // Reset copy success state after a delay
-  useEffect(() => {
-    if (copySuccess) {
-      const timer = setTimeout(() => setCopySuccess(false), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [copySuccess]);
 
   // Process the message to extract content and reasoning from either format
   const processMessageContent = (message: Message) => {
@@ -123,46 +112,8 @@ const PurePreviewMessage = ({
     };
   };
 
-  // Create interleaved content items that represent the true chronological order
-  const createInterleavedContent = (message: Message) => {
-    const { content, reasoning } = processMessageContent(message);
-    const hasToolInvocations = message.toolInvocations && message.toolInvocations.length > 0;
-    
-    // If no tool invocations, just return the content
-    if (!hasToolInvocations) {
-      return {
-        reasoning,
-        contentItems: [{ type: 'text' as const, content: content as string }]
-      };
-    }
-    
-    // For now, assume we don't have positional information about where tools should appear in the content.
-    // So we'll display content followed by tools in the order they appear in the array.
-    // In a real implementation, you would need positional data or markers in the content.
-    const contentItems = [
-      { type: 'text' as const, content: content as string },
-      ...(message.toolInvocations || []).map(tool => ({ type: 'tool' as const, tool }))
-    ];
-    
-    return { reasoning, contentItems };
-  };
-
-  const { reasoning, contentItems } = createInterleavedContent(message);
-
-  // Function to copy message content to clipboard
-  const copyToClipboard = () => {
-    // Get the text content from contentItems
-    const textContent = contentItems
-      .filter(item => item.type === 'text')
-      .map(item => item.content)
-      .join('\n');
-    
-    if (textContent) {
-      navigator.clipboard.writeText(textContent)
-        .then(() => setCopySuccess(true))
-        .catch(err => console.error('Failed to copy text: ', err));
-    }
-  };
+  const { content, reasoning } = processMessageContent(message);
+  const hasToolInvocations = message.toolInvocations && message.toolInvocations.length > 0;
 
   return (
     <AnimatePresence>
@@ -224,56 +175,10 @@ const PurePreviewMessage = ({
             {/* Edit and Copy buttons for user messages */}
             {message.role === 'user' && !isReadonly && mode === 'view' && (
               <div className="flex justify-end gap-1">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100 relative"
-                      onClick={copyToClipboard}
-                      disabled={copySuccess}
-                    >
-                      <AnimatePresence mode="wait">
-                        {copySuccess ? (
-                          <motion.div
-                            key="check"
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.8, opacity: 0 }}
-                            transition={{ duration: 0.05 }}
-                            className="text-green-500"
-                          >
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M13.3334 4L6.00002 11.3333L2.66669 8"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </motion.div>
-                        ) : (
-                          <motion.div
-                            key="copy"
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.8, opacity: 0 }}
-                            transition={{ duration: 0.1 }}
-                          >
-                            <CopyIcon />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{copySuccess ? "Copied!" : "Copy message"}</TooltipContent>
-                </Tooltip>
+                <CopyButton 
+                  textToCopy={content as string} 
+                  className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100 relative"
+                />
                 
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -292,32 +197,21 @@ const PurePreviewMessage = ({
               </div>
             )}
 
-            {/* Chronologically ordered content and tool calls */}
-            {mode === 'view' && contentItems && contentItems.map((item, index) => (
-              <div key={index} >
-                {item.type === 'text' && item.content && (
-                  <div
-                    className={cn('flex flex-col gap-4', {
-                      'bg-primary text-primary-foreground px-3 ml-12 py-2 rounded-xl max-w-full':
-                        message.role === 'user',
-                    })}
-                  >
-                    <Markdown>{item.content}</Markdown>
-                  </div>
-                )}
-                
-                {item.type === 'tool' && (
-                  <ToolInvocationItem 
-                    key={item.tool.toolCallId} 
-                    toolInvocation={item.tool} 
-                    isReadonly={isReadonly} 
-                    isCompact={isCompact}
-                  />
-                )}
+            {/* Message content section */}
+            {(content || reasoning) && mode === 'view' && (
+              <div className="flex flex-row gap-2 items-start">
+                <div
+                  className={cn('flex flex-col gap-4', {
+                    'bg-primary text-primary-foreground px-3 ml-12 py-2 rounded-xl max-w-full':
+                      message.role === 'user',
+                  })}
+                >
+                  <Markdown>{content as string}</Markdown>
+                </div>
               </div>
-            ))}
+            )}
 
-            {mode === 'edit' && contentItems && contentItems.length > 0 && (
+            {mode === 'edit' && content && (
               <div className="flex flex-row gap-2 items-start">
                 <div className="size-8" />
 
@@ -325,12 +219,26 @@ const PurePreviewMessage = ({
                   key={message.id}
                   message={{
                     ...message,
-                    content: contentItems.find(item => item.type === 'text')?.content || ''
+                    content: content as string
                   }}
                   setMode={setMode}
                   setMessages={setMessages}
                   reload={reload}
                 />
+              </div>
+            )}
+
+            {/* Tool invocations section */}
+            {hasToolInvocations && (
+              <div className="flex flex-col gap-4">
+                {message.toolInvocations?.map((toolInvocation) => (
+                  <ToolInvocationItem 
+                    key={toolInvocation.toolCallId} 
+                    toolInvocation={toolInvocation} 
+                    isReadonly={isReadonly} 
+                    isCompact={isCompact}
+                  />
+                ))}
               </div>
             )}
 
@@ -366,22 +274,11 @@ export const PreviewMessage = memo(
     // Check for loading state changes
     if (prevProps.isLoading !== nextProps.isLoading) return false;
     
-    // Check for reasoning updates in both formats
-    const prevReasoning = prevProps.message.reasoning !== undefined;
-    const nextReasoning = nextProps.message.reasoning !== undefined;
-    if (prevReasoning !== nextReasoning) return false;
-    if (prevReasoning && nextReasoning && 
-        !equal(prevProps.message.reasoning, nextProps.message.reasoning)) return false;
+    // Check for reasoning updates - simplified check
+    if (prevProps.message.reasoning !== nextProps.message.reasoning) return false;
         
     // Check if compact mode changed
     if (prevProps.isCompact !== nextProps.isCompact) return false;
-    
-    // Check for parts array updates
-    const prevHasParts = Array.isArray(prevProps.message.parts);
-    const nextHasParts = Array.isArray(nextProps.message.parts);
-    if (prevHasParts !== nextHasParts) return false;
-    if (prevHasParts && nextHasParts && 
-        !equal(prevProps.message.parts, nextProps.message.parts)) return false;
     
     // Check if agentImageUrl changed
     if (prevProps.agentImageUrl !== nextProps.agentImageUrl) return false;
