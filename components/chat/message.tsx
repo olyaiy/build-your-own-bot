@@ -3,14 +3,14 @@
 import type { ChatRequestOptions, Message } from 'ai';
 import cx from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import Image from 'next/image';
 
 import type { Vote } from '@/lib/db/schema';
 
 
 import {
-
+  CopyIcon,
   PencilEditIcon,
   SparklesIcon,
 } from '@/components/util/icons';
@@ -84,6 +84,15 @@ const PurePreviewMessage = ({
   isCompact?: boolean;
 }) => {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  // Reset copy success state after a delay
+  useEffect(() => {
+    if (copySuccess) {
+      const timer = setTimeout(() => setCopySuccess(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [copySuccess]);
 
   // Process the message to extract content and reasoning from either format
   const processMessageContent = (message: Message) => {
@@ -139,7 +148,22 @@ const PurePreviewMessage = ({
   };
 
   const { reasoning, contentItems } = createInterleavedContent(message);
-console.log(isCompact)
+
+  // Function to copy message content to clipboard
+  const copyToClipboard = () => {
+    // Get the text content from contentItems
+    const textContent = contentItems
+      .filter(item => item.type === 'text')
+      .map(item => item.content)
+      .join('\n');
+    
+    if (textContent) {
+      navigator.clipboard.writeText(textContent)
+        .then(() => setCopySuccess(true))
+        .catch(err => console.error('Failed to copy text: ', err));
+    }
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -197,9 +221,60 @@ console.log(isCompact)
               />
             )}
 
-            {/* Edit button for user messages */}
+            {/* Edit and Copy buttons for user messages */}
             {message.role === 'user' && !isReadonly && mode === 'view' && (
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100 relative"
+                      onClick={copyToClipboard}
+                      disabled={copySuccess}
+                    >
+                      <AnimatePresence mode="wait">
+                        {copySuccess ? (
+                          <motion.div
+                            key="check"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ duration: 0.05 }}
+                            className="text-green-500"
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M13.3334 4L6.00002 11.3333L2.66669 8"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            key="copy"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ duration: 0.1 }}
+                          >
+                            <CopyIcon />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{copySuccess ? "Copied!" : "Copy message"}</TooltipContent>
+                </Tooltip>
+                
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
