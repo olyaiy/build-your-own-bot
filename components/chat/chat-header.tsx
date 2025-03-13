@@ -53,7 +53,7 @@ function PureChatHeader({
   );
 
   return (
-    <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2 z-50">
+    <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-4 gap-2 z-50">
       <SidebarToggle />
       
       {(!open || windowWidth < 768) && (
@@ -61,17 +61,17 @@ function PureChatHeader({
           <TooltipTrigger asChild>
             <Button
               variant="outline"
-              className="order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0"
+              className="h-10 w-10 md:h-9 md:w-fit flex-shrink-0 order-last md:order-1 ml-auto md:ml-0"
               onClick={() => {
                 router.push(`/${agentId}`);
                 router.refresh();
               }}
             >
-              <PlusIcon />
-              <span className="md:sr-only">New Chat</span>
+              <PlusIcon size={20} />
+              <span className="hidden md:inline-block md:ml-2">New Chat</span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>New Chat</TooltipContent>
+          <TooltipContent side="bottom">New Chat</TooltipContent>
         </Tooltip>
       )}
 
@@ -79,17 +79,17 @@ function PureChatHeader({
         <VisibilitySelector
           chatId={chatId}
           selectedVisibilityType={selectedVisibilityType}
-          className="order-1 md:order-3"
+          className="flex-shrink-0 md:order-2"
         />
       )}
 
       {!isReadonly && (
-        <div className="order-1 md:order-4 ml-auto">
+        <div className="flex-shrink-0  md:ml-0 md:order-3">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                className="flex items-center gap-2 h-8 px-3"
+                className="h-10 md:h-9 min-w-10 md:px-3 flex items-center justify-center gap-2"
                 asChild
               >
                 <Link href={`/agents/${agentId}/edit`} className="flex items-center gap-2">
@@ -118,7 +118,7 @@ function PureChatHeader({
                 </Link>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Agent Settings</TooltipContent>
+            <TooltipContent side="bottom">Agent Settings</TooltipContent>
           </Tooltip>
         </div>
       )}

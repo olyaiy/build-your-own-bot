@@ -491,14 +491,16 @@ function PureSendButton({
 }) {
   return (
     <Button
-      className="rounded-full p-1 sm:p-1.5 h-fit border dark:border-zinc-600"
+      className="rounded-full p-3 sm:p-1.5 h-fit border dark:border-zinc-600"
       onClick={(event) => {
         event.preventDefault();
         submitForm();
       }}
       disabled={input.length === 0 || uploadQueue.length > 0}
     >
-      <ArrowUpIcon size={14} />
+      <div className="sm:scale-[0.65]">
+        <ArrowUpIcon size={22} />
+      </div>
     </Button>
   );
 }
