@@ -45,10 +45,6 @@ export default async function Page(props: {
 
   const session = await auth();
   const messagesFromDb = await getMessagesByChatId({ id: chatId });
-  // const cookieStore = await cookies();
-  // const chatModelFromCookie = cookieStore.get('chat-model');
-
-  const ui_messages = convertToUIMessages(messagesFromDb)
 
 
 

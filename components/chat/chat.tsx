@@ -4,7 +4,7 @@ import type { Attachment, Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useState, useEffect } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
-import type { Agent, Vote, AgentCustomization } from '@/lib/db/schema';
+import type { Agent, Vote,   } from '@/lib/db/schema';
 import { useLocalStorage } from 'usehooks-ts';
 
 import { ChatHeader } from '@/components/chat/chat-header';
@@ -62,7 +62,6 @@ export function Chat({
     stop,
     reload,
     data: toolCallData,
-    addToolResult
   } = useChat({
     id,
     body: { 
@@ -79,14 +78,6 @@ export function Chat({
     generateId: generateUUID,
     onFinish: () => {
       mutate('/api/history');
-
-      fetch(`/api/chat/messages?chatId=${id}`)
-      .then(res => res.json())
-      .then(latestMessages => {
-        // Update the messages with token usage information
-        setMessages(convertToUIMessages(latestMessages));
-      });
-  
     },
     onError: (error) => {
       // Extract the error message or use a fallback
@@ -105,7 +96,7 @@ export function Chat({
     `/api/vote?chatId=${id}`,
     fetcher,
   );
-
+ 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
 
@@ -115,7 +106,6 @@ export function Chat({
     // We don't need to update the chat - next message will use the new model
   
   };
-
 
   return (
     <>
@@ -143,7 +133,6 @@ export function Chat({
             isReadonly={isReadonly}
             isArtifactVisible={isArtifactVisible}
             toolCallData={toolCallData}
-            addToolResult={addToolResult}
             agent={agent}
           />
         </div>

@@ -18,8 +18,6 @@ interface ToolSectionProps {
 
 export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: ToolSectionProps) {
   const { toolName, state, args } = tool;
-  console.log('THE TOOL STATE FOR TOOL:', toolName, 'IS:', state);
-  console.log('THE TOOL IS:', tool);
   const [internalIsOpen, setInternalIsOpen] = useState(false);
 
   
@@ -67,6 +65,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
           </ToolWrapper>
         );
       case 'searchTool':
+
         return (
           <ToolWrapper>
             <SearchSection 

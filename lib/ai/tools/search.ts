@@ -18,13 +18,6 @@ export const searchTool = tool({
     exclude_domains
   }) => {
 
-    console.log('🔍 SEARCH TOOL CALLED --------------------------------')
-
-    console.log('QUERY:', query)
-    console.log('MAX RESULTS:', max_results)
-    console.log('SEARCH DEPTH:', search_depth)
-    console.log('INCLUDE DOMAINS:', include_domains)
-    console.log('EXCLUDE DOMAINS:', exclude_domains)
 
     // Tavily API requires a minimum of 5 characters in the query
     const filledQuery =
@@ -49,10 +42,6 @@ export const searchTool = tool({
         number_of_results: 0
       }
     }
-
-    console.log('🔍 SEARCH TOOL COMPLETED --------------------------------')
-    console.log('SEARCH RESULT:', searchResult)
-    console.log('--------------------------------------------------------')
     return searchResult
   }
 })

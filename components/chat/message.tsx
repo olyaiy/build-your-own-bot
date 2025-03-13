@@ -123,6 +123,7 @@ const PurePreviewMessage = ({
         animate={{ y: 0, opacity: 1 }}
         data-role={message.role}
       >
+        
         <div
           className={cn(
             'flex gap-4 w-full group-data-[role=user]/message:ml-auto',
@@ -133,6 +134,7 @@ const PurePreviewMessage = ({
             },
           )}
         >
+          
           {message.role === 'assistant' && (
             <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background overflow-hidden relative">
               {agentImageUrl ? (
@@ -154,6 +156,7 @@ const PurePreviewMessage = ({
           <div className={cn("flex flex-col gap-4 w-full relative ", {
             "max-w-full": !isCompact,
           })}>
+            
             {message.experimental_attachments && (
               <div className="flex flex-row justify-end gap-2">
                 {message.experimental_attachments.map((attachment) => (
@@ -197,6 +200,8 @@ const PurePreviewMessage = ({
               </div>
             )}
 
+            
+
             {/* Message content section */}
             {(content || reasoning) && mode === 'view' && (
               <div className="flex flex-row gap-2 items-start">
@@ -211,6 +216,7 @@ const PurePreviewMessage = ({
               </div>
             )}
 
+            {/* Edit message section */}
             {mode === 'edit' && content && (
               <div className="flex flex-row gap-2 items-start">
                 <div className="size-8" />
@@ -228,8 +234,8 @@ const PurePreviewMessage = ({
               </div>
             )}
 
-            {/* Tool invocations section */}
-            {hasToolInvocations && (
+ {/* Tool invocations section */}
+ {hasToolInvocations && (
               <div className="flex flex-col gap-4">
                 {message.toolInvocations?.map((toolInvocation) => (
                   <ToolInvocationItem 
@@ -242,6 +248,9 @@ const PurePreviewMessage = ({
               </div>
             )}
 
+           
+
+            {/* Message actions section */}
             {!isReadonly && (
               <MessageActions
                 key={`action-${message.id}`}

@@ -35,8 +35,9 @@ export function SearchSection({
 
   
   const searchResults: TypeSearchResults =
-    (state === 'result' || tool.state === 'result') ? 
+    (state === 'result') ? 
     ('result' in tool ? tool.result : undefined) : undefined
+    
   const query = tool.args?.query as string | undefined
   const includeDomains = tool.args?.includeDomains as string[] | undefined
   const includeDomainsString = includeDomains
@@ -52,6 +53,10 @@ export function SearchSection({
   )
 
 
+  // console.log('🔍 SEARCH TOOL CALLED INSIDE TOOL SECTION UI -------------------------------- WITH STATE:', state)
+  // console.log('🔍 TOOL:', tool)
+  
+console.log('THE STATE FOR THIS TOOL CALL OF', tool.toolName, 'IS:', state)
   return (
     <CollapsibleMessage
       role="assistant"
@@ -73,11 +78,11 @@ export function SearchSection({
         )}
       {state !== 'result' ? (
         <SearchSkeleton />
-      ) : searchResults?.results ? (
+      ) : (
         <Section title="Sources">
           <SearchResults results={searchResults.results} />
         </Section>
-      ) : null}
+      )}
     </CollapsibleMessage>
   )
 }
