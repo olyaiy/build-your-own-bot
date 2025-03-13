@@ -11,8 +11,9 @@ export const config = {
      * - api/webhook (Stripe webhook endpoint)
      * - _next/static (static files)
      * - _next/image (image optimization files)
+     * - fonts/ (font files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api/webhook|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api/webhook|_next/static|_next/image|fonts|favicon.ico).*)',
   ],
 };
