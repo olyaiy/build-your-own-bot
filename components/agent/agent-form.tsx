@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
+import { useImageUpload } from "@/lib/hooks/useImageUpload";
 import { 
   AlertCircle, 
   Camera, 
@@ -101,8 +102,15 @@ interface AgentFormProps {
 
 export default function AgentForm({ mode, userId, models, toolGroups, tags, initialData }: AgentFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [imageUrl, setImageUrl] = useState<string | null>(initialData?.imageUrl || null);
-  const [isUploading, setIsUploading] = useState(false);
+  const {
+    imageUrl,
+    isUploading,
+    handleUpload,
+    resetImage,
+    setImageUrl
+  } = useImageUpload({
+    endpoint: '/api/files/upload'
+  });
   const [isDeletingImage, setIsDeletingImage] = useState(false);
   const [primaryModelId, setPrimaryModelId] = useState<string>(initialData?.modelId || "");
   const [alternateModelIds, setAlternateModelIds] = useState<string[]>(initialData?.alternateModelIds || []);
@@ -131,6 +139,13 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
   const router = useRouter();
   const systemPromptRef = useRef<HTMLTextAreaElement>(null);
 
+  // Initialize imageUrl from initialData if available
+  useEffect(() => {
+    if (initialData?.imageUrl) {
+      setImageUrl(initialData.imageUrl);
+    }
+  }, [initialData?.imageUrl, setImageUrl]);
+
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     accept: {
       'image/jpeg': [],
@@ -140,39 +155,12 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
     maxFiles: 1,
     onDrop: async (acceptedFiles) => {
       if (acceptedFiles.length > 0) {
-        await handleImageUpload(acceptedFiles[0]);
+        await handleUpload(acceptedFiles[0]);
       }
     },
     noClick: false,
     noKeyboard: false,
   });
-
-  const handleImageUpload = async (file: File) => {
-    setIsUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/files/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to upload image');
-      }
-
-      const data = await response.json();
-      setImageUrl(data.url);
-      toast.success('Image uploaded successfully');
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload image. Please try again.');
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   const handleDeleteImage = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the parent's onClick handler
@@ -183,7 +171,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
       setIsDeletingImage(true);
       try {
         await deleteAgentImage(initialData.id, imageUrl);
-        setImageUrl(null);
+        resetImage();
         toast.success("Image deleted successfully");
       } catch (error) {
         console.error('Delete image error:', error);
