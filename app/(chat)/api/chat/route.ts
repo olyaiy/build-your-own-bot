@@ -15,6 +15,7 @@ import {
   getToolGroupsByAgentId,
   getToolsByToolGroupId,
   getModelById,
+  recordTransaction,
 } from '@/lib/db/queries';
 import {
   generateUUID,
@@ -174,13 +175,16 @@ return new Response('No user message found', { status: 400 });
           toolCallStreaming: true,
 
         /* ---- ON FINISH ---- */
-        onFinish: async ({ response, reasoning }) => {
+        onFinish: async ({ response, reasoning, usage }) => {
           if (session.user?.id) {
             try {
               const sanitizedResponseMessages = sanitizeResponseMessages({
                 messages: response.messages,
                 reasoning,
               });
+
+
+         
 
               await saveMessages({
                 messages: sanitizedResponseMessages.map((message) => {
@@ -194,6 +198,24 @@ return new Response('No user message found', { status: 400 });
                   };
                 }),
               });
+
+                   // Instead of calculating cost here, use recordTransaction to track usage
+                   if (usage && modelDetails) {
+                    await recordTransaction({
+                      userId: session.user.id,
+                      type: 'usage',
+                      messageId: sanitizedResponseMessages[0]?.id,
+                      modelId: selectedModelId,
+                      costPerMillionInput: modelDetails.cost_per_million_input_tokens || '0',
+                      costPerMillionOutput: modelDetails.cost_per_million_output_tokens || '0',
+                      usage: {
+                        promptTokens: usage.promptTokens,
+                        completionTokens: usage.completionTokens
+                      }
+                    });
+                  }
+
+                  
             } catch (error) {
               console.error('Failed to save chat');
             }

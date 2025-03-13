@@ -1248,68 +1248,196 @@ export async function recordTransaction({
   messageId,
   tokenAmount,
   tokenType,
-  modelId
+  modelId,
+  // New parameters for cost calculation
+  costPerMillionInput,
+  costPerMillionOutput,
+  usage
 }: {
   userId: string;
-  amount: number;
+  amount?: number;
   type: 'usage' | 'purchase' | 'refund' | 'promotional' | 'adjustment';
   description?: string;
   messageId?: string;
   tokenAmount?: number;
   tokenType?: 'input' | 'output';
   modelId?: string;
+  // New parameter types
+  costPerMillionInput?: string;
+  costPerMillionOutput?: string;
+  usage?: { promptTokens?: number; completionTokens?: number };
 }) {
   try {
-    // Use a transaction to ensure both operations are atomic
-    const [transaction] = await db.transaction(async (tx) => {
-      // 1. Record the transaction
-      const [newTransaction] = await tx
-        .insert(userTransactions)
-        .values({
-          userId,
-          amount: amount.toString(), // Convert to string for numeric type
-          type,
-          description,
-          messageId,
-          tokenAmount,
-          tokenType,
-          modelId
-        })
-        .returning();
+    // Calculate amount if usage data and cost rates are provided
+    let calculatedAmount = amount;
+    let inputCost = 0;
+    let outputCost = 0;
+    
+    if (type === 'usage' && usage && (costPerMillionInput || costPerMillionOutput)) {
+      // Apply a 1.18 markup factor for business margin
+      const MARKUP_FACTOR = -1.18;
       
-      // 2. Update the user's credit balance
+      // Calculate input and output costs
+      inputCost = usage.promptTokens 
+        ? (((usage.promptTokens || 0) * parseFloat(costPerMillionInput || '0')) / 1000000) * MARKUP_FACTOR
+        : 0;
+        
+      outputCost = usage.completionTokens
+        ? (((usage.completionTokens || 0) * parseFloat(costPerMillionOutput || '0')) / 1000000) * MARKUP_FACTOR
+        : 0;
+
+      
+      // Total cost is the sum of input and output costs
+      calculatedAmount = inputCost + outputCost;
+    }
+    
+    if (calculatedAmount === undefined) {
+      throw new Error('Transaction amount is required or must be calculable from provided parameters');
+    }
+    
+    // Use a transaction to ensure both operations are atomic
+    const transactions = await db.transaction(async (tx) => {
+      const result = [];
+      
+      // For usage transactions with both input and output tokens, create two separate transactions
+      if (type === 'usage' && usage && usage.promptTokens && usage.completionTokens) {
+        // Create transaction for input tokens
+        const [inputTransaction] = await tx
+          .insert(userTransactions)
+          .values({
+            userId,
+            amount: inputCost.toString(), // Only the input cost
+            type,
+            description: description ? `${description} (Input)` : 'Token usage (Input)',
+            messageId,
+            tokenAmount: usage.promptTokens,
+            tokenType: 'input',
+            modelId
+          })
+          .returning();
+          
+        result.push(inputTransaction);
+        
+        // Create transaction for output tokens
+        const [outputTransaction] = await tx
+          .insert(userTransactions)
+          .values({
+            userId,
+            amount: outputCost.toString(), // Only the output cost
+            type,
+            description: description ? `${description} (Output)` : 'Token usage (Output)',
+            messageId,
+            tokenAmount: usage.completionTokens,
+            tokenType: 'output',
+            modelId
+          })
+          .returning();
+          
+        result.push(outputTransaction);
+      } else {
+        // For other transaction types or when only one token type exists, create a single transaction
+        const [newTransaction] = await tx
+          .insert(userTransactions)
+          .values({
+            userId,
+            amount: calculatedAmount.toString(), // Convert to string for numeric type
+            type,
+            description,
+            messageId,
+            tokenAmount: tokenAmount || (type === 'usage' ? (usage?.promptTokens || 0) + (usage?.completionTokens || 0) : undefined),
+            tokenType,
+            modelId
+          })
+          .returning();
+
+        result.push(newTransaction);
+      }
+      
+      // Update the user's credit balance with the total amount
       // For usage, refund, or adjustment types, we modify the credit balance
       if (type === 'usage') {
+        // Get current balance before update
+        const [userCredit] = await tx
+          .select({ balance: userCredits.credit_balance })
+          .from(userCredits)
+          .where(eq(userCredits.user_id, userId));
+
+        const currentBalance = userCredit?.balance || 0;
+        const newBalance = Number(currentBalance) + Number(calculatedAmount);
+
         // For usage transactions, reduce the credit balance
         await tx
           .update(userCredits)
           .set({
-            credit_balance: sql`${userCredits.credit_balance} + ${amount.toString()}`
+            credit_balance: sql`${userCredits.credit_balance} + ${calculatedAmount.toString()}`
           })
           .where(eq(userCredits.user_id, userId));
+
       } else if (type === 'purchase' || type === 'promotional') {
+        // Get current balance before update
+        const [userCredit] = await tx
+          .select({ 
+            balance: userCredits.credit_balance,
+            lifetime: userCredits.lifetime_credits 
+          })
+          .from(userCredits)
+          .where(eq(userCredits.user_id, userId));
+
+        const currentBalance = userCredit?.balance || 0;
+        const currentLifetime = userCredit?.lifetime || 0;
+        const newBalance = Number(currentBalance) + Number(calculatedAmount);
+        const newLifetime = Number(currentLifetime) + Number(calculatedAmount);
+
         // For purchase or promotional transactions, increase the credit balance
         await tx
           .update(userCredits)
           .set({
-            credit_balance: sql`${userCredits.credit_balance} + ${amount.toString()}`,
-            lifetime_credits: sql`${userCredits.lifetime_credits} + ${amount.toString()}`
+            credit_balance: sql`${userCredits.credit_balance} + ${calculatedAmount.toString()}`,
+            lifetime_credits: sql`${userCredits.lifetime_credits} + ${calculatedAmount.toString()}`
           })
           .where(eq(userCredits.user_id, userId));
+          
+        console.log('Updated user credits from', currentBalance, 'to', newBalance);
+        console.log('Updated lifetime credits from', currentLifetime, 'to', newLifetime);
       } else if (type === 'refund' || type === 'adjustment') {
+        // Get current balance before update
+        const [userCredit] = await tx
+          .select({ balance: userCredits.credit_balance })
+          .from(userCredits)
+          .where(eq(userCredits.user_id, userId));
+
+        const currentBalance = userCredit?.balance || 0;
+        const newBalance = Number(currentBalance) + Number(calculatedAmount);
+
         // For refund or adjustment transactions, modify based on amount sign
         await tx
           .update(userCredits)
           .set({
-            credit_balance: sql`${userCredits.credit_balance} + ${amount.toString()}`
+            credit_balance: sql`${userCredits.credit_balance} + ${calculatedAmount.toString()}`
           })
           .where(eq(userCredits.user_id, userId));
+          
+        console.log('Updated user credits from', currentBalance, 'to', newBalance);
       }
       
-      return [newTransaction];
+      return result;
     });
     
-    return transaction;
+    // Log transaction details
+    console.log('Transactions recorded:', transactions.map(transaction => ({
+      id: transaction.id,
+      userId,
+      type,
+      amount: transaction.amount,
+      description: transaction.description || 'No description',
+      tokenAmount: transaction.tokenAmount || 'N/A',
+      tokenType: transaction.tokenType || 'N/A',
+      modelId: transaction.modelId || 'N/A',
+      messageId: transaction.messageId || 'N/A',
+      timestamp: transaction.created_at
+    })));
+    
+    return transactions[0]; // Return the first transaction for backward compatibility
   } catch (error) {
     console.error('Failed to record transaction:', error);
     throw new Error('Failed to record transaction');
