@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from 'next-auth';
 
 // Set this to false to temporarily disable registrations
-const ENABLE_REGISTRATION = false;
+const ENABLE_REGISTRATION = true;
 
 export const authConfig = {
   pages: {

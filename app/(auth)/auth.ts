@@ -8,10 +8,10 @@ import { authConfig } from './auth.config';
 
 // Read registration status from environment variable
 // This allows enabling/disabling registration without code changes
-// Default to the value in auth.config.ts when env var is not set
-const ENABLE_REGISTRATION = process.env.ENABLE_REGISTRATION === 'true' 
-  ? true 
-  : false;
+// Default to true when env var is not set
+const ENABLE_REGISTRATION = process.env.ENABLE_REGISTRATION === 'false' 
+  ? false 
+  : true;
 
 interface ExtendedSession extends Session {
   user: User;
