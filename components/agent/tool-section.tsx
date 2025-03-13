@@ -7,6 +7,8 @@ import { RetrieveSection } from './retrieve-section'
 import { Weather } from '../util/weather'
 import { DocumentPreview } from '../document/document-preview'
 import { DocumentToolCall, DocumentToolResult } from '../document/document'
+import { skip } from 'node:test'
+import ImageGenerationSection from './image-generation-section'
 
 interface ToolSectionProps {
   tool: ToolInvocation
@@ -51,7 +53,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
         console.log('🔍 CREATE IMAGE TOOL CALLED INSIDE TOOL SECTION UI --------------------------------')
         console.log('🌐 TOOL STATE:', state)
         console.log('🔍 TOOL:', tool)
-        return <ToolWrapper>test</ToolWrapper>;
+        return  <ToolWrapper><ImageGenerationSection /></ToolWrapper>;
       case 'createDocument':
         return <ToolWrapper><DocumentPreview isReadonly={isReadonly} result={result} /></ToolWrapper>;
       case 'updateDocument':
