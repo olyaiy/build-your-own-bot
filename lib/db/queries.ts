@@ -1397,8 +1397,7 @@ export async function recordTransaction({
           })
           .where(eq(userCredits.user_id, userId));
           
-        console.log('Updated user credits from', currentBalance, 'to', newBalance);
-        console.log('Updated lifetime credits from', currentLifetime, 'to', newLifetime);
+
       } else if (type === 'refund' || type === 'adjustment') {
         // Get current balance before update
         const [userCredit] = await tx
@@ -1417,25 +1416,10 @@ export async function recordTransaction({
           })
           .where(eq(userCredits.user_id, userId));
           
-        console.log('Updated user credits from', currentBalance, 'to', newBalance);
       }
       
       return result;
     });
-    
-    // Log transaction details
-    console.log('Transactions recorded:', transactions.map(transaction => ({
-      id: transaction.id,
-      userId,
-      type,
-      amount: transaction.amount,
-      description: transaction.description || 'No description',
-      tokenAmount: transaction.tokenAmount || 'N/A',
-      tokenType: transaction.tokenType || 'N/A',
-      modelId: transaction.modelId || 'N/A',
-      messageId: transaction.messageId || 'N/A',
-      timestamp: transaction.created_at
-    })));
     
     return transactions[0]; // Return the first transaction for backward compatibility
   } catch (error) {

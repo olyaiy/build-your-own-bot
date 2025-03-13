@@ -7,7 +7,7 @@ import { retrieveTool } from './retrieve';
 import { searchTool } from './search';
 import { Session } from 'next-auth';
 import { DataStreamWriter, Message } from 'ai';
-
+import { createImage } from './generate-image';
 interface ToolRegistryProps {
   session?: Session;
   dataStream?: DataStreamWriter;
@@ -20,4 +20,5 @@ export const toolRegistry = ({ session, dataStream }: ToolRegistryProps = {}) =>
   requestSuggestions: session && dataStream ? requestSuggestions({ session, dataStream }) : undefined,
   retrieveTool,
   searchTool,
+  createImage,
 });
