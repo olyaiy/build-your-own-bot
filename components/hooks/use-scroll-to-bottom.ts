@@ -6,6 +6,7 @@ export function useScrollToBottom<T extends HTMLElement>(): [
 ] {
   const containerRef = useRef<T>(null);
   const endRef = useRef<T>(null);
+  const DEBUG = true; // Toggle logging
 
   useEffect(() => {
     const container = containerRef.current;
@@ -13,26 +14,57 @@ export function useScrollToBottom<T extends HTMLElement>(): [
 
     if (container && end) {
       const observer = new MutationObserver((mutations) => {
-        // Track mutation counts
-        let ignoredCount = 0;
-        let unignoredCount = 0;
-        const totalCount = mutations.length;
-        
-        // Enhanced logging for each mutation
-        mutations.forEach((mutation, index) => {
-          // Get detailed info about the target
-          const targetEl = mutation.target as HTMLElement;
-          const targetTag = targetEl.tagName?.toLowerCase() || 'unknown';
-          const targetId = targetEl.id ? `#${targetEl.id}` : '';
-          const targetClasses = typeof targetEl.className === 'string' ? targetEl.className.split(' ').join('.') : '';
-          const targetSelector = `${targetTag}${targetId}${targetClasses ? `.${targetClasses}` : ''}`;
-          
+        if (DEBUG) {
+          console.groupCollapsed(`📜 MutationObserver: ${mutations.length} mutations`);
+          console.log('Container:', container);
+          console.table(mutations.map(m => ({
+            type: m.type,
+            target: m.target.nodeName,
+            added: m.addedNodes.length,
+            removed: m.removedNodes.length,
+            attribute: m.attributeName || 'N/A'
+          })));
+        }
+
+        let shouldScroll = false;
+        let scrollReason = '';
+        let scrollElement: HTMLElement | null = null;
+
+        mutations.some(mutation => {
+          const logPrefix = `🔍 Mutation [${mutation.type}] on ${mutation.target.nodeName}:`;
+
+          // Detailed element analysis
+          const targetNode = mutation.target;
+          if (targetNode.nodeType !== Node.ELEMENT_NODE) {
+            // Handle text node case, perhaps skip or handle differently
+            // For example, check if it's a text node and if its parent is a copy button
+            return false;
+          }
+          const targetEl = targetNode as HTMLElement;
+          const elementInfo = {
+            tag: targetEl.tagName,
+            id: targetEl.id ? `#${targetEl.id}` : '',
+            classes: targetEl.className?.toString().split(' ').slice(0, 3).join(' ') || '',
+            dataAttrs: Array.from(targetEl.attributes || [])
+              .filter(attr => attr.name.startsWith('data-'))
+              .map(attr => attr.name)
+              .join(', ')
+          };
+
+          if (DEBUG) {
+            console.log(`${logPrefix}`, {
+              ...elementInfo,
+              textSnippet: targetEl.textContent?.slice(0, 40).replace(/\n/g, ' ') + '...',
+              parent: targetEl.parentElement?.tagName
+            });
+          }
+
           // Get DOM path (full hierarchy)
           const getDomPath = (el: HTMLElement): string => {
             const path: string[] = [];
             let currentEl: HTMLElement | null = el;
             
-            while (currentEl && currentEl !== document.body && path.length < 5) {
+            while (currentEl && currentEl !== document.body && path.length < 8) {
               const tag = currentEl.tagName?.toLowerCase() || 'unknown';
               const id = currentEl.id ? `#${currentEl.id}` : '';
               const classes = typeof currentEl.className === 'string' 
@@ -42,7 +74,7 @@ export function useScrollToBottom<T extends HTMLElement>(): [
               currentEl = currentEl.parentElement;
             }
             
-            return path.join(' > ');
+            return path.join(' → ');
           };
           
           // Detailed attribute change info
@@ -94,208 +126,143 @@ export function useScrollToBottom<T extends HTMLElement>(): [
           const componentInfo = ((): string => {
             let currentElement: Node | null = targetEl;
             while (currentElement && currentElement !== document.body) {
-              if (currentElement.nodeType === Node.ELEMENT_NODE && 
-                  (currentElement as HTMLElement).hasAttribute('data-component')) {
-                return (currentElement as HTMLElement).getAttribute('data-component') || '';
+              if (currentElement.nodeType === Node.ELEMENT_NODE) {
+                const el = currentElement as HTMLElement;
+                if (el.hasAttribute('data-component')) {
+                  return el.getAttribute('data-component') || '';
+                }
               }
               currentElement = currentElement.parentElement;
             }
             return '';
           })();
-        });
-        
-        // Check if any mutation is a significant content change that should trigger scrolling
-        let triggeringMutation: MutationRecord | null = null;
-        let triggeringReason = '';
-        
-        const shouldScroll = mutations.some(mutation => {
-          // Always trigger on text content changes
-          if (mutation.type === 'characterData') {
-            triggeringMutation = mutation;
-            const textContent = mutation.target.nodeType === Node.TEXT_NODE 
-              ? (mutation.target as Text).data?.substring(0, 20) 
-              : 'unknown text';
-            triggeringReason = `Text content changed: ${textContent}...`;
-            return true;
-          }
-          
-          // For childList mutations, check if it's a meaningful change
-          if (mutation.type === 'childList') {
-            // If elements are added or removed, it's likely a content change
-            if (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) {
-              // Verify it's not a tooltip or UI element
-              const isUIElement = (node: Node): boolean => {
-                if (node.nodeType !== Node.ELEMENT_NODE) return false;
-                
-                const element = node as HTMLElement;
-                
-                // Check the element and its children for UI patterns
-                const checkElement = (el: HTMLElement, depth = 0): boolean => {
-                  if (depth > 3) return false; // Limit recursion depth
-                  
-                  const className = el.className?.toString() || '';
-                  const tagName = el.tagName?.toLowerCase() || '';
-                  
-                  // UI component patterns (updated with avatar checks)
-                  const isUI = (
-                    className.includes('tooltip') ||
-                    className.includes('popover') ||
-                    className.includes('opacity-') ||
-                    className.includes('group-hover') ||
-                    className.includes('z-50') ||
-                    className.includes('carousel') ||
-                    className.includes('dialog') ||
-                    className.includes('object-cover') ||
-                    className.includes('object-contain') ||
-                    
-                    // Added check for avatar container patterns
-                    (className.includes('items-center') && className.includes('space-x-1')) ||
-                    el.querySelector('.h-4.w-4') || // Avatar image dimensions
-                    el.closest('[data-component="avatar"], [data-role="search-results"], [data-component="collapsible"]') || 
-                    el.hasAttribute('aria-describedby') ||
-                    el.hasAttribute('data-state') ||
-                    el.hasAttribute('data-side') ||
-                    
-                    // Radix UI specific patterns
-                    className.includes('data-[state=closed]') ||
-                    className.includes('data-[state=open]') ||
-                    className.includes('radix-collapsible') ||
-                    el.hasAttribute('data-radix-scroll-area-viewport') ||
-                    
-                    // Image handling
-                    (tagName === 'img' && (
-                      el.closest('[data-role="search-images"], [data-component="avatar"]') ||
-                      className.includes('aspect-square') // Favicons
-                    )) ||
-                    
-                    // Animation and layout
-                    className.includes('data-[state=open]') ||
-                    className.includes('data-[state=closed]') ||
-                    (className.includes('flex') && className.includes('justify-between')) ||
-                    
-                    // Collapsible animation artifacts
-                    (mutation.type === 'attributes' && 
-                     mutation.attributeName === 'style' &&
-                     el.hasAttribute('data-radix-collapsible-content')) ||
-                    
-                    // Specific avatar class patterns
-                    (className.includes('relative') && 
-                     className.includes('flex') && 
-                     className.includes('shrink-0') &&
-                     className.includes('overflow-hidden')) ||
-                    className.includes('rounded-full') ||
-                    (className.includes('h-4') && className.includes('w-4')) ||
-                    
-                    // Critical fix: Detect avatar fallback spans
-                    (tagName === 'span' && className === 'flex') ||
-                    
-                    // Avatar parent checks 
-                    (el.parentElement && typeof el.parentElement.className === 'string' && el.parentElement.className.includes('rounded-full')) ||
-                    
-                    // Detect avatar loading images
-                    (tagName === 'img' && className.includes('aspect-square')) ||
-                    
-                    // Detect search result containers
-                    el.closest('[class*="rounded-lg border"]') ||
-                    
-                    // Detect collapsible animation containers
-                    el.id?.startsWith('radix-:') ||
-                    className.includes('animate-collapse')
-                  );
-                  
-                  if (isUI) {
-                    return true;
-                  }
-                  
-                  // Check children recursively
-                  return Array.from(el.children).some(child => 
-                    checkElement(child as HTMLElement, depth + 1)
-                  );
-                };
 
-                return checkElement(element);
-              };
-
-              // Check if any added/removed node is NOT a UI element
-              const contentNodes = [...mutation.addedNodes, ...mutation.removedNodes].filter(
-                node => !isUIElement(node)
-              );
-              
-              if (contentNodes.length > 0) {
-                const node = contentNodes[0] as HTMLElement;
-                const nodeInfo = node.nodeType === Node.ELEMENT_NODE 
-                  ? (node as HTMLElement).tagName?.toLowerCase() + 
-                    (node.className && typeof node.className === 'string' 
-                      ? `.${node.className.split(' ')[0]}` : '')
-                  : node.nodeType === Node.TEXT_NODE 
-                    ? `text: "${(node as unknown as Text).data?.substring(0, 20)}..."` 
-                    : node.nodeType;
-                
-                // DOM path for the content node
-                const getNodePath = (n: Node): string => {
-                  if (n.nodeType !== Node.ELEMENT_NODE) return 'non-element';
-                  
-                  const el = n as HTMLElement;
-                  const path: string[] = [];
-                  let currentEl: HTMLElement | null = el;
-                  
-                  while (currentEl && currentEl !== document.body && path.length < 5) {
-                    const tag = currentEl.tagName?.toLowerCase() || 'unknown';
-                    const cls = typeof currentEl.className === 'string' 
-                      ? currentEl.className.split(' ')[0] 
-                      : '';
-                    path.unshift(`${tag}${cls ? `.${cls}` : ''}`);
-                    currentEl = currentEl.parentElement;
-                  }
-                  
-                  return path.join(' > ');
-                };
-                
-                const targetElement = mutation.target as HTMLElement;
-                triggeringMutation = mutation;
-                triggeringReason = `DOM ${mutation.addedNodes.length > 0 ? 'addition' : 'removal'} on ${targetElement.tagName?.toLowerCase()}.${typeof targetElement.className === 'string' ? targetElement.className.split(' ')[0] : ''}: ${nodeInfo} [Path: ${getNodePath(node)}]`;
-                unignoredCount++;
-                return true;
-              } else {
-                ignoredCount++;
-              }
-            } else {
-              ignoredCount++;
-            }
-          }
+          // Check if element is part of copy button component
+          const isCopyButton = (
+            // Match the copy button itself
+            (targetEl.nodeType === Node.ELEMENT_NODE && 
+             (targetEl as HTMLElement).closest('button')?.getAttribute('variant') === 'ghost') ||
+            // Match the AnimatePresence/motion divs
+            (elementInfo.classes.includes('text-green-500') || 
+             (targetEl.nodeType === Node.ELEMENT_NODE && targetEl.querySelector('.text-green-500'))) ||
+            (elementInfo.tag === 'svg' && 
+             targetEl.nodeType === Node.ELEMENT_NODE && 
+             (targetEl as HTMLElement).closest('button') !== null) ||
+            // Match tooltip elements
+            elementInfo.classes.includes('TooltipContent') ||
+            (targetEl.nodeType === Node.ELEMENT_NODE && 
+             (targetEl as HTMLElement).closest('[role="tooltip"]') !== null) ||
+            targetEl.textContent === "Copied!" || 
+            targetEl.textContent === "Copy" ||
+            // Match framer-motion elements
+            (targetEl.nodeType === Node.ELEMENT_NODE && 
+             (targetEl as HTMLElement).getAttribute('data-framer-component-type') !== null) ||
+            (elementInfo.classes.includes('motion') || 
+             (targetEl.nodeType === Node.ELEMENT_NODE && 
+              (targetEl as HTMLElement).closest('[style*="transform"]') !== null))
+          );
           
-          // Ignore attribute changes by default
-          if (mutation.type === 'attributes') {
-            ignoredCount++;
+          if (isCopyButton) {
+            if (DEBUG) console.log('🚫 Ignored copy button mutation:', elementInfo);
             return false;
           }
           
-          ignoredCount++;
-          return false;
-        });
-        
-        if (shouldScroll && triggeringMutation) {
-          // Log additional ancestry information
-          const triggerTarget = (triggeringMutation as MutationRecord).target as HTMLElement;
-          let ancestors = '';
-          let currentEl: HTMLElement | null = triggerTarget.parentElement;
-          let depth = 0;
-          while (currentEl && depth < 5) {
-            const tag = currentEl.tagName?.toLowerCase() || 'unknown';
-            const classes = typeof currentEl.className === 'string' 
-              ? currentEl.className.split(' ').slice(0, 3).join(' ') 
-              : '';
-            const dataAttrs = Array.from(currentEl.attributes || [])
-              .filter(attr => attr.name.startsWith('data-'))
-              .map(attr => `[${attr.name}]`)
-              .join('');
-            ancestors += `\n    ${depth+1}. ${tag}${classes ? `.${classes}` : ''}${dataAttrs}`;
-            currentEl = currentEl.parentElement;
-            depth++;
+          // UI component patterns (updated with avatar checks)
+          const isUI = (
+            elementInfo.classes.includes('tooltip') ||
+            elementInfo.classes.includes('popover') ||
+            elementInfo.classes.includes('opacity-') ||
+            elementInfo.classes.includes('group-hover') ||
+            elementInfo.classes.includes('z-50') ||
+            elementInfo.classes.includes('carousel') ||
+            elementInfo.classes.includes('dialog') ||
+            elementInfo.classes.includes('object-cover') ||
+            elementInfo.classes.includes('object-contain') ||
+            
+            // Added check for avatar container patterns
+            (elementInfo.classes.includes('items-center') && elementInfo.classes.includes('space-x-1')) ||
+            targetEl.querySelector('.h-4.w-4') || // Avatar image dimensions
+            targetEl.closest('[data-component="avatar"], [data-role="search-results"], [data-component="collapsible"]') || 
+            targetEl.hasAttribute('aria-describedby') ||
+            targetEl.hasAttribute('data-state') ||
+            targetEl.hasAttribute('data-side') ||
+            
+            // Radix UI specific patterns
+            elementInfo.classes.includes('data-[state=closed]') ||
+            elementInfo.classes.includes('data-[state=open]') ||
+            elementInfo.classes.includes('radix-collapsible') ||
+            targetEl.hasAttribute('data-radix-scroll-area-viewport') ||
+            
+            // Image handling
+            (elementInfo.tag === 'img' && (
+              targetEl.closest('[data-role="search-images"], [data-component="avatar"]') ||
+              elementInfo.classes.includes('aspect-square') // Favicons
+            )) ||
+            
+            // Animation and layout
+            elementInfo.classes.includes('data-[state=open]') ||
+            elementInfo.classes.includes('data-[state=closed]') ||
+            (elementInfo.classes.includes('flex') && elementInfo.classes.includes('justify-between')) ||
+            
+            // Collapsible animation artifacts
+            (mutation.type === 'attributes' && 
+             mutation.attributeName === 'style' &&
+             targetEl.hasAttribute('data-radix-collapsible-content')) ||
+            
+            // Specific avatar class patterns
+            (elementInfo.classes.includes('relative') && 
+             elementInfo.classes.includes('flex') && 
+             elementInfo.classes.includes('shrink-0') &&
+             elementInfo.classes.includes('overflow-hidden')) ||
+            elementInfo.classes.includes('rounded-full') ||
+            (elementInfo.classes.includes('h-4') && elementInfo.classes.includes('w-4')) ||
+            
+            // Critical fix: Detect avatar fallback spans
+            (elementInfo.tag === 'span' && elementInfo.classes === 'flex') ||
+            
+            // Avatar parent checks 
+            (targetEl.parentElement && typeof targetEl.parentElement.className === 'string' && targetEl.parentElement.className.includes('rounded-full')) ||
+            
+            // Detect avatar loading images
+            (elementInfo.tag === 'img' && elementInfo.classes.includes('aspect-square')) ||
+            
+            // Detect search result containers
+            targetEl.closest('[class*="rounded-lg border"]') ||
+            
+            // Detect collapsible animation containers
+            targetEl.id?.startsWith('radix-:') ||
+            elementInfo.classes.includes('animate-collapse')
+          );
+          
+          if (isUI) {
+            if (DEBUG) console.log('🚧 Ignored UI mutation:', elementInfo);
+            return false;
           }
-        
+          
+          shouldScroll = true;
+          scrollReason = `📢 Content change detected on ${elementInfo.tag}${elementInfo.id} (${elementInfo.classes})`;
+          scrollElement = targetEl;
+          if (DEBUG) {
+            console.log('💥 SCROLL TRIGGERED:', {
+              reason: scrollReason,
+              element: scrollElement,
+              mutationType: mutation.type,
+              addedNodes: mutation.addedNodes.length,
+              removedNodes: mutation.removedNodes.length
+            });
+          }
+          return true;
+        });
+
+        if (shouldScroll && scrollElement) {
+          if (DEBUG) {
+            console.log('🎯 Scrolling to bottom because:', scrollReason);
+            console.log('🔗 Element path:', getDomPath(scrollElement));
+          }
           end.scrollIntoView({ behavior: 'instant', block: 'end' });
         }
+
+        if (DEBUG) console.groupEnd();
       });
 
       observer.observe(container, {
@@ -311,3 +278,15 @@ export function useScrollToBottom<T extends HTMLElement>(): [
 
   return [containerRef, endRef];
 }
+
+// Helper function to get DOM path
+const getDomPath = (el: HTMLElement): string => {
+  const path: string[] = [];
+  let currentEl: HTMLElement | null = el;
+  while (currentEl && currentEl !== document.body && path.length < 8) {
+    const nodeInfo = `${currentEl.tagName}${currentEl.id ? `#${currentEl.id}` : ''}`;
+    path.unshift(nodeInfo);
+    currentEl = currentEl.parentElement;
+  }
+  return path.join(' → ');
+};
