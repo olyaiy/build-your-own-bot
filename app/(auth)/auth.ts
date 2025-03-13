@@ -6,6 +6,13 @@ import { getUser } from '@/lib/db/queries';
 
 import { authConfig } from './auth.config';
 
+// Read registration status from environment variable
+// This allows enabling/disabling registration without code changes
+// Default to the value in auth.config.ts when env var is not set
+const ENABLE_REGISTRATION = process.env.ENABLE_REGISTRATION === 'true' 
+  ? true 
+  : false;
+
 interface ExtendedSession extends Session {
   user: User;
 }
@@ -31,6 +38,41 @@ export const {
     }),
   ],
   callbacks: {
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user;
+      const isOnChat = nextUrl.pathname.startsWith('/');
+      const isOnRegister = nextUrl.pathname.startsWith('/register');
+      const isOnLogin = nextUrl.pathname.startsWith('/login');
+
+      if (isLoggedIn && (isOnLogin || isOnRegister)) {
+        return Response.redirect(new URL('/', nextUrl as unknown as URL));
+      }
+
+      // Handle registration page access based on our ENABLE_REGISTRATION variable
+      if (isOnRegister) {
+        if (ENABLE_REGISTRATION) {
+          return true; // Allow access to registration page if enabled
+        } else {
+          // Redirect to login page when registrations are disabled
+          return Response.redirect(new URL('/login', nextUrl as unknown as URL));
+        }
+      }
+
+      if (isOnLogin) {
+        return true; // Always allow access to login page
+      }
+
+      if (isOnChat) {
+        if (isLoggedIn) return true;
+        return false; // Redirect unauthenticated users to login page
+      }
+
+      if (isLoggedIn) {
+        return Response.redirect(new URL('/', nextUrl as unknown as URL));
+      }
+
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
