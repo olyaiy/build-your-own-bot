@@ -47,6 +47,11 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
     switch (toolName) {
       case 'getWeather':
         return <ToolWrapper><Weather weatherAtLocation={result} /></ToolWrapper>;
+      case 'createImage':
+        console.log('🔍 CREATE IMAGE TOOL CALLED INSIDE TOOL SECTION UI --------------------------------')
+        console.log('🌐 TOOL STATE:', state)
+        console.log('🔍 TOOL:', tool)
+        return <ToolWrapper>test</ToolWrapper>;
       case 'createDocument':
         return <ToolWrapper><DocumentPreview isReadonly={isReadonly} result={result} /></ToolWrapper>;
       case 'updateDocument':

@@ -6,38 +6,20 @@ export function useScrollToBottom<T extends HTMLElement>(): [
 ] {
   const containerRef = useRef<T>(null);
   const endRef = useRef<T>(null);
-  const DEBUG = true; // Toggle logging
-
+  
   useEffect(() => {
     const container = containerRef.current;
     const end = endRef.current;
 
     if (container && end) {
       const observer = new MutationObserver((mutations) => {
-        if (DEBUG) {
-          console.groupCollapsed(`📜 MutationObserver: ${mutations.length} mutations`);
-          console.log('Container:', container);
-          console.table(mutations.map(m => ({
-            type: m.type,
-            target: m.target.nodeName,
-            added: m.addedNodes.length,
-            removed: m.removedNodes.length,
-            attribute: m.attributeName || 'N/A'
-          })));
-        }
-
         let shouldScroll = false;
-        let scrollReason = '';
         let scrollElement: HTMLElement | null = null;
 
         mutations.some(mutation => {
-          const logPrefix = `🔍 Mutation [${mutation.type}] on ${mutation.target.nodeName}:`;
-
           // Detailed element analysis
           const targetNode = mutation.target;
           if (targetNode.nodeType !== Node.ELEMENT_NODE) {
-            // Handle text node case, perhaps skip or handle differently
-            // For example, check if it's a text node and if its parent is a copy button
             return false;
           }
           const targetEl = targetNode as HTMLElement;
@@ -50,92 +32,6 @@ export function useScrollToBottom<T extends HTMLElement>(): [
               .map(attr => attr.name)
               .join(', ')
           };
-
-          if (DEBUG) {
-            console.log(`${logPrefix}`, {
-              ...elementInfo,
-              textSnippet: targetEl.textContent?.slice(0, 40).replace(/\n/g, ' ') + '...',
-              parent: targetEl.parentElement?.tagName
-            });
-          }
-
-          // Get DOM path (full hierarchy)
-          const getDomPath = (el: HTMLElement): string => {
-            const path: string[] = [];
-            let currentEl: HTMLElement | null = el;
-            
-            while (currentEl && currentEl !== document.body && path.length < 8) {
-              const tag = currentEl.tagName?.toLowerCase() || 'unknown';
-              const id = currentEl.id ? `#${currentEl.id}` : '';
-              const classes = typeof currentEl.className === 'string' 
-                ? `.${currentEl.className.split(' ')[0]}` // Just first class for brevity
-                : '';
-              path.unshift(`${tag}${id}${classes}`);
-              currentEl = currentEl.parentElement;
-            }
-            
-            return path.join(' → ');
-          };
-          
-          // Detailed attribute change info
-          let attributeDetail = '';
-          if (mutation.type === 'attributes' && mutation.attributeName) {
-            const oldValue = mutation.oldValue || 'unknown';
-            const newValue = targetEl.getAttribute(mutation.attributeName) || 'unknown';
-            attributeDetail = ` (${mutation.attributeName}: "${oldValue}" → "${newValue}")`;
-          }
-          
-          // Detailed node info
-          const getNodeInfo = (node: Node): string => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              const el = node as HTMLElement;
-              const tag = el.tagName?.toLowerCase() || 'unknown';
-              const classes = typeof el.className === 'string' ? el.className.split(' ')[0] : '';
-              const nodeId = el.id ? `#${el.id}` : '';
-              const dataAttrs = Array.from(el.attributes || [])
-                .filter(attr => attr.name.startsWith('data-'))
-                .map(attr => `[${attr.name}="${attr.value}"]`)
-                .join('');
-              return `${tag}${nodeId}${classes ? `.${classes}` : ''}${dataAttrs}`;
-            } else if (node.nodeType === Node.TEXT_NODE) {
-              const text = (node as Text).data?.trim().substring(0, 20);
-              return text ? `"${text}${text.length > 20 ? '...' : ''}"` : 'empty text';
-            }
-            return `node-type-${node.nodeType}`;
-          };
-          
-          // Node addition/removal details
-          let nodeDetails = '';
-          if (mutation.type === 'childList') {
-            if (mutation.addedNodes.length) {
-              const addedDetails = Array.from(mutation.addedNodes)
-                .map(getNodeInfo)
-                .join(', ');
-              nodeDetails += ` Added: [${addedDetails}]`;
-            }
-            
-            if (mutation.removedNodes.length) {
-              const removedDetails = Array.from(mutation.removedNodes)
-                .map(getNodeInfo)
-                .join(', ');
-              nodeDetails += ` Removed: [${removedDetails}]`;
-            }
-          }
-          
-          // Get component information if available (by looking for data-component attribute)
-          const componentInfo = ((): string => {
-            let currentElement: Node | null = targetEl;
-            while (currentElement && currentElement !== document.body) {
-              if (currentElement.nodeType === Node.ELEMENT_NODE) {
-                const el = currentElement as HTMLElement;
-                if (el.hasAttribute('data-component')) {
-                  return el.getAttribute('data-component') || '';
-                }
-              }
-              currentElement = currentElement.parentElement;
-            }
-            return '';
-          })();
 
           // Check if element is part of copy button component
           const isCopyButton = (
@@ -163,7 +59,6 @@ export function useScrollToBottom<T extends HTMLElement>(): [
           );
           
           if (isCopyButton) {
-            if (DEBUG) console.log('🚫 Ignored copy button mutation:', elementInfo);
             return false;
           }
           
@@ -235,34 +130,17 @@ export function useScrollToBottom<T extends HTMLElement>(): [
           );
           
           if (isUI) {
-            if (DEBUG) console.log('🚧 Ignored UI mutation:', elementInfo);
             return false;
           }
           
           shouldScroll = true;
-          scrollReason = `📢 Content change detected on ${elementInfo.tag}${elementInfo.id} (${elementInfo.classes})`;
           scrollElement = targetEl;
-          if (DEBUG) {
-            console.log('💥 SCROLL TRIGGERED:', {
-              reason: scrollReason,
-              element: scrollElement,
-              mutationType: mutation.type,
-              addedNodes: mutation.addedNodes.length,
-              removedNodes: mutation.removedNodes.length
-            });
-          }
           return true;
         });
 
         if (shouldScroll && scrollElement) {
-          if (DEBUG) {
-            console.log('🎯 Scrolling to bottom because:', scrollReason);
-            console.log('🔗 Element path:', getDomPath(scrollElement));
-          }
           end.scrollIntoView({ behavior: 'instant', block: 'end' });
         }
-
-        if (DEBUG) console.groupEnd();
       });
 
       observer.observe(container, {
