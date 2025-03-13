@@ -10,11 +10,14 @@ import type { Metadata, ResolvingMetadata } from 'next';
 
 // Generate metadata for SEO based on agent information
 export async function generateMetadata(
-  { params }: { params: { agent: string } },
+  { params }: { params: Promise<{ agent: string }> },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
+  // Await params before accessing its properties
+  const { agent: agentId } = await params;
+  
   // Fetch agent data for SEO
-  const agentData = await getAgentWithAvailableModels(params.agent);
+  const agentData = await getAgentWithAvailableModels(agentId);
   
   // Fall back to default metadata if agent not found
   if (!agentData?.agent) {
