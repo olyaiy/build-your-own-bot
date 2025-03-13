@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export function CreateAgentCard() {
   return (
-    <div className="w-full">
+    <div className="w-full border rounded-lg aspect-square">
       <Link href="/agents/create">
         <Card className="h-full min-w-[240px] max-w-[400px] w-full mx-auto flex items-center justify-center p-4 hover:shadow-lg transition-shadow cursor-pointer group">
           <div className="flex flex-col items-center">
