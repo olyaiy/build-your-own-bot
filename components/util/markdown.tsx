@@ -20,6 +20,18 @@ const components: Partial<Components> = {
     
     return hasPre ? <>{children}</> : <p>{children}</p>;
   },
+  img: ({ node, children, ...props }) => {
+    return (
+      <div className="overflow-hidden rounded-lg">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          {...props}
+          className="max-w-full h-auto"
+          alt={props.alt || ''}
+        />
+      </div>
+    );
+  },
   ol: ({ node, children, ...props }) => {
     return (
       <ol className="list-decimal list-outside ml-4" {...props}>

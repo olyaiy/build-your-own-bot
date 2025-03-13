@@ -52,6 +52,7 @@ export const getReasoningInstructions = (modelId: string): string => {
   // Base reasoning instructions that work for all reasoning models
   const baseInstructions = `
   You are an AI assistant that helps users with complex reasoning tasks.
+  
   `;
 
   // Model-specific instructions
