@@ -61,6 +61,7 @@ import {
   PopoverTrigger 
 } from "@/components/ui/popover";
 import { Tag as TagType } from "@/lib/db/schema";
+import { AgentImageUploader } from "./agent-image-uploader";
 
 // Tag interface for dropdown selection
 interface TagInfo {
@@ -102,16 +103,7 @@ interface AgentFormProps {
 
 export default function AgentForm({ mode, userId, models, toolGroups, tags, initialData }: AgentFormProps) {
   const [isPending, startTransition] = useTransition();
-  const {
-    imageUrl,
-    isUploading,
-    handleUpload,
-    resetImage,
-    setImageUrl
-  } = useImageUpload({
-    endpoint: '/api/files/upload'
-  });
-  const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(initialData?.imageUrl || null);
   const [primaryModelId, setPrimaryModelId] = useState<string>(initialData?.modelId || "");
   const [alternateModelIds, setAlternateModelIds] = useState<string[]>(initialData?.alternateModelIds || []);
   const [selectedToolGroupIds, setSelectedToolGroupIds] = useState<string[]>(
@@ -138,49 +130,6 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
   });
   const router = useRouter();
   const systemPromptRef = useRef<HTMLTextAreaElement>(null);
-
-  // Initialize imageUrl from initialData if available
-  useEffect(() => {
-    if (initialData?.imageUrl) {
-      setImageUrl(initialData.imageUrl);
-    }
-  }, [initialData?.imageUrl, setImageUrl]);
-
-  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
-    accept: {
-      'image/jpeg': [],
-      'image/png': []
-    },
-    maxSize: 5 * 1024 * 1024, // 5MB
-    maxFiles: 1,
-    onDrop: async (acceptedFiles) => {
-      if (acceptedFiles.length > 0) {
-        await handleUpload(acceptedFiles[0]);
-      }
-    },
-    noClick: false,
-    noKeyboard: false,
-  });
-
-  const handleDeleteImage = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the parent's onClick handler
-    
-    if (!initialData?.id || !imageUrl) return;
-    
-    if (confirm("Are you sure you want to delete this image? This action cannot be undone.")) {
-      setIsDeletingImage(true);
-      try {
-        await deleteAgentImage(initialData.id, imageUrl);
-        resetImage();
-        toast.success("Image deleted successfully");
-      } catch (error) {
-        console.error('Delete image error:', error);
-        toast.error('Failed to delete image. Please try again.');
-      } finally {
-        setIsDeletingImage(false);
-      }
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -237,61 +186,6 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
     }
   }, [initialData?.systemPrompt]);
 
-  // Add this component for color scheme selection
-  const ColorSchemeSelector = () => {
-    return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="colorScheme" className="text-sm font-medium flex items-center gap-1.5">
-            Color Scheme
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <AlertCircle className="size-3.5 text-gray-400" />
-                </TooltipTrigger>
-                <TooltipContent side="right" className="max-w-[250px]">
-                  <p>Choose a color scheme to customize the appearance of your agent.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Label>
-        </div>
-        
-        <Select
-          value={colorSchemeId}
-          onValueChange={setColorSchemeId}
-        >
-          <SelectTrigger id="colorScheme" className="w-full">
-            <SelectValue placeholder="Select a color scheme" />
-          </SelectTrigger>
-          <SelectContent>
-            {colorSchemes.map((scheme) => (
-              <SelectItem key={scheme.id} value={scheme.id} className="flex items-center">
-                <div className="flex items-center gap-2">
-                  {scheme.primary === 'default' ? (
-                    <div className="size-4 rounded-full bg-gradient-to-tr from-gray-200 to-gray-400 border border-gray-300" />
-                  ) : (
-                    <div 
-                      className="size-4 rounded-full" 
-                      style={{ backgroundColor: scheme.primary[500] }}
-                    />
-                  )}
-                  <span>{scheme.name}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        
-        <div className="flex items-center gap-2 mt-2">
-          <Palette className="size-4 text-gray-500" />
-          <span className="text-xs text-gray-500">
-            Current: {colorSchemes.find(s => s.id === colorSchemeId)?.name || 'Default'}
-          </span>
-        </div>
-      </div>
-    );
-  };
 
   // Tag input change handler
   const handleTagInputChange = (value: string) => {
@@ -363,13 +257,6 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
                           startTransition(async () => {
                             try {
                               if (initialData?.id) {
-                                if (imageUrl) {
-                                  try {
-                                    await deleteAgentImage(initialData.id, imageUrl);
-                                  } catch (error) {
-                                    toast.error('Failed to delete image, but proceeding with agent deletion');
-                                  }
-                                }
                                 await deleteAgent(initialData.id);
                                 toast.success('Agent deleted successfully');
                                 router.push('/');
@@ -409,115 +296,13 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
         </CardHeader>
         <CardContent className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-6 gap-8">
-            {/* Image Upload Area with 4:3 aspect ratio - Enhanced */}
+            {/* Image Upload Area with 4:3 aspect ratio - Now using child component */}
             <div className="col-span-1 md:col-span-2">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium flex items-center gap-1.5">
-                    Agent Image
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <AlertCircle className="size-3.5 text-gray-400" />
-                        </TooltipTrigger>
-                        <TooltipContent side="right" className="max-w-[250px]">
-                          <p>A visual representation of your agent. Good images help users recognize and connect with your agent.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Label>
-                  {imageUrl && (
-                    <Badge variant="outline" className="text-xs font-normal text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900">
-                      Image Added
-                    </Badge>
-                  )}
-                </div>
-                
-                <div 
-                  className={`relative overflow-hidden transition-all duration-300 
-                  ${isDragActive ? 'ring-2 ring-primary ring-offset-2' : 'border border-gray-200 dark:border-gray-800 hover:border-primary/50'} 
-                  rounded-lg w-full aspect-[4/3] shadow-sm`}
-                >
-                  {isUploading ? (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900/80 backdrop-blur-sm">
-                      <Loader2 className="size-8 text-primary animate-spin" />
-                      <span className="mt-2 text-sm text-gray-600 dark:text-gray-300">Uploading...</span>
-                    </div>
-                  ) : imageUrl ? (
-                    <div className="group absolute inset-0 size-full">
-                      <Image 
-                        src={imageUrl} 
-                        alt="Agent profile" 
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        priority
-                        quality={90}
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <div className="flex flex-col gap-2">
-                          <Button 
-                            type="button" 
-                            variant="secondary"
-                            size="sm"
-                            className="shadow-lg"
-                            onClick={open}
-                          >
-                            <Camera className="size-4 mr-2" />
-                            Change
-                          </Button>
-                          
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="destructive"
-                            className="shadow-lg"
-                            onClick={handleDeleteImage}
-                            disabled={isDeletingImage}
-                          >
-                            {isDeletingImage ? 
-                              <Loader2 className="size-4 mr-2 animate-spin" /> : 
-                              <Trash2 className="size-4 mr-2" />
-                            }
-                            Remove
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div 
-                      {...getRootProps()} 
-                      className="absolute inset-0 flex flex-col items-center justify-center p-4 cursor-pointer bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-lg transition-colors duration-200 hover:border-primary/50 hover:bg-gray-100/50 dark:hover:bg-gray-800/30"
-                    >
-                      <input {...getInputProps()} id="agent-image" />
-                      <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800 mb-3">
-                        <ImageIcon className="size-8 text-gray-400 dark:text-gray-500" />
-                      </div>
-                      {isDragActive ? (
-                        <p className="text-sm font-medium text-center text-primary">Drop to upload</p>
-                      ) : (
-                        <>
-                          <p className="text-sm font-medium text-center text-gray-700 dark:text-gray-300 mb-1">
-                            Drag & drop or click to upload
-                          </p>
-                          <div className="flex items-center justify-center gap-1 mt-1 mb-2">
-                            <Badge variant="secondary" className="text-xs font-normal">PNG</Badge>
-                            <Badge variant="secondary" className="text-xs font-normal">JPG</Badge>
-                            <Badge variant="secondary" className="text-xs font-normal">5MB max</Badge>
-                          </div>
-                          <p className="text-xs text-center text-gray-500 dark:text-gray-400 px-4 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">
-                            Recommended: 800×600px (4:3)
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                  <InfoIcon className="size-3.5" />
-                  Images help users recognize and connect with your agent
-                </p>
-              </div>
+              <AgentImageUploader
+                imageUrl={imageUrl}
+                setImageUrl={setImageUrl}
+                agentId={initialData?.id}
+              />
             </div>
 
             {/* Right Column - Basic Information - Improved layout */}
@@ -604,9 +389,6 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
                       </SelectContent>
                     </Select>
                   </div>
-                  
-                  {/* Color Scheme Selector */}
-                  <ColorSchemeSelector />
                 </div>
               </div>
 
