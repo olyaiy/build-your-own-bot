@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -92,6 +92,48 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error('R2 upload error:', error);
       return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('Request processing error:', error);
+    return NextResponse.json(
+      { error: 'Failed to process request' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  const session = await auth();
+
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    // Get the filename from the URL search params
+    const { searchParams } = new URL(request.url);
+    const pathname = searchParams.get('pathname');
+
+    if (!pathname) {
+      return NextResponse.json({ error: 'No pathname provided' }, { status: 400 });
+    }
+
+    try {
+      // Delete the file from Cloudflare R2
+      const deleteCommand = new DeleteObjectCommand({
+        Bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME,
+        Key: pathname,
+      });
+
+      await s3Client.send(deleteCommand);
+
+      return NextResponse.json({
+        success: true,
+        message: 'File deleted successfully',
+      });
+    } catch (error) {
+      console.error('R2 delete error:', error);
+      return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
     }
   } catch (error) {
     console.error('Request processing error:', error);
