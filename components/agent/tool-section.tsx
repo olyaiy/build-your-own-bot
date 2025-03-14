@@ -53,7 +53,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
         console.log('🔍 CREATE IMAGE TOOL CALLED INSIDE TOOL SECTION UI --------------------------------')
         console.log('🌐 TOOL STATE:', state)
         console.log('🔍 TOOL:', tool)
-        return <ToolWrapper><ImageGenerationSection state={state} result={result} args={args} /></ToolWrapper>;
+        return <ToolWrapper><ImageGenerationSection tool={tool} /></ToolWrapper>;
       case 'createDocument':
         return <ToolWrapper><DocumentPreview isReadonly={isReadonly} result={result} /></ToolWrapper>;
       case 'updateDocument':
@@ -93,7 +93,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
     case 'getWeather':
       return <ToolWrapper><Weather /></ToolWrapper>;
     case 'createImage':
-      return <ToolWrapper><ImageGenerationSection state={state} args={args} /></ToolWrapper>;
+      return <ToolWrapper><ImageGenerationSection tool={tool} /></ToolWrapper>;
     case 'createDocument':
       return <ToolWrapper><DocumentPreview isReadonly={isReadonly} args={args} /></ToolWrapper>;
     case 'updateDocument':

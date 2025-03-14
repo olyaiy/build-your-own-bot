@@ -1,23 +1,42 @@
+'use client'
+
 import React, { useState } from 'react'
 import { Loader2, Download } from 'lucide-react'
 import Image from 'next/image'
 
-interface ImageGenerationSectionProps {
-  state?: string
+interface ImageTool {
+  state: string
+  toolCallId: string
+  toolName: string
+  args: {
+    prompt: string
+    n?: number
+  }
   result?: {
     url: string
     pathname: string
     contentType: string
+  } | {
+    url: string
+    pathname: string
+    contentType: string
   }[]
-  args?: {
-    prompt: string
-  }
 }
 
-const ImageGenerationSection = ({ state, result, args }: ImageGenerationSectionProps = {}) => {
-  const isGenerating = state !== 'result'
+interface ImageGenerationSectionProps {
+  tool?: ImageTool
+}
+
+const ImageGenerationSection = ({ tool }: ImageGenerationSectionProps = {}) => {
+  const isGenerating = tool?.state !== 'result'
   const [isHovering, setIsHovering] = useState(false)
-  const images = result || []
+  
+  // Handle both single result and array of results
+  const images = (() => {
+    if (!tool?.result) return []
+    if (Array.isArray(tool.result)) return tool.result
+    return [tool.result]
+  })()
 
   const getGridClass = (count: number) => {
     if (count <= 1) return 'grid-cols-1'
@@ -49,12 +68,13 @@ const ImageGenerationSection = ({ state, result, args }: ImageGenerationSectionP
   return (
     <div className="w-full max-w-full overflow-hidden">
       <div className="flex flex-col gap-2">
-        {args?.prompt && (
+        {tool?.args?.prompt && (
           <p className="text-sm text-muted-foreground">
-            Prompt: {args.prompt}
+            Prompt: {tool.args.prompt}
           </p>
         )}
         
+
         <div className={`grid ${getGridClass(images.length)} gap-4 w-full`}>
           {isGenerating ? (
             <div className="relative aspect-square w-full rounded-md overflow-hidden border border-border">
@@ -65,7 +85,7 @@ const ImageGenerationSection = ({ state, result, args }: ImageGenerationSectionP
           ) : images.length > 0 ? images.map((image, index) => (
             <div 
               key={index}
-              className="relative aspect-square w-full rounded-md overflow-hidden border border-border"
+              className={`relative aspect-square rounded-md overflow-hidden border border-border ${images.length === 1 ? 'w-full max-w-[50%]' : 'w-full'}`}
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
             >
@@ -73,7 +93,7 @@ const ImageGenerationSection = ({ state, result, args }: ImageGenerationSectionP
                 <>
                   <Image
                     src={image.url}
-                    alt={`${args?.prompt || "Generated image"} ${index + 1}`}
+                    alt={`${tool?.args?.prompt || "Generated image"} ${index + 1}`}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 400px"
