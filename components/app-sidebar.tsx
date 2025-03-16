@@ -72,7 +72,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
               </span>
             </Link>
           </div>
-          <Separator className="my-2 bg-primary/10   h-[1px] rounded-full" />
+          <Separator className="my-2 bg-primary/10   h-px rounded-full" />
         </SidebarMenu>
 
         <Tooltip>

@@ -47,7 +47,7 @@ export default function AgentFeaturesSection({
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      <Info className="size-3.5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent side="right" className="max-w-80">
                       <p>Allow the agent to generate and display artifacts like charts, code blocks, and other visual elements</p>

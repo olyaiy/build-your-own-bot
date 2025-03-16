@@ -184,7 +184,7 @@ export default function AgentSystemPromptSection({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    <Info className="size-3.5 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-80">
                   <p>The system prompt provides instructions to the AI model about how it should behave, what role it should adopt, and any specific guidelines it should follow.</p>

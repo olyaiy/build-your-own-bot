@@ -74,7 +74,7 @@ export default function AgentAppearanceSection({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                  <Info className="size-3.5 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-80">
                   <p>Control who can see and interact with your agent</p>
@@ -97,7 +97,7 @@ export default function AgentAppearanceSection({
                   </div>
                 )}
               </div>
-              <div className="mb-2 mt-2">
+              <div className="my-2">
                 <Lock className="size-8 text-amber-500" />
               </div>
               <h4 className="font-medium">Private</h4>
@@ -120,7 +120,7 @@ export default function AgentAppearanceSection({
                   </div>
                 )}
               </div>
-              <div className="mb-2 mt-2">
+              <div className="my-2">
                 <Link className="size-8 text-blue-500" />
               </div>
               <h4 className="font-medium">Invite Link</h4>
@@ -143,7 +143,7 @@ export default function AgentAppearanceSection({
                   </div>
                 )}
               </div>
-              <div className="mb-2 mt-2">
+              <div className="my-2">
                 <Globe className="size-8 text-green-500" />
               </div>
               <h4 className="font-medium">Public</h4>
@@ -164,7 +164,7 @@ export default function AgentAppearanceSection({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                  <Info className="size-3.5 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-80">
                   <p>Select a color scheme for your agent's interface</p>

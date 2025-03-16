@@ -65,7 +65,7 @@ export default function AgentBasicInfoSection({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    <Info className="size-3.5 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent side="right" className="max-w-80">
                     <p>This is the name users will see when interacting with your agent</p>
@@ -116,7 +116,7 @@ export default function AgentBasicInfoSection({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    <Info className="size-3.5 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent side="right" className="max-w-80">
                     <p>A brief description of what your agent does and how it can help users</p>

@@ -379,7 +379,7 @@ export default function AgentCustomizationSection({
                           {overviewCustomization.points.map((point, index) => (
                             <li key={index} className="flex items-start gap-2">
                               <CheckCircle2 className="size-4 text-primary mt-0.5" />
-                              <span>{point}</span>
+                              <span>{point || "I&apos;m here to help answer your questions"}</span>
                             </li>
                           ))}
                         </ul>
