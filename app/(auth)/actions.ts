@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-
+import { revalidatePath } from 'next/cache';
 import { createUser, getUser } from '@/lib/db/queries';
 
 import { signIn } from './auth';
@@ -30,6 +30,11 @@ export const login = async (
       password: validatedData.password,
       redirect: false,
     });
+
+    // Revalidate key paths to refresh data across the application
+    revalidatePath('/');
+    revalidatePath('/api/user');
+    revalidatePath('/api/history');
 
     return { status: 'success' };
   } catch (error) {
@@ -72,6 +77,11 @@ export const register = async (
       password: validatedData.password,
       redirect: false,
     });
+
+    // Revalidate key paths to refresh data across the application
+    revalidatePath('/');
+    revalidatePath('/api/user');
+    revalidatePath('/api/history');
 
     return { status: 'success' };
   } catch (error) {

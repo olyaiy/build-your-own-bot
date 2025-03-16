@@ -1,5 +1,3 @@
-import { MainHeader } from "@/components/layout/main-header";
-
 
 export default function AgentsLayout({
   children,
@@ -8,7 +6,6 @@ export default function AgentsLayout({
 }) {
   return (
     <div className="flex flex-col overflow-hidden ">
-      <MainHeader />
       <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );

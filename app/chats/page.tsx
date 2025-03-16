@@ -83,7 +83,6 @@ export default async function ChatsPage({
   
   return (
     <>
-    <MainHeader />
     <div className="container max-w-6xl py-2 mx-auto ">
       <div className="space-y-8 px-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">

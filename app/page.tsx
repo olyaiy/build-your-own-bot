@@ -8,7 +8,6 @@ export default function Page() {
 
     return (
         <>
-            <MainHeader/>
             <div className="container mx-auto p-4">
                 <Suspense fallback={<AgentListSkeleton />}>
                     <AgentContainer />

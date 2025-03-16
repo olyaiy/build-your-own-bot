@@ -61,7 +61,6 @@ export default async function ProfilePage() {
 
   return (
     <>
-    <MainHeader />
     <div className="container max-w-5xl mx-auto p-4">
       <div className="grid gap-8">
                         {/* Profile Card */}

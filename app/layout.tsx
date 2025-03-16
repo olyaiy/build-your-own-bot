@@ -10,6 +10,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { auth } from './(auth)/auth';
 import { ThemeProvider } from '@/components/util/theme-provider';
 import { Providers } from '@/components/providers';
+import { MainHeader } from '@/components/layout/main-header';
 
 export const experimental_ppr = true;
 
@@ -71,8 +72,10 @@ export default async function Layout({
           >
             <Toaster position="top-center" richColors />
             <SidebarProvider defaultOpen={!isCollapsed}>
+            
               <AppSidebar user={session?.user} />
               <div className="w-full">
+              <MainHeader />
                 {children}
               </div>
             </SidebarProvider>

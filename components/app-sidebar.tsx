@@ -19,8 +19,12 @@ import { SidebarUserNav } from './layout/sidebar-user-nav';
 import { cn } from '@/lib/utils';
 import { Separator } from '@radix-ui/react-separator';
 import { SidebarToggle } from './layout/sidebar-toggle';
+import useSWR from 'swr';
+import { Logo } from './logo';
 
-export function AppSidebar({ user }: { user: User | undefined | null }) {
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
+export function AppSidebar({ user: initialUser }: { user: User | undefined | null }) {
   const router = useRouter();
   const { setOpenMobile } = useSidebar();
   const params = useParams();
@@ -28,6 +32,16 @@ export function AppSidebar({ user }: { user: User | undefined | null }) {
   const agentId = params.agent ?? 'fb4a1d96-bd42-46cb-a153-4aac537f3720';
   const chatId = params['chat-id'] as string | undefined;
   const isHistoryPage = pathname === '/chats';
+
+  // Use SWR to fetch and keep user data updated
+  const { data: userData } = useSWR<User | null>('/api/user', fetcher, {
+    fallbackData: initialUser || null,
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true,
+  });
+
+  // Use the SWR data or fall back to the initial user prop
+  const user = userData || initialUser;
 
   // Function to handle the new chat button click
   const handleNewChatClick = () => {
@@ -59,18 +73,8 @@ export function AppSidebar({ user }: { user: User | undefined | null }) {
           <div className="absolute top-4 right-2 aspect-square">
             <SidebarToggle />
           </div>
-          <div className="flex  my-2 flex-row justify-between items-center">
-            <Link
-              href="/"
-              onClick={() => {
-                setOpenMobile(false);
-              }}
-              className="flex flex-row gap-2 items-center"
-            >
-              <span className="text-2xl font-semibold px-2  rounded-md cursor-pointer">
-                Agent Place
-              </span>
-            </Link>
+          <div className="flex my-2 flex-row justify-between items-center">
+            <Logo />
           </div>
           <Separator className="my-2 bg-primary/10   h-px rounded-full" />
         </SidebarMenu>

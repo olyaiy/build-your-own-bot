@@ -7,7 +7,6 @@ export default function MarketingLayout({
 }) {
     return (
         <>
-        <MainHeader />
             {children}
         </>
     );

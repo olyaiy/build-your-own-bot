@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect, useActionState, FormEvent, startTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, FormEvent } from 'react';
 import { toast } from 'sonner';
-import { useLocalStorage } from 'usehooks-ts';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SubmitButton } from '@/components/util/submit-button';
@@ -19,75 +17,56 @@ export function AuthPopup({ isOpen, onOpenChange, onSuccess }: AuthPopupProps) {
 
   const [activeTab, setActiveTab] = useState<string>('login');
   const [email, setEmail] = useState('');
+
   const [isLoginSuccessful, setIsLoginSuccessful] = useState(false);
 
-
-
-  // Login state
-  const [loginState, loginAction] = useActionState<LoginActionState, FormData>(
-    login,
-    { status: 'idle' }
-  );
-
-  // Register state
-  const [registerState, registerAction] = useActionState<RegisterActionState, FormData>(
-    register,
-    { status: 'idle' }
-  );
-
   // Handle login form submission
-  const handleLoginSubmit = (formData: FormData) => {
-    setEmail(formData.get('email') as string);
-    // Wrap action call in startTransition
-    startTransition(() => {
-      loginAction(formData);
-    });
+  const handleLoginSubmit = async (formData: FormData) => {
+    try {
+      setEmail(formData.get('email') as string);
+      
+      // Create initial state object
+      const initialState: LoginActionState = { status: 'idle' };
+      const result = await login(initialState, formData);
+      
+      if (result.status === 'success') {
+        setIsLoginSuccessful(true);
+        toast.success('Login successful');
+        if (onSuccess) onSuccess();
+      } else if (result.status === 'invalid_data') {
+        toast.error('Failed validating your submission!');
+      } else {
+        toast.error('Invalid credentials!');
+      }
+    } catch (error) {
+      toast.error('Failed to login');
+    } 
   };
 
   // Handle register form submission
-  const handleRegisterSubmit = (formData: FormData) => {
-    setEmail(formData.get('email') as string);
-    // Wrap action call in startTransition
-    startTransition(() => {
-      registerAction(formData);
-    });
-  };
-
-  // Handle login state changes
-  useEffect(() => {
-    if (loginState.status === 'failed') {
-      toast.error('Invalid credentials!');
-    } else if (loginState.status === 'invalid_data') {
-      toast.error('Failed validating your submission!');
-    } else if (loginState.status === 'success') {
-      setIsLoginSuccessful(true);
-      if (onSuccess) {
-        console.log('MADE IT TO THE ONSUCCESS FOR LOGIN');
-        console.log('LOGIN STATE:', loginState);
-
-        setTimeout(() => {
-          onSuccess();
-          onOpenChange(false);
-          // Do NOT refresh the router or reload the page
-        }, 1000);
+  const handleRegisterSubmit = async (formData: FormData) => {
+    try {
+      setEmail(formData.get('email') as string);
+      
+      // Create initial state object
+      const initialState: RegisterActionState = { status: 'idle' };
+      const result = await register(initialState, formData);
+      
+      if (result.status === 'success') {
+        toast.success('Account created successfully');
+        setActiveTab('login');
+      } else if (result.status === 'user_exists') {
+        toast.error('Account already exists');
+        setActiveTab('login');
+      } else if (result.status === 'invalid_data') {
+        toast.error('Failed validating your submission!');
+      } else {
+        toast.error('Failed to create account');
       }
-    }
-  }, [loginState.status, onSuccess, onOpenChange]);
-
-  // Handle register state changes
-  useEffect(() => {
-    if (registerState.status === 'user_exists') {
-      toast.error('Account already exists');
-      setActiveTab('login');
-    } else if (registerState.status === 'failed') {
-      toast.error('Failed to create account');
-    } else if (registerState.status === 'invalid_data') {
-      toast.error('Failed validating your submission!');
-    } else if (registerState.status === 'success') {
-      toast.success('Account created successfully');
-   
-    }
-  }, [registerState.status, onSuccess, onOpenChange]);
+    } catch (error) {
+      toast.error('Failed to register');
+    } 
+  };
 
   // Custom form submission to prevent page reload
   const handleFormSubmission = (e: FormEvent, tab: 'login' | 'register') => {

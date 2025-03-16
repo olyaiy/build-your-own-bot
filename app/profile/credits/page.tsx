@@ -63,7 +63,6 @@ export default async function BuyCreditsPage({
 
   return (
     <>
-      <MainHeader />
       <div className="container max-w-6xl p-4 sm:px-6">
         <div className="mb-2">
           <Link href="/profile" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
