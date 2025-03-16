@@ -1,5 +1,7 @@
-import { Twitter, Mail, MessageSquare } from "lucide-react";
+import { Twitter, Mail, MessageSquare, ArrowRight, ChevronDown } from "lucide-react";
 import ContactForm from "@/components/contact/contact-form";
+import ContactOptions from "@/components/contact/contact-options";
+import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: 'Contact - Build Your Own Bot',
@@ -8,125 +10,110 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/80">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-b from-primary/5 to-background pt-20 pb-12">
-        <div className="container max-w-4xl text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
-            Get in Touch
+    <div className="min-h-screen">
+      {/* Hero Section with improved visual design */}
+      <section className="relative pt-24 pb-16 overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/5 blur-3xl"></div>
+          <div className="absolute top-60 -left-20 w-60 h-60 rounded-full bg-primary/10 blur-3xl"></div>
+        </div>
+        
+        <div className="container relative z-10 max-w-4xl text-center mx-auto">
+          <div className="inline-block px-3 py-1 mb-6 text-sm font-medium rounded-full bg-primary/10 text-primary">
+            We'd love to hear from you
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+            Need to{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+               Contact {" "}
+            </span>
+            me?
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Have questions or want to learn more about Build Your Own Bot? Choose how you'd like to reach out.
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
+            I'd love to chat anytime.
+          </p>
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-8">
+            Feel free to checkout our <a href="/faq" className="text-primary hover:underline">FAQ</a> or contact me using one of the three ways below
           </p>
         </div>
-      </div>
+      </section>
       
-      <div className="container max-w-5xl py-12 px-4">
-        {/* Contact Options */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          {/* Option 1: X/Twitter */}
-          <a 
-            href="https://x.com/alexfromvan" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="block bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-all hover:border-primary/20 group hover:bg-card/90 cursor-pointer"
-          >
-            <div className="mb-4 flex justify-center">
-              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/20 group-hover:border-primary transition-colors">
-                <img 
-                  src="https://unavatar.io/x/alexfromvan" 
-                  alt="Alex on X" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-            <h3 className="text-xl font-semibold text-center mb-2">Message on X</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Reach out directly to our founder Alex on X for quick responses.
-            </p>
-            <div className="flex justify-center">
-              <span 
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-black text-white group-hover:bg-black/90 transition-colors"
-              >
-                <Twitter size={18} />
-                <span>Message @alexfromvan</span>
-              </span>
-            </div>
-          </a>
-          
-          {/* Option 2: Contact Form */}
-          <div className="bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-all hover:border-primary/20 group">
-            <div className="mb-4 flex justify-center text-primary/80 group-hover:text-primary transition-colors">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <MessageSquare size={32} />
-              </div>
-            </div>
-            <h3 className="text-xl font-semibold text-center mb-2">Leave a Message</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Fill out our contact form and we'll get back to you as soon as possible.
-            </p>
-            <div className="flex justify-center">
-              <a 
-                href="#contact-form" 
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                <span>Go to Form</span>
-              </a>
-            </div>
-          </div>
-          
-          {/* Option 3: Email */}
-          <div className="bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-all hover:border-primary/20 group">
-            <div className="mb-4 flex justify-center text-primary/80 group-hover:text-primary transition-colors">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Mail size={32} />
-              </div>
-            </div>
-            <h3 className="text-xl font-semibold text-center mb-2">Send an Email</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Email our founder directly for business inquiries or partnerships.
-            </p>
-            <div className="flex justify-center">
-              <a 
-                href="mailto:alex@buildyourownbot.com" 
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-              >
-                <Mail size={18} />
-                <span>alex@buildyourownbot.com</span>
-              </a>
-            </div>
-          </div>
-        </div>
-        
-        {/* Contact Form Section */}
-        <div id="contact-form" className="scroll-mt-20">
-          <div className="max-w-3xl mx-auto bg-card rounded-xl p-8 shadow-sm border border-border">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <MessageSquare size={20} />
-              </div>
-              <h2 className="text-2xl font-semibold">Send us a message</h2>
-            </div>
+      <ContactOptions />
+      
+      {/* Contact Form Section with improved visual design */}
+      <section id="contact-form" className="py-16 bg-muted/30 scroll-mt-16">
+        <div className="container max-w-6xl px-4 mx-auto">
+          <div className="relative">
+            {/* Decorative elements */}
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary/5 blur-2xl -z-10"></div>
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-primary/5 blur-2xl -z-10"></div>
             
-            <ContactForm />
+            {/* Content with two columns on desktop */}
+            <div className="bg-card rounded-2xl shadow-lg border border-border overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-5">
+                {/* Form Column */}
+                <div className="p-8 md:p-12 col-span-3">
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <MessageSquare size={20} />
+                    </div>
+                    <h2 className="text-2xl font-semibold">Send us a message</h2>
+                  </div>
+                  
+                  <ContactForm />
+                </div>
+                
+                {/* Info Column */}
+                <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-8 md:p-12 col-span-2 flex flex-col">
+                  <div className="mb-8">
+                    <h3 className="text-lg font-medium mb-2">Contact Information</h3>
+                    <p className="text-muted-foreground mb-6">
+                      We're here to help and answer any questions you might have. We look forward to hearing from you.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-6 mb-auto">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                        <Mail size={18} />
+                      </div>
+                      <div>
+                        <h4 className="font-medium mb-1">Email</h4>
+                        <a href="mailto:emailalexan@protonmail.com" className="text-muted-foreground hover:text-primary transition-colors">
+                        emailalexan@protonmail.com
+                        </a>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                        <Twitter size={18} />
+                      </div>
+                      <div>
+                        <h4 className="font-medium mb-1">X / Twitter</h4>
+                        <a href="https://x.com/alexfromvan" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                          @alexfromvan
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-8 pt-8 border-t border-border/50">
+                    <h4 className="font-medium mb-3">Common questions?</h4>
+                    <Button variant="outline" className="w-full justify-between group" asChild>
+                      <a href="/faq">
+                        Visit our FAQ Page
+                        <ArrowRight size={14} className="ml-2 transition-transform group-hover:translate-x-1" />
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        
-        {/* FAQ Redirect */}
-        <div className="mt-16 text-center">
-          <div className="inline-block bg-muted/30 rounded-xl p-6">
-            <p className="text-muted-foreground mb-3">
-              Looking for quick answers to common questions?
-            </p>
-            <a 
-              href="/faq" 
-              className="inline-flex items-center justify-center px-6 py-2.5 font-medium text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors"
-            >
-              Visit our FAQ Page
-            </a>
-          </div>
-        </div>
-      </div>
+      </section>
     </div>
   );
 } 

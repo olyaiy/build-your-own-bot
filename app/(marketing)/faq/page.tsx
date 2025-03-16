@@ -13,7 +13,7 @@ export default function FAQPage() {
     <>
       {/* Hero Section */}
       <div className="bg-gradient-to-b from-primary/10 to-background pt-16 pb-12">
-        <div className="container max-w-4xl text-center">
+        <div className="container max-w-4xl text-center mx-auto">
           <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
             Frequently Asked Questions
           </h1>
@@ -23,7 +23,7 @@ export default function FAQPage() {
         </div>
       </div>
       
-      <div className="container max-w-5xl py-12 px-4">
+      <div className="container max-w-5xl py-12 px-4 mx-auto">
         {/* Search Component */}
         <div className="mb-12">
           <SearchFAQ />

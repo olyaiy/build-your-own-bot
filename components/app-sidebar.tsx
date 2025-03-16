@@ -56,7 +56,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
     <Sidebar className="group-data-[side=left]:border-r-0">
       <SidebarHeader className="p-2">
         <SidebarMenu>
-          <div className="absolute top-2 right-2 aspect-square">
+          <div className="absolute top-4 right-2 aspect-square">
             <SidebarToggle />
           </div>
           <div className="flex  my-2 flex-row justify-between items-center">
