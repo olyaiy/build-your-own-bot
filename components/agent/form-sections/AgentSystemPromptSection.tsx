@@ -104,14 +104,14 @@ export default function AgentSystemPromptSection({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <BrainCircuit className="h-4 w-4 text-primary" />
+            <BrainCircuit className="size-4 text-primary" />
             System Prompt
             <span className="text-red-500">*</span>
           </CardTitle>
           <Popover open={showTemplates} onOpenChange={onShowTemplatesChange}>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-1.5">
-                <Wand2 className="h-3.5 w-3.5" />
+                <Wand2 className="size-3.5" />
                 Templates
               </Button>
             </PopoverTrigger>
@@ -135,13 +135,13 @@ export default function AgentSystemPromptSection({
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-6 w-6"
+                            className="size-6"
                             onClick={() => onTemplateCopy(template.content)}
                           >
                             {copiedTemplate === template.content ? (
-                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                              <CheckCircle2 className="size-3.5 text-green-500" />
                             ) : (
-                              <Copy className="h-3.5 w-3.5" />
+                              <Copy className="size-3.5" />
                             )}
                           </Button>
                         </div>
@@ -222,14 +222,14 @@ export default function AgentSystemPromptSection({
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-6 w-6 bg-background/80 backdrop-blur-sm"
+                      className="size-6 bg-background/80 backdrop-blur-sm"
                       onClick={() => {
                         if (confirm("Are you sure you want to clear the system prompt?")) {
                           onClearPrompt();
                         }
                       }}
                     >
-                      <RefreshCw className="h-3.5 w-3.5" />
+                      <RefreshCw className="size-3.5" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="left">
@@ -244,7 +244,7 @@ export default function AgentSystemPromptSection({
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-6 w-6 bg-background/80 backdrop-blur-sm"
+                      className="size-6 bg-background/80 backdrop-blur-sm"
                       onClick={() => {
                         if (systemPromptRef.current) {
                           navigator.clipboard.writeText(systemPromptRef.current.value);
@@ -255,7 +255,7 @@ export default function AgentSystemPromptSection({
                         }
                       }}
                     >
-                      <Copy className="h-3.5 w-3.5" />
+                      <Copy className="size-3.5" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="left">
@@ -269,7 +269,7 @@ export default function AgentSystemPromptSection({
         
         {isPromptTooShort && (
           <p className="text-xs text-amber-500 flex items-center gap-1 mt-1">
-            <AlertCircle className="h-3 w-3" />
+            <AlertCircle className="size-3" />
             Your prompt is very short. Consider adding more detailed instructions for better results.
           </p>
         )}
@@ -278,9 +278,9 @@ export default function AgentSystemPromptSection({
         <div className="text-xs text-muted-foreground space-y-1 bg-muted/30 p-3 rounded-md w-full">
           <p className="font-medium">Tips for effective system prompts:</p>
           <ul className="list-disc list-inside space-y-0.5 pl-1">
-            <li>Be specific about your agent's role and expertise</li>
+            <li>Be specific about your agent&apos;s role and expertise</li>
             <li>Include instructions on how the agent should respond</li>
-            <li>Define boundaries for what the agent should and shouldn't do</li>
+            <li>Define boundaries for what the agent should and shouldn&apos;t do</li>
             <li>Provide examples of desired responses where helpful</li>
           </ul>
         </div>

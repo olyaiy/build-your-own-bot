@@ -155,7 +155,7 @@ export default function AgentCustomizationSection({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        <Info className="size-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="right" className="max-w-80">
                         <p>The title shown at the top of your agent's welcome message</p>
@@ -187,7 +187,7 @@ export default function AgentCustomizationSection({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        <Info className="size-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="right" className="max-w-80">
                         <p>The main content of your agent's welcome message</p>
@@ -220,7 +220,7 @@ export default function AgentCustomizationSection({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                          <Info className="size-3.5 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent side="right" className="max-w-80">
                           <p>Highlight key features or capabilities of your agent</p>
@@ -304,17 +304,17 @@ export default function AgentCustomizationSection({
                                   size="icon"
                                   variant="ghost"
                                   onClick={saveEditingPoint}
-                                  className="h-8 w-8"
+                                  className="size-8"
                                 >
-                                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                  <CheckCircle2 className="size-4 text-green-500" />
                                 </Button>
                                 <Button 
                                   size="icon"
                                   variant="ghost"
                                   onClick={cancelEditingPoint}
-                                  className="h-8 w-8"
+                                  className="size-8"
                                 >
-                                  <X className="h-4 w-4 text-red-500" />
+                                  <X className="size-4 text-red-500" />
                                 </Button>
                               </div>
                             </div>
@@ -326,17 +326,17 @@ export default function AgentCustomizationSection({
                                   size="icon"
                                   variant="ghost"
                                   onClick={() => startEditingPoint(index)}
-                                  className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                                  className="size-6 text-muted-foreground hover:text-foreground"
                                 >
-                                  <EditIcon className="h-3.5 w-3.5" />
+                                  <EditIcon className="size-3.5" />
                                 </Button>
                                 <Button
                                   size="icon"
                                   variant="ghost"
                                   onClick={() => handleRemovePoint(index)}
-                                  className="h-6 w-6 text-muted-foreground hover:text-red-500"
+                                  className="size-6 text-muted-foreground hover:text-red-500"
                                 >
-                                  <Trash2 className="h-3.5 w-3.5" />
+                                  <Trash2 className="size-3.5" />
                                 </Button>
                               </div>
                             </>
@@ -359,7 +359,7 @@ export default function AgentCustomizationSection({
               <div className="p-6 space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="rounded-full bg-primary/10 p-4 mt-2">
-                    <MessageSquare className="h-8 w-8 text-primary" />
+                    <MessageSquare className="size-8 text-primary" />
                   </div>
                   
                   <div className="space-y-5 flex-1">
@@ -368,7 +368,7 @@ export default function AgentCustomizationSection({
                         {overviewCustomization.title || "Welcome to your AI assistant!"}
                       </h3>
                       <p className="text-muted-foreground">
-                        {overviewCustomization.content || "I'm here to help answer your questions and provide information. Feel free to ask me anything."}
+                        {overviewCustomization.content || "I&apos;m here to help answer your questions and provide information. Feel free to ask me anything."}
                       </p>
                     </div>
                     
@@ -378,7 +378,7 @@ export default function AgentCustomizationSection({
                         <ul className="space-y-2 ml-1">
                           {overviewCustomization.points.map((point, index) => (
                             <li key={index} className="flex items-start gap-2">
-                              <CheckCircle2 className="h-4 w-4 text-primary mt-0.5" />
+                              <CheckCircle2 className="size-4 text-primary mt-0.5" />
                               <span>{point}</span>
                             </li>
                           ))}
@@ -396,7 +396,7 @@ export default function AgentCustomizationSection({
                 onClick={() => setActiveTab("edit")}
                 className="gap-2"
               >
-                <EditIcon className="h-4 w-4" />
+                <EditIcon className="size-4" />
                 Edit Content
               </Button>
             </div>
