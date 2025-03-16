@@ -66,7 +66,7 @@ export async function POST(request: Request) {
 
   // If the user message is not found, return an error
   if (!userMessage) {
-return new Response('No user message found', { status: 400 });
+    return new Response('No user message found', { status: 400 });
   }
 
   // Get the chat

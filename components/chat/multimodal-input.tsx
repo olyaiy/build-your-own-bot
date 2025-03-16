@@ -60,6 +60,7 @@ function PureMultimodalInput({
   isReadonly,
   searchEnabled,
   setSearchEnabled,
+  isAuthenticated,
 }: {
   chatId: string;
   agentId: string;
@@ -73,8 +74,7 @@ function PureMultimodalInput({
   setMessages: Dispatch<SetStateAction<Array<Message>>>;
   append: UseChatHelpers['append'];
   handleSubmit: UseChatHelpers['handleSubmit'];
-
-
+  isAuthenticated: boolean;
   className?: string;
   availableModels: ModelWithDefault[];
   currentModel: string;
@@ -142,7 +142,11 @@ function PureMultimodalInput({
   const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
 
   const submitForm = useCallback(() => {
-    window.history.replaceState({}, '', `/${agentId}/${chatId}`);
+
+    if (isAuthenticated) {
+      window.history.replaceState({}, '', `/${agentId}/${chatId}`);
+    }
+
 
     handleSubmit(undefined, {
       experimental_attachments: attachments,
@@ -163,6 +167,7 @@ function PureMultimodalInput({
     width,
     chatId,
     agentId,
+    isAuthenticated
   ]);
 
   const uploadFile = useCallback(async (file: File) => {

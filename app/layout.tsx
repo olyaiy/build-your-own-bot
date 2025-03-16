@@ -9,6 +9,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 import { auth } from './(auth)/auth';
 import { ThemeProvider } from '@/components/util/theme-provider';
+import { Providers } from '@/components/providers';
 
 export const experimental_ppr = true;
 
@@ -61,20 +62,22 @@ export default async function Layout({
         />
       </head>
       <body className=" bg-background font-sans antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Toaster position="top-center" richColors />
-          <SidebarProvider defaultOpen={!isCollapsed}>
-            <AppSidebar user={session?.user} />
-            <div className="w-full">
-              {children}
-            </div>
-          </SidebarProvider>
-        </ThemeProvider>
+        <Providers>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Toaster position="top-center" richColors />
+            <SidebarProvider defaultOpen={!isCollapsed}>
+              <AppSidebar user={session?.user} />
+              <div className="w-full">
+                {children}
+              </div>
+            </SidebarProvider>
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

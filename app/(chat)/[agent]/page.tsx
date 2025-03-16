@@ -4,9 +4,10 @@ import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { generateUUID } from '@/lib/utils';
 import { Chat } from '@/components/chat/chat';
 import { DataStreamHandler } from '@/components/util/data-stream-handler';
-import { getColorScheme, getDefaultColorScheme } from '@/lib/colors';
 import type { Agent, AgentCustomization } from '@/lib/db/schema';
 import type { Metadata, ResolvingMetadata } from 'next';
+
+
 
 // Generate metadata for SEO based on agent information
 export async function generateMetadata(
@@ -72,7 +73,11 @@ export default async function Page({ params }: { params: Promise<{ agent: string
 
   return (
     <>
+      {/* <Suspense fallback={<div className="h-6 w-full" />}>
+        <AuthStatus/>
+      </Suspense> */}
       <Chat
+        isAuthenticated={false}
         key={id}
         id={id}
         agent={agentData.agent as Agent}

@@ -8,7 +8,7 @@ import type { Agent } from '@/lib/db/schema';
 import { useLocalStorage } from 'usehooks-ts';
 
 import { ChatHeader } from '@/components/chat/chat-header';
-import { convertToUIMessages, fetcher, generateUUID } from '@/lib/utils';
+import { generateUUID } from '@/lib/utils';
 import { MultimodalInput } from '@/components/chat/multimodal-input';
 import { Messages } from '@/components/chat/messages';
 import { useArtifactSelector } from '@/hooks/use-artifact';
@@ -17,6 +17,7 @@ import { ModelWithDefault } from './chat-model-selector';
 import { VisibilityType } from '../util/visibility-selector';
 import { Artifact } from '../artifact/artifact';
 import { Overview } from '../util/overview';
+import { AuthPopup } from '@/components/auth/auth-popup';
 
 
 export function Chat({
@@ -27,6 +28,7 @@ export function Chat({
   selectedChatModel,
   selectedVisibilityType,
   isReadonly,
+  isAuthenticated
 }: {
   id: string;
   agent: Agent;
@@ -35,6 +37,7 @@ export function Chat({
   selectedChatModel: string;
   selectedVisibilityType: VisibilityType;
   isReadonly: boolean;
+  isAuthenticated: boolean;
 }) {
   const { mutate } = useSWRConfig();
   const [currentModel, setCurrentModel] = useState<string>(selectedChatModel);
@@ -43,6 +46,9 @@ export function Chat({
   const [searchEnabledStorage, setSearchEnabledStorage] = useLocalStorage<boolean>('search-enabled', false);
   const [searchEnabled, setSearchEnabled] = useState<boolean>(searchEnabledStorage);
   
+  // Add state for auth popup
+  const [isAuthPopupOpen, setIsAuthPopupOpen] = useState(false);
+
   // Update localStorage when searchEnabled changes
   useEffect(() => {
     setSearchEnabledStorage(searchEnabled);
@@ -81,14 +87,38 @@ export function Chat({
       mutate('/api/history');
     },
     onError: (error) => {
-      // Extract the error message or use a fallback
+      // Check for unauthorized error
       const errorMessage = error instanceof Error 
         ? error.message 
         : typeof error === 'string' 
           ? error 
           : 'An error occurred, please try again!';
       
-      toast.error(errorMessage);
+      // Check if this is an unauthorized error
+      if (
+        errorMessage.includes('Unauthorized') || 
+        (error instanceof Error && error.message.includes('Unauthorized'))
+      ) {
+        console.log('UNAUTHORIZED ERROR');
+        console.log('INPUT:', input);
+        console.log('ATTACHMENTS:', attachments);
+        console.log('MESSAGES:', messages);
+        console.log('CHAT ID:', id);
+        console.log('AGENT ID:', agent.id);
+
+        // Save input to localStorage before showing auth popup
+        if (input && input.trim() !== '' && input.trim().length > 1) {
+          console.log('Saving input to localStorage FROM CHAT.TSX:', input);
+          localStorage.setItem('input', JSON.stringify(input));
+        }
+
+        // Show auth popup instead of error toast
+        setIsAuthPopupOpen(true);
+      } else {
+        // Show regular error toast for other errors
+        console.log('Error:', errorMessage);
+        toast.error(errorMessage);
+      }
     },
   });
 
@@ -100,7 +130,6 @@ export function Chat({
   const handleModelChange = async (modelId: string) => {
     setCurrentModel(modelId);
     // We don't need to update the chat - next message will use the new model
-  
   };
 
   return (
@@ -140,6 +169,7 @@ export function Chat({
               {!isReadonly && (
                 <div className="w-full md:max-w-3xl">
                   <MultimodalInput
+                    isAuthenticated={isAuthenticated}
                     agentId={agent.id}
                     chatId={id}
                     input={input}
@@ -168,6 +198,7 @@ export function Chat({
         {messages.length > 0 && !isReadonly && (
           <form className="flex flex-col mx-auto px-2 sm:px-4 bg-background pb-1 sm:pb-2 md:pb-4 gap-1 sm:gap-2 w-full md:max-w-3xl">
             <MultimodalInput
+              isAuthenticated={isAuthenticated}
               agentId={agent.id}
               chatId={id}
               input={input}
@@ -208,6 +239,12 @@ export function Chat({
         isReadonly={isReadonly}
         searchEnabled={searchEnabled}
         setSearchEnabled={setSearchEnabled}
+      />
+
+      {/* Auth popup for unauthorized errors */}
+      <AuthPopup 
+        isOpen={isAuthPopupOpen} 
+        onOpenChange={setIsAuthPopupOpen}
       />
     </>
   );
