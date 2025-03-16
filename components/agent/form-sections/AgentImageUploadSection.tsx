@@ -123,7 +123,7 @@ export default function AgentImageUploadSection({
         onClick={handleAreaClick}
       >
         {imageUrl ? (
-          <div className="relative w-full h-full overflow-hidden rounded-md bg-muted/20 group">
+          <div className="relative size-full overflow-hidden rounded-md bg-muted/20 group">
             <Image
               src={imageUrl}
               fill

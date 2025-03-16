@@ -158,7 +158,7 @@ export default function AgentCustomizationSection({
                         <Info className="size-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="right" className="max-w-80">
-                        <p>The title shown at the top of your agent's welcome message</p>
+                        <p>The title shown at the top of your agent&apos;s welcome message</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -190,7 +190,7 @@ export default function AgentCustomizationSection({
                         <Info className="size-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="right" className="max-w-80">
-                        <p>The main content of your agent's welcome message</p>
+                        <p>The main content of your agent&apos;s welcome message</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
