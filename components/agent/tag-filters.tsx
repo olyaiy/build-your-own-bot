@@ -19,7 +19,7 @@ export function TagFilters({ tags, onTagSelect, selectedTags }: TagFiltersProps)
   const displayTags = showAllTags ? tags : tags.slice(0, initialTagsToShow);
   
   return (
-    <div className="mb-2 md:mb-6">      
+    <div className="">      
       <div className="flex flex-wrap gap-1 md:gap-2">
         {displayTags.map((tag) => (
           <Badge 

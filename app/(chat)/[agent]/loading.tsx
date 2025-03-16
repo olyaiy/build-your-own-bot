@@ -2,9 +2,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="flex flex-col min-w-0 h-dvh overflow-hidden bg-background">
+    <div className="flex flex-col min-w-0 h-dvh overflow-hidden bg-background bg-red-500">
       {/* Skeleton header */}
-      <div className="border-b px-4 py-3 flex items-center justify-between">
+      <div className=" px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Skeleton className="size-8 rounded-full" />
           <Skeleton className="h-5 w-28" />
@@ -27,8 +27,18 @@ export default function Loading() {
         
         {/* Skeleton input area */}
         <div className="w-full md:max-w-3xl">
-          <div className="border rounded-lg p-4">
-            <Skeleton className="h-10 w-full" />
+          <div className="border rounded-lg p-2">
+            <Skeleton className="h-24 w-full" />
+          </div>
+        </div>
+        
+        {/* Skeleton suggested actions */}
+        <div className="w-full md:max-w-3xl mt-4">
+          <div className="grid grid-cols-2 gap-2">
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-10 w-full rounded-md" />
           </div>
         </div>
       </div>

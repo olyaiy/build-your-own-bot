@@ -153,7 +153,7 @@ export function AgentList({ agents: initialAgents, userId, tags = [] }: AgentLis
       </div>
 
       {tags.length > 0 && (
-        <div className="overflow-x-auto pb-2">
+        <div className="overflow-x-auto">
           <TagFilters 
             tags={tags} 
             onTagSelect={handleTagSelect} 
