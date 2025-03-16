@@ -94,7 +94,7 @@ export default function AgentTagSelector({
     <Card className="border border-muted-foreground/10 shadow-sm">
       <CardHeader className="pb-2 pt-3 px-4">
         <CardTitle className="text-sm flex items-center gap-1.5">
-          <Tag className="h-3.5 w-3.5 text-primary" />
+          <Tag className="size-3.5 text-primary" />
           Agent Tags
         </CardTitle>
         <CardDescription className="text-xs">
@@ -117,7 +117,7 @@ export default function AgentTagSelector({
                   onClick={() => handleRemoveTag(tag.id)}
                   title="Remove tag"
                 >
-                  <X className="h-2.5 w-2.5" />
+                  <X className="size-2.5" />
                 </button>
               </Badge>
             ))
@@ -132,7 +132,7 @@ export default function AgentTagSelector({
                 size="sm" 
                 className="text-xs gap-1 h-7"
               >
-                <Plus className="h-3 w-3" />
+                <Plus className="size-3" />
                 Add Tag
               </Button>
             </PopoverTrigger>
@@ -154,8 +154,8 @@ export default function AgentTagSelector({
                           onClick={handleAddNewTag}
                           className="mt-1 w-full text-xs h-7"
                         >
-                          <Plus className="mr-1 h-3 w-3" />
-                          Create "{newTagInput}"
+                          <Plus className="size-3 mr-1" />
+                          Create &quot;{newTagInput}&quot;
                         </Button>
                       </div>
                     ) : (
@@ -182,7 +182,7 @@ export default function AgentTagSelector({
                                 className="flex items-center justify-between text-xs"
                               >
                                 <span>{tag.name}</span>
-                                <Check className="h-3 w-3 text-muted-foreground opacity-0 group-data-[selected]:opacity-100" />
+                                <Check className="size-3 text-muted-foreground opacity-0 group-data-[selected]:opacity-100" />
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -197,8 +197,8 @@ export default function AgentTagSelector({
                         onClick={handleAddNewTag}
                         className="w-full text-xs h-7"
                       >
-                        <Plus className="mr-1 h-3 w-3" />
-                        Add "{newTagInput.trim()}"
+                        <Plus className="size-3 mr-1" />
+                        Add &quot;{newTagInput.trim()}&quot;
                       </Button>
                     </div>
                   )}
@@ -223,7 +223,7 @@ export default function AgentTagSelector({
                   onClick={() => handleSelectTag(tag)}
                 >
                   {tag.name}
-                  <Plus className="ml-0.5 h-2 w-2 text-muted-foreground" />
+                  <Plus className="ml-0.5 size-2 text-muted-foreground" />
                 </Badge>
               ))}
             </div>

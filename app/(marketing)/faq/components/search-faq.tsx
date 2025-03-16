@@ -101,7 +101,7 @@ export function SearchFAQ() {
     <div className="relative">
       <div className="relative">
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <Search className="h-5 w-5 text-muted-foreground" />
+          <Search className="size-5 text-muted-foreground" />
         </div>
         <input
           type="search"
@@ -144,7 +144,7 @@ export function SearchFAQ() {
       {isSearching && query && results.length === 0 && (
         <div className="absolute mt-2 w-full bg-card rounded-lg shadow-lg border border-border z-10">
           <div className="p-4 text-center">
-            <p className="text-muted-foreground">No results found for "{query}"</p>
+            <p className="text-muted-foreground">No results found for &quot;{query}&quot;</p>
           </div>
         </div>
       )}
