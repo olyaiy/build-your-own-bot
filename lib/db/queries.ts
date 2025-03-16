@@ -1492,3 +1492,24 @@ export async function updateAgentTags(agentId: string, tagIds: string[]) {
     throw error;
   }
 }
+
+export async function getMostCommonTags(limit?: number) {
+  try {
+    const result = await db
+      .select({
+        id: tags.id,
+        name: tags.name,
+        count: sql<number>`count(*)`
+      })
+      .from(agentTags)
+      .innerJoin(tags, eq(agentTags.tagId, tags.id))
+      .groupBy(tags.id, tags.name)
+      .orderBy(sql`count(*) desc`, tags.name)
+      .limit(limit || 100);
+    
+    return result;
+  } catch (error) {
+    console.error('Error getting most common tags:', error);
+    return [];
+  }
+}

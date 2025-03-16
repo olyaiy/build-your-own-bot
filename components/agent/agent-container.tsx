@@ -1,4 +1,4 @@
-import { getAgents } from "@/lib/db/queries";
+import { getAgents, getMostCommonTags } from "@/lib/db/queries";
 import { AgentList } from "./agent-list";
 import { sortAgentsByRecentUsage } from "@/app/actions";
 import { auth } from "@/app/(auth)/auth";
@@ -22,7 +22,9 @@ export async function AgentContainer({ userId }: AgentContainerProps) {
   // Fetch agents and sort them
   const agents = await getAgents(finalUserId, true);
   const sortedAgents = await sortAgentsByRecentUsage(agents as any);
-
   
-  return <AgentList agents={sortedAgents} userId={finalUserId} />;
+  // Fetch the most common tags
+  const commonTags = await getMostCommonTags(20);
+
+  return <AgentList agents={sortedAgents} userId={finalUserId} tags={commonTags} />;
 } 

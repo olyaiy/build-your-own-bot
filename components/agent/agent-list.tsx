@@ -6,7 +6,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AgentCard } from "./agent-card";
 import { CreateAgentCard } from "./create-agent-card";
-import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Search } from "lucide-react";
+import { TagFilters } from "./tag-filters";
 
 interface AgentListProps {
   agents: (Omit<InferSelectModel<typeof agents>, 'model'> & {
@@ -15,13 +17,17 @@ interface AgentListProps {
     tags?: { id: string; name: string; createdAt: Date; updatedAt: Date }[] | null;
   })[];
   userId?: string;
+  tags?: { id: string; name: string; count: number }[];
 }
 
 // Client component wrapper to handle cookie tracking
 
-export function AgentList({ agents: initialAgents, userId }: AgentListProps) {
+export function AgentList({ agents: initialAgents, userId, tags = [] }: AgentListProps) {
   const router = useRouter();
   const [agents, setAgents] = useState(initialAgents);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [filteredAgents, setFilteredAgents] = useState(initialAgents);
   
   // Cookie name for storing recently used agents
   const RECENT_AGENTS_COOKIE = 'recent-agents';
@@ -56,7 +62,9 @@ export function AgentList({ agents: initialAgents, userId }: AgentListProps) {
       return sortedAgents;
     };
     
-    setAgents(sortAgentsByRecentUsage());
+    const sortedAgents = sortAgentsByRecentUsage();
+    setAgents(sortedAgents);
+    setFilteredAgents(sortedAgents);
   }, [initialAgents]);
   
   // Function to update the recent agents cookie when an agent is clicked
@@ -91,18 +99,78 @@ export function AgentList({ agents: initialAgents, userId }: AgentListProps) {
     document.cookie = `${RECENT_AGENTS_COOKIE}=${recentAgentIds.join(',')}; path=/; expires=${expiryDate.toUTCString()}`;
   };
 
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
+  // Handle tag selection
+  const handleTagSelect = (tagId: string) => {
+    setSelectedTags(prevTags => {
+      if (prevTags.includes(tagId)) {
+        return prevTags.filter(id => id !== tagId);
+      } else {
+        return [...prevTags, tagId];
+      }
+    });
+  };
 
-      {agents.map((agent) => (
-        <AgentCard 
-          key={agent.id}
-          agent={agent}
-          userId={userId}
-          onClick={handleAgentClick}
+  // Filter agents based on search query and selected tags
+  useEffect(() => {
+    let filtered = agents;
+    
+    // Filter by search query if present
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((agent) => {
+        return (
+          (agent.agent_display_name?.toLowerCase().includes(query)) ||
+          (agent.description?.toLowerCase().includes(query)) ||
+          (agent.tags?.some(tag => tag.name.toLowerCase().includes(query)))
+        );
+      });
+    }
+    
+    // Filter by selected tags if any
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter((agent) => {
+        return agent.tags?.some(tag => selectedTags.includes(tag.id));
+      });
+    }
+
+    setFilteredAgents(filtered);
+  }, [searchQuery, agents, selectedTags]);
+
+  return (
+    <div className="w-full space-y-6">
+      <div className="w-full flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold">AI Agents</h1>
+        <div className="relative w-64">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search agents..."
+            className="pl-10 w-full"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {tags.length > 0 && (
+        <TagFilters 
+          tags={tags} 
+          onTagSelect={handleTagSelect} 
+          selectedTags={selectedTags}
         />
-      ))}
-      {userId && <CreateAgentCard key="create-agent" />}
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
+        {filteredAgents.map((agent) => (
+          <AgentCard 
+            key={agent.id}
+            agent={agent}
+            userId={userId}
+            onClick={handleAgentClick}
+          />
+        ))}
+        {userId && filteredAgents.length === agents.length && !selectedTags.length && <CreateAgentCard key="create-agent" />}
+      </div>
     </div>
   );
 } 
