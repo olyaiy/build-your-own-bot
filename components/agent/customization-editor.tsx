@@ -100,9 +100,9 @@ export function OverviewEditor({
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRemovePoint(index)}
-                      className="h-8 w-8 p-0"
+                      className="size-8 p-0"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="size-4" />
                     </Button>
                   </div>
                 ))}
@@ -126,7 +126,7 @@ export function OverviewEditor({
                   onClick={handleAddPoint}
                   className="h-8 px-2"
                 >
-                  <PlusCircle className="h-4 w-4 mr-1" />
+                  <PlusCircle className="size-4 mr-1" />
                   Add
                 </Button>
               </div>

@@ -48,7 +48,7 @@ export default function AgentBasicInfoSection({
     <Card className="border border-muted-foreground/10 shadow-sm">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <User className="h-4 w-4 text-primary" />
+          <User className="size-4 text-primary" />
           Basic Information
         </CardTitle>
         <CardDescription>

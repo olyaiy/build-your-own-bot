@@ -23,13 +23,13 @@ export function CategoryCard({ title, count, icon, href }: CategoryCardProps) {
   
   const getIcon = () => {
     switch (icon) {
-      case "Settings": return <Settings className="h-6 w-6" />;
-      case "CreditCard": return <CreditCard className="h-6 w-6" />;
-      case "Users": return <Users className="h-6 w-6" />;
-      case "Shield": return <Shield className="h-6 w-6" />;
-      case "LifeBuoy": return <LifeBuoy className="h-6 w-6" />;
-      case "Zap": return <Zap className="h-6 w-6" />;
-      default: return <HelpCircle className="h-6 w-6" />;
+      case "Settings": return <Settings className="size-6" />;
+      case "CreditCard": return <CreditCard className="size-6" />;
+      case "Users": return <Users className="size-6" />;
+      case "Shield": return <Shield className="size-6" />;
+      case "LifeBuoy": return <LifeBuoy className="size-6" />;
+      case "Zap": return <Zap className="size-6" />;
+      default: return <HelpCircle className="size-6" />;
     }
   };
   

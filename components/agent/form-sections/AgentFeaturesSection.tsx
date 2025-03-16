@@ -28,7 +28,7 @@ export default function AgentFeaturesSection({
     <Card className="border border-muted-foreground/10 shadow-sm">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Settings className="h-4 w-4 text-primary" />
+          <Settings className="size-4 text-primary" />
           Agent Features
         </CardTitle>
         <CardDescription>

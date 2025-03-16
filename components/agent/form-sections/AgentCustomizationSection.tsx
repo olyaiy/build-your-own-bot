@@ -124,7 +124,7 @@ export default function AgentCustomizationSection({
     <Card className="border border-muted-foreground/10 shadow-sm">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <LayoutTemplate className="h-4 w-4 text-primary" />
+          <LayoutTemplate className="size-4 text-primary" />
           Welcome Message & Customization
         </CardTitle>
         <CardDescription>
@@ -135,11 +135,11 @@ export default function AgentCustomizationSection({
         <Tabs defaultValue="edit" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="edit" className="flex items-center gap-2">
-              <EditIcon className="h-4 w-4" />
+              <EditIcon className="size-4" />
               Edit
             </TabsTrigger>
             <TabsTrigger value="preview" className="flex items-center gap-2">
-              <Eye className="h-4 w-4" />
+              <Eye className="size-4" />
               Preview
             </TabsTrigger>
           </TabsList>
@@ -261,7 +261,7 @@ export default function AgentCustomizationSection({
                       size="icon"
                       variant="secondary"
                     >
-                      <Plus className="h-4 w-4" />
+                      <Plus className="size-4" />
                     </Button>
                   </div>
                   

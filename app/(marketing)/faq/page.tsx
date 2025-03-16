@@ -54,7 +54,7 @@ export default function FAQPage() {
               className="scroll-mt-24"
             >
               <div className="flex items-center gap-3 mb-8">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                   {/* Icon would be rendered here by the CategoryIcon component */}
                 </div>
                 <h2 className="text-3xl font-bold">{category.title}</h2>

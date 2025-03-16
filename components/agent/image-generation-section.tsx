@@ -79,7 +79,7 @@ const ImageGenerationSection = ({ tool }: ImageGenerationSectionProps = {}) => {
           {isGenerating ? (
             <div className="relative aspect-square w-full rounded-md overflow-hidden border border-border">
               <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="size-8 animate-spin text-primary" />
               </div>
             </div>
           ) : images.length > 0 ? images.map((image, index) => (
@@ -104,7 +104,7 @@ const ImageGenerationSection = ({ tool }: ImageGenerationSectionProps = {}) => {
                       className="absolute top-2 right-2 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-opacity z-10"
                       aria-label="Download image"
                     >
-                      <Download className="h-5 w-5" />
+                      <Download className="size-5" />
                     </button>
                   )}
                 </>

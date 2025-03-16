@@ -44,13 +44,13 @@ export function TagFilters({ tags, onTagSelect, selectedTags }: TagFiltersProps)
           >
             {showAllTags ? (
               <>
-                <ChevronUp className="h-3 w-3" />
+                <ChevronUp className="size-3" />
                 <span className="hidden xs:inline">Show less</span>
                 <span className="xs:hidden">Less</span>
               </>
             ) : (
               <>
-                <ChevronDown className="h-3 w-3" />
+                <ChevronDown className="size-3" />
                 <span className="hidden xs:inline">Show more tags ({tags.length - initialTagsToShow})</span>
                 <span className="xs:hidden">More ({tags.length - initialTagsToShow})</span>
               </>

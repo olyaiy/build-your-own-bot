@@ -141,7 +141,7 @@ export function AgentList({ agents: initialAgents, userId, tags = [] }: AgentLis
       <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4 md:mb-6">
         <h1 className="text-2xl md:text-3xl font-bold">AI Agents</h1>
         <div className="relative w-full md:w-64">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search agents..."

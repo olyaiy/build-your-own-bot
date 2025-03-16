@@ -57,7 +57,7 @@ export default function AgentAppearanceSection({
     <Card className="border border-muted-foreground/10 shadow-sm">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Palette className="h-4 w-4 text-primary" />
+          <Palette className="size-4 text-primary" />
           Appearance & Visibility
         </CardTitle>
         <CardDescription>
@@ -92,13 +92,13 @@ export default function AgentAppearanceSection({
             >
               <div className="absolute top-4 right-4">
                 {visibility === "private" && (
-                  <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center text-white">
-                    <Check className="h-4 w-4" />
+                  <div className="size-6 rounded-full bg-primary flex items-center justify-center text-white">
+                    <Check className="size-4" />
                   </div>
                 )}
               </div>
               <div className="mb-2 mt-2">
-                <Lock className="h-8 w-8 text-amber-500" />
+                <Lock className="size-8 text-amber-500" />
               </div>
               <h4 className="font-medium">Private</h4>
               <p className="text-sm text-muted-foreground mt-1 grow">
@@ -115,13 +115,13 @@ export default function AgentAppearanceSection({
             >
               <div className="absolute top-4 right-4">
                 {visibility === "link" && (
-                  <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center text-white">
-                    <Check className="h-4 w-4" />
+                  <div className="size-6 rounded-full bg-primary flex items-center justify-center text-white">
+                    <Check className="size-4" />
                   </div>
                 )}
               </div>
               <div className="mb-2 mt-2">
-                <Link className="h-8 w-8 text-blue-500" />
+                <Link className="size-8 text-blue-500" />
               </div>
               <h4 className="font-medium">Invite Link</h4>
               <p className="text-sm text-muted-foreground mt-1 grow">
@@ -138,13 +138,13 @@ export default function AgentAppearanceSection({
             >
               <div className="absolute top-4 right-4">
                 {visibility === "public" && (
-                  <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center text-white">
-                    <Check className="h-4 w-4" />
+                  <div className="size-6 rounded-full bg-primary flex items-center justify-center text-white">
+                    <Check className="size-4" />
                   </div>
                 )}
               </div>
               <div className="mb-2 mt-2">
-                <Globe className="h-8 w-8 text-green-500" />
+                <Globe className="size-8 text-green-500" />
               </div>
               <h4 className="font-medium">Public</h4>
               <p className="text-sm text-muted-foreground mt-1 grow">
@@ -194,7 +194,7 @@ export default function AgentAppearanceSection({
                 </div>
                 {colorSchemeId === scheme.id && (
                   <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                    <Check className="h-3 w-3" />
+                    <Check className="size-3" />
                   </div>
                 )}
               </div>

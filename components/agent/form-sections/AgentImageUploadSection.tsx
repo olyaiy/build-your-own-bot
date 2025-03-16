@@ -144,12 +144,12 @@ export default function AgentImageUploadSection({
               >
                 {isDeletingImage ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="size-4 animate-spin" />
                     Deleting...
                   </>
                 ) : (
                   <>
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="size-4" />
                     Delete Image
                   </>
                 )}
@@ -158,7 +158,7 @@ export default function AgentImageUploadSection({
             
             {isUploading && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                <Loader2 className="h-8 w-8 animate-spin text-white" />
+                <Loader2 className="size-8 animate-spin text-white" />
               </div>
             )}
           </div>
@@ -167,7 +167,7 @@ export default function AgentImageUploadSection({
             {isUploading ? (
               <>
                 <div className="rounded-full bg-primary/10 p-3">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <Loader2 className="size-8 animate-spin text-primary" />
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">Uploading image...</p>
@@ -177,7 +177,7 @@ export default function AgentImageUploadSection({
             ) : (
               <>
                 <div className="rounded-full bg-muted p-5 group-hover:bg-primary/10 transition-colors">
-                  <ImageIcon className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <ImageIcon className="size-8 text-muted-foreground group-hover:text-primary transition-colors" />
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">
@@ -203,7 +203,7 @@ export default function AgentImageUploadSection({
 
       {errorMessage && (
         <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-          <span className="i-lucide-alert-circle h-3 w-3" />
+          <span className="i-lucide-alert-circle size-3" />
           {errorMessage}
         </p>
       )}
