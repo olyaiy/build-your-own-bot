@@ -379,7 +379,7 @@ function PureMultimodalInput({
           onChange={handleInput}
           onPaste={handlePaste}
           className={cx(
-            'min-h-[24px] max-h-[calc(50vh)] sm:max-h-[calc(50vh)] overflow-auto resize-none rounded-2xl !text-base bg-muted pb-8 sm:pb-10 dark:border-zinc-700',
+            'min-h-[24px] max-h-[calc(50vh)] sm:max-h-[calc(50vh)] overflow-auto resize-none rounded-md !text-base bg-muted pb-8 sm:pb-10 dark:border-zinc-700',
             className
           )}
           rows={2}
