@@ -21,7 +21,7 @@ export default function ContactOptions() {
               <div className="mb-6 flex items-center">
                 <div className="size-12 rounded-full overflow-hidden border-2 border-white/50 mr-3">
                   <Image 
-                    src="https://unavatar.io/x/alexfromvan" 
+                    src="/images/x-pprofile-pic.jpg" 
                     alt="Alex on X" 
                     className="size-full object-cover"
                     width={48}
