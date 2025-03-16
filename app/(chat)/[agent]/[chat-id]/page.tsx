@@ -51,6 +51,7 @@ export default async function Page(props: {
   return (
     <>
       <Chat
+        isAuthenticated={!!session?.user}
         id={chatId}
         agent={agentWithModel.agent}
         availableModels={availableModels}

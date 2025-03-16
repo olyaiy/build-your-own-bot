@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { useSession } from 'next-auth/react';
-import { ChevronDown, User } from 'lucide-react';
+import { ChevronDown, Plus, User } from 'lucide-react';
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -42,6 +42,12 @@ function PureMainHeader() {
       </div>
       <div className="flex items-center gap-3">
         <div className="hidden md:flex items-center gap-1">
+          <Link href="/agents/create">
+            <Button variant="default" size="sm" className="gap-1">
+              <Plus className="h-4 w-4" />
+              Create
+            </Button>
+          </Link>
           <Link href="/contact">
             <Button variant="ghost" size="sm">
               Support
