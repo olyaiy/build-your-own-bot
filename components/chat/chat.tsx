@@ -223,6 +223,7 @@ export function Chat({
       </div>
 
       <Artifact
+        isAuthenticated={isAuthenticated}
         chatId={id}
         agentId={agent.id}
         input={input}

@@ -60,6 +60,7 @@ export interface UIArtifact {
 function PureArtifact({
   chatId,
   agentId,
+  isAuthenticated,
   input,
   setInput,
   handleSubmit,
@@ -78,7 +79,7 @@ function PureArtifact({
   chatId: string;
   agentId: string;
   input: string;
-
+  isAuthenticated: boolean;
   setInput: UseChatHelpers['setInput'];
   status: UseChatHelpers['status'];
   stop: UseChatHelpers['stop'];
@@ -338,6 +339,7 @@ function PureArtifact({
 
                 <form className="flex flex-row gap-2 relative items-end w-full px-4 pb-4">
                   <MultimodalInput
+                    isAuthenticated={isAuthenticated}
                     chatId={chatId}
                     agentId={agentId}
                     input={input}
