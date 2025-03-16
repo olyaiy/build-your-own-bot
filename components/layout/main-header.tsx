@@ -16,11 +16,18 @@ function PureMainHeader() {
       <div className="flex items-center gap-2">
         {(!open || windowWidth < 768) && <SidebarToggle />}
       </div>
-      <Link href="/faq">
-        <Button variant="ghost" size="sm">
-          FAQ
-        </Button>
-      </Link>
+      <div className="flex items-center gap-2">
+        <Link href="/contact">
+          <Button variant="ghost" size="sm">
+            Support
+          </Button>
+        </Link>
+        <Link href="/faq">
+          <Button variant="ghost" size="sm">
+            FAQ
+          </Button>
+        </Link>
+      </div>
     </header>
   );
 }
