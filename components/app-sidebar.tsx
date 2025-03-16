@@ -67,7 +67,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
               }}
               className="flex flex-row gap-2 items-center"
             >
-              <span className="text-2xl font-semibold px-2 hover:bg-muted rounded-md cursor-pointer">
+              <span className="text-2xl font-semibold px-2  rounded-md cursor-pointer">
                 Agent Place
               </span>
             </Link>
