@@ -137,10 +137,10 @@ export function AgentList({ agents: initialAgents, userId, tags = [] }: AgentLis
   }, [searchQuery, agents, selectedTags]);
 
   return (
-    <div className="w-full space-y-6">
-      <div className="w-full flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">AI Agents</h1>
-        <div className="relative w-64">
+    <div className="w-full space-y-4 md:space-y-6">
+      <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold">AI Agents</h1>
+        <div className="relative w-full md:w-64">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
@@ -153,14 +153,16 @@ export function AgentList({ agents: initialAgents, userId, tags = [] }: AgentLis
       </div>
 
       {tags.length > 0 && (
-        <TagFilters 
-          tags={tags} 
-          onTagSelect={handleTagSelect} 
-          selectedTags={selectedTags}
-        />
+        <div className="overflow-x-auto pb-2">
+          <TagFilters 
+            tags={tags} 
+            onTagSelect={handleTagSelect} 
+            selectedTags={selectedTags}
+          />
+        </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 justify-items-center">
         {filteredAgents.map((agent) => (
           <AgentCard 
             key={agent.id}

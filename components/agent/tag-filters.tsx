@@ -14,18 +14,18 @@ interface TagFiltersProps {
 export function TagFilters({ tags, onTagSelect, selectedTags }: TagFiltersProps) {
   const [showAllTags, setShowAllTags] = useState(false);
   
-  // Initial display shows top 4 most common tags
-  const initialTagsToShow = 4;
+  // Initial display shows top 4 most common tags, but only 3 on smaller screens
+  const initialTagsToShow = typeof window !== 'undefined' && window.innerWidth < 640 ? 3 : 4;
   const displayTags = showAllTags ? tags : tags.slice(0, initialTagsToShow);
   
   return (
-    <div className="mb-6">      
-      <div className="flex flex-wrap gap-2">
+    <div className="mb-2 md:mb-6">      
+      <div className="flex flex-wrap gap-1 md:gap-2">
         {displayTags.map((tag) => (
           <Badge 
             key={tag.id}
             variant={selectedTags.includes(tag.id) ? "default" : "outline"}
-            className="cursor-pointer hover:bg-muted-foreground/20"
+            className="cursor-pointer hover:bg-muted-foreground/20 text-xs md:text-sm px-2 py-0.5 md:px-3 md:py-1"
             onClick={() => onTagSelect(tag.id)}
           >
             {tag.name}
@@ -39,18 +39,20 @@ export function TagFilters({ tags, onTagSelect, selectedTags }: TagFiltersProps)
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-xs flex items-center gap-1 h-6"
+            className="text-xs flex items-center gap-1 h-6 px-2 md:px-3"
             onClick={() => setShowAllTags(!showAllTags)}
           >
             {showAllTags ? (
               <>
                 <ChevronUp className="h-3 w-3" />
-                Show less
+                <span className="hidden xs:inline">Show less</span>
+                <span className="xs:hidden">Less</span>
               </>
             ) : (
               <>
                 <ChevronDown className="h-3 w-3" />
-                Show more tags ({tags.length - initialTagsToShow})
+                <span className="hidden xs:inline">Show more tags ({tags.length - initialTagsToShow})</span>
+                <span className="xs:hidden">More ({tags.length - initialTagsToShow})</span>
               </>
             )}
           </Button>
