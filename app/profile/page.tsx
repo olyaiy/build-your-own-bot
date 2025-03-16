@@ -1,10 +1,10 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getUserById } from "./actions";
-import { UserAvatar } from "./avatar";
 import { EditUsername } from "./edit-username";
 import { auth } from "@/app/(auth)/auth";
 import { AgentList } from "@/components/agent/agent-list";
@@ -64,35 +64,58 @@ export default async function ProfilePage() {
     <div className="container max-w-5xl mx-auto p-4">
       <div className="grid gap-8">
                         {/* Profile Card */}
-        <Card className="shadow-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-2xl font-bold">Profile</CardTitle>
-            <CardDescription className="text-sm text-muted-foreground">
-              Manage your account settings
-            </CardDescription>
+        <Card className="shadow-md border-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-primary/10 to-primary/5 h-12 relative">
+            <div className="absolute -bottom-10 left-6">
+              <div className="size-20 border-4 border-background shadow-md rounded-full overflow-hidden">
+                <Image
+                  src={`https://avatar.vercel.sh/${user.email || 'anonymous'}`}
+                  alt={user.user_name || user.email || 'User Avatar'}
+                  width={80}
+                  height={80}
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+          <CardHeader className="pt-14 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <CardTitle className="text-2xl font-bold">Profile</CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Manage your account settings
+                </CardDescription>
+              </div>
+              <Link href="/profile/credits" className="block">
+                <Button size="sm" className="gap-1.5">
+                  <Plus className="size-3.5" />
+                  Add Credits
+                </Button>
+              </Link>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-6 p-2">
-              <UserAvatar user={user} className="size-16" />
-              <div className="flex-1 space-y-2">
-                <EditUsername user={user} />
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-                
-                {/* Credit Balance Display with Dollar Format and Add Credits Button */}
-                <div className="flex items-center mt-2 p-2 bg-muted/30 rounded-md">
-                  <div className="size-8 flex items-center justify-center bg-primary/20 rounded-full mr-2">
-                    <DollarSign className="size-4 text-primary" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-2">
+              <div className="space-y-3">
+                <div className="space-y-1 pl-1">
+                  <EditUsername user={user} />
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                </div>
+              </div>
+
+              {/* Credit Balance Card - Redesigned */}
+              <div className="bg-muted/20 rounded-xl p-5 flex flex-col h-full justify-center">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="size-10 flex items-center justify-center bg-primary/15 rounded-full">
+                    <DollarSign className="size-5 text-primary" />
                   </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground">Available Credits (USD)</p>
-                    <p className="text-sm font-semibold">{dollarCredits}</p>
+                  <div>
+                    <p className="text-sm font-medium">Available Credits</p>
+                    <p className="text-2xl font-bold">{dollarCredits}</p>
                   </div>
-                  <Link href="/profile/credits">
-                    <Button size="sm" variant="outline" className="gap-1">
-                      <Plus className="size-3" />
-                      Add Credits
-                    </Button>
-                  </Link>
+                </div>
+                <div className="mt-3 text-sm text-muted-foreground">
+                  Use credits to power your AI agents and interactions
                 </div>
               </div>
             </div>
