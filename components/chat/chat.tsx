@@ -91,12 +91,7 @@ export function Chat({
     },
   });
 
-  // Voting Routes and Updates
-  const { data: votes } = useSWR<Array<Vote>>(
-    `/api/vote?chatId=${id}`,
-    fetcher,
-  );
- 
+
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
 
@@ -126,7 +121,6 @@ export function Chat({
           <Messages
             chatId={id}
             status={status}
-            votes={votes}
             messages={messages}
             setMessages={setMessages}
             reload={reload}
@@ -177,7 +171,6 @@ export function Chat({
         messages={messages}
         setMessages={setMessages}
         reload={reload}
-        votes={votes}
         isReadonly={isReadonly}
         searchEnabled={searchEnabled}
         setSearchEnabled={setSearchEnabled}

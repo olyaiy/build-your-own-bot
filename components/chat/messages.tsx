@@ -12,7 +12,6 @@ import { UseChatHelpers } from 'ai/react';
  * Interface defining the props for the Messages component
  * @property {string} chatId - Unique identifier for the current chat
  * @property {boolean} isLoading - Flag indicating if a message is currently being processed/loaded
- * @property {Array<Vote>} votes - Collection of vote data for the messages in this chat
  * @property {Array<Message>} messages - The chat messages to be displayed
  * @property {Function} setMessages - State setter function to update messages
  * @property {Function} reload - Function to reload/regenerate the chat conversation
@@ -24,7 +23,6 @@ import { UseChatHelpers } from 'ai/react';
 interface MessagesProps {
   chatId: string;
   status: UseChatHelpers['status'];
-  votes: Array<Vote> | undefined;
   messages: Array<Message>;
   setMessages: UseChatHelpers['setMessages'];
   reload: UseChatHelpers['reload'];
@@ -49,7 +47,6 @@ interface MessagesProps {
 function PureMessages({
   chatId,
   status,
-  votes,
   messages,
   setMessages,
   reload,
@@ -103,12 +100,6 @@ function PureMessages({
           message={message}
           // Only show loading state on the last message when it's an AI response being generated
           isLoading={status === 'streaming' && messages.length - 1 === index}
-          // Find the vote for this specific message if votes exist
-          vote={
-            votes
-              ? votes.find((vote) => vote.messageId === message.id)
-              : undefined
-          }
           setMessages={setMessages}
           reload={reload}
           isReadonly={isReadonly}
@@ -144,7 +135,6 @@ function PureMessages({
  * 3. Always re-render during continuous loading
  * 4. Re-render when message count changes
  * 5. Re-render when message content changes (using deep equality)
- * 6. Re-render when votes change (using deep equality)
  * 7. Re-render when tool data changes (using deep equality)
  */
 export const Messages = memo(PureMessages, (prevProps: MessagesProps, nextProps: MessagesProps) => {
@@ -161,8 +151,6 @@ export const Messages = memo(PureMessages, (prevProps: MessagesProps, nextProps:
     if (prevProps.messages.length !== nextProps.messages.length) return false;
     // Deep comparison of messages to detect content changes
     if (!equal(prevProps.messages, nextProps.messages)) return false;
-    // Re-render if votes change
-    if (!equal(prevProps.votes, nextProps.votes)) return false;
     // Re-render if tool data changes
     if (!equal(prevProps.toolCallData, nextProps.toolCallData)) return false;
 

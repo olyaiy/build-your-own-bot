@@ -257,28 +257,6 @@ export const message = pgTable('Message', {
 
 export type Message = InferSelectModel<typeof message>;
 
-// Fourth level of dependencies
-export const vote = pgTable(
-  'Vote',
-  {
-    chatId: uuid('chatId')
-      .notNull()
-      .references(() => chat.id, { onDelete: 'cascade' }),
-    messageId: uuid('messageId')
-      .notNull()
-      .references(() => message.id, { onDelete: 'cascade' }),
-    isUpvoted: boolean('isUpvoted').notNull(),
-  },
-  (table) => {
-    return {
-      pk: primaryKey({ columns: [table.chatId, table.messageId] }),
-      chatIdIdx: index("vote_chat_id_idx").on(table.chatId),
-      messageIdIdx: index("vote_message_id_idx").on(table.messageId),
-    };
-  },
-);
-
-export type Vote = InferSelectModel<typeof vote>;
 
 export const tools = pgTable("tools", {
   id: uuid("id").defaultRandom().primaryKey(),

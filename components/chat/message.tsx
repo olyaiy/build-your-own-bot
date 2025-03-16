@@ -5,7 +5,6 @@ import cx from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useState, useEffect } from 'react';
 import Image from 'next/image';
-import type { Vote } from '@/lib/db/schema';
 import {
   CopyIcon,
   PencilEditIcon,
@@ -59,7 +58,6 @@ ToolInvocationItem.displayName = 'ToolInvocationItem';
 const PurePreviewMessage = ({
   chatId,
   message,
-  vote,
   isLoading,
   setMessages,
   reload,
@@ -69,7 +67,6 @@ const PurePreviewMessage = ({
 }: {
   chatId: string;
   message: Message;
-  vote: Vote | undefined;
   isLoading: boolean;
   setMessages: (
     messages: Message[] | ((messages: Message[]) => Message[]),
@@ -256,7 +253,6 @@ const PurePreviewMessage = ({
                 key={`action-${message.id}`}
                 chatId={chatId}
                 message={message}
-                vote={vote}
                 isLoading={isLoading}
               />
             )}
@@ -295,8 +291,6 @@ export const PreviewMessage = memo(
     )
       return false;
       
-    // Check vote changes
-    if (!equal(prevProps.vote, nextProps.vote)) return false;
 
     // Also compare token_usage to prevent unnecessary rerenders
     if ((prevProps.message as any).token_usage !== (nextProps.message as any).token_usage) return false;

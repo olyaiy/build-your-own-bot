@@ -13,7 +13,6 @@ import {
   suggestion,
   type Message,
   message,
-  vote,
   agents,
   models,
   agentModels,
@@ -90,7 +89,6 @@ export async function saveChat({
 
 export async function deleteChatById({ id }: { id: string }) {
   try {
-    await db.delete(vote).where(eq(vote.chatId, id));
     await db.delete(message).where(eq(message.chatId, id));
 
     return await db.delete(chat).where(eq(chat.id, id));
@@ -173,50 +171,9 @@ export async function getMessagesByChatId({ id }: { id: string }) {
   }
 }
 
-export async function voteMessage({
-  chatId,
-  messageId,
-  type,
-}: {
-  chatId: string;
-  messageId: string;
-  type: 'up' | 'down';
-}) {
-  try {
-    // Check if a vote already exists
-    const existingVote = await db
-      .select()
-      .from(vote)
-      .where(and(eq(vote.messageId, messageId))); // Will use the index on vote.messageId
 
-    // If a vote exists, update it
-    if (existingVote.length > 0) {
-      return await db
-        .update(vote)
-        .set({ isUpvoted: type === 'up' })
-        .where(and(eq(vote.messageId, messageId), eq(vote.chatId, chatId))); // Uses indexes on both messageId and chatId
-    }
 
-    // If no vote exists, create one
-    return await db.insert(vote).values({
-      chatId,
-      messageId,
-      isUpvoted: type === 'up',
-    });
-  } catch (error) {
-    console.error('Failed to save vote in database');
-    throw error;
-  }
-}
 
-export async function getVotesByChatId({ id }: { id: string }) {
-  try {
-    return await db.select().from(vote).where(eq(vote.chatId, id));
-  } catch (error) {
-    console.error('Failed to get votes by chat id from database', error);
-    throw error;
-  }
-}
 
 export async function saveDocument({
   id,
@@ -362,11 +319,6 @@ export async function deleteMessagesByChatIdAfterTimestamp({
     const messageIds = messagesToDelete.map((message) => message.id);
 
     if (messageIds.length > 0) {
-      await db
-        .delete(vote)
-        .where(
-          and(eq(vote.chatId, chatId), inArray(vote.messageId, messageIds)),
-        );
 
       return await db
         .delete(message)

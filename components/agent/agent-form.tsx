@@ -13,19 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateAgent, createAgent, deleteAgent, deleteAgentImage } from "@/app/(agents)/actions";
+import { updateAgent, createAgent, deleteAgent } from "@/app/(agents)/actions";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
-import { useDropzone } from "react-dropzone";
-import Image from "next/image";
-import { useImageUpload } from "@/lib/hooks/useImageUpload";
 import { 
   AlertCircle, 
-  Camera, 
-  ImageIcon, 
   Loader2, 
-  Trash2, 
-  Palette,
   X, 
   Check, 
   ChevronsUpDown, 
@@ -45,7 +38,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import { InfoIcon } from "@/components/icons/info-icon";
-import { colorSchemes, getColorScheme, getDefaultColorScheme } from "@/lib/colors";
+import { getDefaultColorScheme } from "@/lib/colors";
 import { OverviewEditor } from "./customization-editor";
 import { 
   Command, 
@@ -60,7 +53,6 @@ import {
   PopoverContent, 
   PopoverTrigger 
 } from "@/components/ui/popover";
-import { Tag as TagType } from "@/lib/db/schema";
 import { AgentImageUploader } from "./agent-image-uploader";
 
 // Tag interface for dropdown selection
