@@ -18,7 +18,7 @@ export default function ContactOptions() {
             
             <div className="relative z-20 p-8 flex flex-col h-full">
               <div className="mb-6 flex items-center">
-                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/50 mr-3">
+                <div className="size-12 rounded-full overflow-hidden border-2 border-white/50 mr-3">
                   <img 
                     src="https://unavatar.io/x/alexfromvan" 
                     alt="Alex on X" 
@@ -30,7 +30,7 @@ export default function ContactOptions() {
                   <p className="text-white/70 text-sm">@alexfromvan</p>
                 </div>
               </div>
-              <p className="text-white/90 mb-6 flex-grow">
+              <p className="text-white/90 mb-6 grow">
                 Reach out directly to our founder Alex on X for quick responses.
               </p>
               <div className="mt-auto">
@@ -52,12 +52,12 @@ export default function ContactOptions() {
             
             <div className="relative z-20 p-8 flex flex-col h-full">
               <div className="mb-6">
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                <div className="size-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
                   <MessageSquare size={24} className="text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-white">Leave a Message</h3>
               </div>
-              <p className="text-white/90 mb-6 flex-grow">
+              <p className="text-white/90 mb-6 grow">
                 Fill out our contact form and we'll get back to you as soon as possible.
               </p>
               <div className="mt-auto">
@@ -78,12 +78,12 @@ export default function ContactOptions() {
             
             <div className="relative z-20 p-8 flex flex-col h-full">
               <div className="mb-6">
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                <div className="size-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
                   <Mail size={24} className="text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-white">Send an Email</h3>
               </div>
-              <p className="text-white/90 mb-6 flex-grow">
+              <p className="text-white/90 mb-6 grow">
                 Email our founder directly for business inquiries or partnerships.
               </p>
               <div className="mt-auto">

@@ -21,7 +21,7 @@ export const Overview = ({ agent }: { agent: Agent }) => {
         {(agent.image_url || agent.agent_display_name) && (
           <div className="flex items-center justify-center gap-4">
             {agent.image_url && (
-              <div className="relative h-20 w-20 overflow-hidden rounded-full border border-muted">
+              <div className="relative size-20 overflow-hidden rounded-full border border-muted">
                 <Image
                   src={agent.image_url}
                   alt={agent.agent_display_name || "Agent"}

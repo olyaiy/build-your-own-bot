@@ -53,7 +53,7 @@ export function CategoryCard({ title, count, icon, href }: CategoryCardProps) {
       onClick={handleClick}
       className="flex flex-col p-6 bg-card hover:bg-accent/50 rounded-xl border border-border shadow-sm hover:shadow-md transition-all group"
     >
-      <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/20 transition-colors">
+      <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/20 transition-colors">
         {getIcon()}
       </div>
       <h3 className="text-lg font-semibold mb-1">{title}</h3>

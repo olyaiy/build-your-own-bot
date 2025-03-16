@@ -59,7 +59,7 @@ export function ModelSelector({
                   saveChatModelAsCookie(id);
                 });
               }}
-              className="gap-4 group/item flex flex-row   bg-green-500 z-[9999] bg-opacity-100"
+              className="gap-4 group/item flex flex-row   bg-green-500 z-[9999] bg/100"
               data-active={id === optimisticModelId}
             >
               <div className="flex flex-col gap-1 items-start">

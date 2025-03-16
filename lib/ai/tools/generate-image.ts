@@ -1,6 +1,5 @@
-import { tool } from 'ai';
+import { tool, experimental_generateImage as generateImage } from 'ai';
 import { z } from 'zod';
-import { experimental_generateImage as generateImage } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { fal } from '@ai-sdk/fal';

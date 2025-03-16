@@ -101,7 +101,7 @@ export default function AgentAppearanceSection({
                 <Lock className="h-8 w-8 text-amber-500" />
               </div>
               <h4 className="font-medium">Private</h4>
-              <p className="text-sm text-muted-foreground mt-1 flex-grow">
+              <p className="text-sm text-muted-foreground mt-1 grow">
                 Only you can see and use this agent. 
                 Best for personal assistants or works in progress.
               </p>
@@ -124,7 +124,7 @@ export default function AgentAppearanceSection({
                 <Link className="h-8 w-8 text-blue-500" />
               </div>
               <h4 className="font-medium">Invite Link</h4>
-              <p className="text-sm text-muted-foreground mt-1 flex-grow">
+              <p className="text-sm text-muted-foreground mt-1 grow">
                 Only people with the direct link can access this agent.
                 Not discoverable publicly.
               </p>
@@ -147,7 +147,7 @@ export default function AgentAppearanceSection({
                 <Globe className="h-8 w-8 text-green-500" />
               </div>
               <h4 className="font-medium">Public</h4>
-              <p className="text-sm text-muted-foreground mt-1 flex-grow">
+              <p className="text-sm text-muted-foreground mt-1 grow">
                 Anyone can find and use this agent.
                 Will appear in public listings and search results.
               </p>
