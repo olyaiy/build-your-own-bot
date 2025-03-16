@@ -35,7 +35,8 @@ export async function POST(request: Request) {
     selectedChatModel, // The model name/identifier for the AI request
     selectedModelId, // The actual database model ID for saving
     agentId,
-    agentSystemPrompt,
+    agentSystemPrompt,  
+    creatorId,
     searchEnabled,
   }: { 
     id: string; 
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
     selectedModelId: string;
     agentId: string;
     agentSystemPrompt?: string;
+    creatorId: string;
     searchEnabled?: boolean;
   } = await request.json();
   
@@ -183,6 +185,8 @@ export async function POST(request: Request) {
                 reasoning,
               });
 
+              console.log('THE USER ID IS:', session.user.id);
+              console.log('THE CREATOR ID IS:', chat?.userId);
 
          
 
@@ -202,7 +206,9 @@ export async function POST(request: Request) {
                    // Instead of calculating cost here, use recordTransaction to track usage
                    if (usage && modelDetails) {
                     await recordTransaction({
+                      agentId: agentId,
                       userId: session.user.id,
+                      applyCreatorMarkup: creatorId === session.user.id,
                       type: 'usage',
                       messageId: sanitizedResponseMessages[0]?.id,
                       modelId: selectedModelId,

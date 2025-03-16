@@ -1201,7 +1201,9 @@ export async function recordTransaction({
   tokenAmount,
   tokenType,
   modelId,
+  agentId,
   // New parameters for cost calculation
+  applyCreatorMarkup,
   costPerMillionInput,
   costPerMillionOutput,
   usage
@@ -1214,7 +1216,9 @@ export async function recordTransaction({
   tokenAmount?: number;
   tokenType?: 'input' | 'output';
   modelId?: string;
+  agentId?: string;
   // New parameter types
+  applyCreatorMarkup: boolean;
   costPerMillionInput?: string;
   costPerMillionOutput?: string;
   usage?: { promptTokens?: number; completionTokens?: number };
@@ -1226,8 +1230,8 @@ export async function recordTransaction({
     let outputCost = 0;
     
     if (type === 'usage' && usage && (costPerMillionInput || costPerMillionOutput)) {
-      // Apply a 1.18 markup factor for business margin
-      const MARKUP_FACTOR = -1.18;
+      // Apply markup factor based on applyCreatorMarkup flag
+      const MARKUP_FACTOR = applyCreatorMarkup === false ? -1.08 : -1.18;
       
       // Calculate input and output costs
       inputCost = usage.promptTokens 
@@ -1258,6 +1262,7 @@ export async function recordTransaction({
           .insert(userTransactions)
           .values({
             userId,
+            agentId,
             amount: inputCost.toString(), // Only the input cost
             type,
             description: description ? `${description} (Input)` : 'Token usage (Input)',
@@ -1275,6 +1280,7 @@ export async function recordTransaction({
           .insert(userTransactions)
           .values({
             userId,
+            agentId,
             amount: outputCost.toString(), // Only the output cost
             type,
             description: description ? `${description} (Output)` : 'Token usage (Output)',
@@ -1292,6 +1298,7 @@ export async function recordTransaction({
           .insert(userTransactions)
           .values({
             userId,
+            agentId,
             amount: calculatedAmount.toString(), // Convert to string for numeric type
             type,
             description,

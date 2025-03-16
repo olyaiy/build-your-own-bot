@@ -328,6 +328,7 @@ export const userTransactions = pgTable('user_transactions', {
   description: text('description'),
   messageId: uuid('message_id').references(() => message.id, { onDelete: 'set null' }),
   modelId: uuid('model_id').references(() => models.id, { onDelete: 'set null' }),
+  agentId: uuid('agent_id').references(() => agents.id),
   tokenAmount: integer('token_amount'),
   tokenType: tokenTypeEnum('token_type'),
   created_at: timestamp('created_at').notNull().defaultNow(),
@@ -335,6 +336,7 @@ export const userTransactions = pgTable('user_transactions', {
   return {
     userIdIdx: index("user_transactions_user_id_idx").on(table.userId),
     messageIdIdx: index("user_transactions_message_id_idx").on(table.messageId),
+    agentIdIdx: index("user_transactions_agent_id_idx").on(table.agentId),
   };
 });
 
