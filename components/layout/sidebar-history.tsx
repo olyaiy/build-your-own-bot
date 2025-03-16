@@ -201,7 +201,7 @@ export function SidebarHistory({
   user,
   currentConversationId
 }: { 
-  user: User | undefined,
+  user: User | undefined | null,
   currentConversationId?: string 
 }) {
   const { setOpenMobile } = useSidebar();

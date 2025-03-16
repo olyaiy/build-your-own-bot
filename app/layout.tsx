@@ -42,7 +42,6 @@ export default async function Layout({
 }) {
   const [session, cookieStore] = await Promise.all([auth(), cookies()]);
   const isCollapsed = cookieStore.get('sidebar:state')?.value !== 'true';
-  const isLoggedIn = !!session?.user;
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -69,18 +68,12 @@ export default async function Layout({
           disableTransitionOnChange
         >
           <Toaster position="top-center" richColors />
-          {isLoggedIn ? (
-            <SidebarProvider defaultOpen={!isCollapsed}>
-              <AppSidebar user={session.user} />
-              <SidebarInset>
-                {children}
-              </SidebarInset>
-            </SidebarProvider>
-          ) : (
+          <SidebarProvider defaultOpen={!isCollapsed}>
+            <AppSidebar user={session?.user} />
             <div className="w-full">
               {children}
             </div>
-          )}
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>

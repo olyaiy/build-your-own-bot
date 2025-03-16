@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@radix-ui/react-separator';
 import { SidebarToggle } from './layout/sidebar-toggle';
 
-export function AppSidebar({ user }: { user: User | undefined }) {
+export function AppSidebar({ user }: { user: User | undefined | null }) {
   const router = useRouter();
   const { setOpenMobile } = useSidebar();
   const params = useParams();
@@ -96,30 +96,32 @@ export function AppSidebar({ user }: { user: User | undefined }) {
       </SidebarHeader>
       <SidebarContent className="custom-sidebar-scrollbar">
         <SidebarHistory user={user} currentConversationId={chatId} />
-        <div className="px-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="sm"
-                variant="ghost"
-                className={cn(
-                  "w-full flex items-center justify-start gap-2 h-8 px-2 text-sm ",
-                  isHistoryPage && "bg-background border-primary/50 text-primary hover:bg-muted"
-                )}
-                onClick={() => {
-                  setOpenMobile(false);
-                  router.push('/chats');
-                }}
-              >
-                <HistoryIcon size={14} />
-                <span>View Chat History</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right">All Conversations</TooltipContent>
-          </Tooltip>
-        </div>
+        {user && (
+          <div className="px-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className={cn(
+                    "w-full flex items-center justify-start gap-2 h-8 px-2 text-sm ",
+                    isHistoryPage && "bg-background border-primary/50 text-primary hover:bg-muted"
+                  )}
+                  onClick={() => {
+                    setOpenMobile(false);
+                    router.push('/chats');
+                  }}
+                >
+                  <HistoryIcon size={14} />
+                  <span>View Chat History</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">All Conversations</TooltipContent>
+            </Tooltip>
+          </div>
+        )}
       </SidebarContent>
-      <SidebarFooter>{user && <SidebarUserNav user={user} />}</SidebarFooter>
+      <SidebarFooter><SidebarUserNav user={user} /></SidebarFooter>
     </Sidebar>
   );
 }
