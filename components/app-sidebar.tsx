@@ -18,6 +18,7 @@ import { SidebarHistory } from './layout/sidebar-history';
 import { SidebarUserNav } from './layout/sidebar-user-nav';
 import { cn } from '@/lib/utils';
 import { Separator } from '@radix-ui/react-separator';
+import { SidebarToggle } from './layout/sidebar-toggle';
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
@@ -55,6 +56,9 @@ export function AppSidebar({ user }: { user: User | undefined }) {
     <Sidebar className="group-data-[side=left]:border-r-0">
       <SidebarHeader className="p-2">
         <SidebarMenu>
+          <div className="absolute top-2 right-2 aspect-square">
+            <SidebarToggle />
+          </div>
           <div className="flex  my-2 flex-row justify-between items-center">
             <Link
               href="/"
