@@ -15,13 +15,13 @@ export default function ContactPage() {
       <section className="relative pt-24 pb-16 overflow-hidden">
         {/* Decorative background elements */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/5 blur-3xl"></div>
-          <div className="absolute top-60 -left-20 w-60 h-60 rounded-full bg-primary/10 blur-3xl"></div>
+          <div className="absolute -top-40 -right-40 size-80 rounded-full bg-primary/5 blur-3xl"></div>
+          <div className="absolute top-60 -left-20 size-60 rounded-full bg-primary/10 blur-3xl"></div>
         </div>
         
         <div className="container relative z-10 max-w-4xl text-center mx-auto">
           <div className="inline-block px-3 py-1 mb-6 text-sm font-medium rounded-full bg-primary/10 text-primary">
-            We'd love to hear from you
+            We&apos;d love to hear from you
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
             Need to{" "}
@@ -31,7 +31,7 @@ export default function ContactPage() {
             me?
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
-            I'd love to chat anytime.
+            I&apos;d love to chat anytime.
           </p>
           <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-8">
             Feel free to checkout our <a href="/faq" className="text-primary hover:underline">FAQ</a> or contact me using one of the three ways below
@@ -48,8 +48,8 @@ export default function ContactPage() {
         <div className="container max-w-6xl px-4 mx-auto">
           <div className="relative">
             {/* Decorative elements */}
-            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary/5 blur-2xl -z-10"></div>
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-primary/5 blur-2xl -z-10"></div>
+            <div className="absolute -top-10 -right-10 size-40 rounded-full bg-primary/5 blur-2xl -z-10"></div>
+            <div className="absolute -bottom-10 -left-10 size-40 rounded-full bg-primary/5 blur-2xl -z-10"></div>
             
             {/* Content with two columns on desktop */}
             <div className="bg-card rounded-2xl shadow-lg border border-border overflow-hidden">
@@ -57,7 +57,7 @@ export default function ContactPage() {
                 {/* Form Column */}
                 <div className="p-8 md:p-12 col-span-3">
                   <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                       <MessageSquare size={20} />
                     </div>
                     <h2 className="text-2xl font-semibold">Send us a message</h2>
@@ -71,13 +71,13 @@ export default function ContactPage() {
                   <div className="mb-8">
                     <h3 className="text-lg font-medium mb-2">Contact Information</h3>
                     <p className="text-muted-foreground mb-6">
-                      We're here to help and answer any questions you might have. We look forward to hearing from you.
+                      We&apos;re here to help and answer any questions you might have. We look forward to hearing from you.
                     </p>
                   </div>
                   
                   <div className="space-y-6 mb-auto">
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                      <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                         <Mail size={18} />
                       </div>
                       <div>
@@ -89,7 +89,7 @@ export default function ContactPage() {
                     </div>
                     
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                      <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                         <Twitter size={18} />
                       </div>
                       <div>
