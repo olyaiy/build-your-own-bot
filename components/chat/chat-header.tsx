@@ -61,14 +61,13 @@ function PureChatHeader({
           <TooltipTrigger asChild>
             <Button
               variant="outline"
-              className="h-10 w-10 md:h-9 md:w-fit flex-shrink-0 order-last md:order-1 ml-auto md:ml-0"
+              className="h-8 w-8 md:h-8 flex-shrink-0 order-last md:order-1 ml-auto md:ml-0"
               onClick={() => {
                 router.push(`/${agentId}`);
                 router.refresh();
               }}
             >
-              <PlusIcon size={20} />
-              <span className="hidden md:inline-block md:ml-2">New Chat</span>
+              <PlusIcon size={8} />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">New Chat</TooltipContent>
@@ -88,7 +87,7 @@ function PureChatHeader({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="outline"
+                variant="ghost"
                 className="h-10 md:h-9 min-w-10 md:px-3 flex items-center justify-center gap-2"
                 asChild
               >
