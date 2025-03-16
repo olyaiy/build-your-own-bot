@@ -9,12 +9,12 @@ export function Logo({
   className?: string;
   spanClassName?: string;
 }) {
-  const { setOpenMobile } = useSidebar();
+  // const { setOpenMobile } = useSidebar();
   
   return (
     <Link
       href="/"
-      onClick={() => setOpenMobile(false)}
+      // onClick={() => setOpenMobile(false)}
       className={cn(
         'flex flex-row gap-2 items-center',
         className

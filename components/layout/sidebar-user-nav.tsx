@@ -1,5 +1,5 @@
 'use client';
-import { ChevronUp, UserCircle, LogIn, UserPlus, User } from 'lucide-react';
+import { ChevronUp, UserCircle, LogIn, UserPlus, User, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { User as AuthUser } from 'next-auth';
@@ -23,38 +23,61 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import type { User as DbUser } from '@/lib/db/schema';
 
-export function SidebarUserNav({ user }: { user: AuthUser | null | undefined }) {
+interface UserNavProps {
+  variant?: 'sidebar' | 'header';
+  user?: AuthUser | null;
+}
+
+export function UserNav({ variant = 'sidebar', user }: UserNavProps) {
   const { setTheme, theme } = useTheme();
   const [dbUser, setDbUser] = useState<DbUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Consolidated data fetching logic
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        if (!user?.email) return;
+        if (!user?.email) {
+          setIsLoading(false);
+          return;
+        }
         
+        setIsLoading(true);
         const response = await fetch(`/api/user?email=${encodeURIComponent(user.email)}`);
         if (response.ok) {
           const userData = await response.json();
-          if (userData && userData.length > 0) {
-            setDbUser(userData[0]);
-          }
+          setDbUser(userData?.[0] || null);
         }
       } catch (error) {
         console.error('Failed to fetch user data:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    if (user?.email) {
-      fetchUserData();
-    }
+    fetchUserData();
   }, [user?.email]);
 
-  // Display name with fallback to email
   const displayName = dbUser?.user_name || user?.email;
 
-  // If no user is authenticated, show login/register buttons
-  if (!user) {
+  if (isLoading && variant === 'header') {
     return (
+      <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+        <span className="w-6 h-6 rounded-full bg-muted animate-pulse" />
+      </Button>
+    );
+  }
+
+  if (!user) {
+    return variant === 'header' ? (
+      <div className="flex items-center gap-1">
+        <Link href="/login">
+          <Button variant="outline" size="sm">
+            Login
+          </Button>
+        </Link>
+      </div>
+    ) : (
       <SidebarMenu>
         <SidebarMenuItem className="p-3">
           <div className="flex flex-col items-center space-y-3 w-full">
@@ -91,56 +114,86 @@ export function SidebarUserNav({ user }: { user: AuthUser | null | undefined }) 
   }
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent bg-background data-[state=open]:text-sidebar-accent-foreground h-10">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        {variant === 'header' ? (
+          <Button variant="ghost" className="flex items-center gap-2 h-8 px-2 py-1" size="sm">
+            {/* Header-specific trigger */}
+            <div className="relative w-6 h-6 rounded-full overflow-hidden">
               <Image
-                src={`https://avatar.vercel.sh/${user?.email || 'anonymous'}`}
+                src={`https://avatar.vercel.sh/${user.email || 'anonymous'}`}
                 alt={displayName ?? 'User Avatar'}
                 width={24}
                 height={24}
-                className="rounded-full"
+                className="object-cover"
               />
-              <span className="truncate">{displayName || 'Anonymous'}</span>
-              <ChevronUp className="ml-auto" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="top"
-            className="w-[--radix-popper-anchor-width]"
+            </div>
+            <span className="max-w-[100px] truncate hidden sm:inline-block text-sm font-normal">
+              {displayName || 'Anonymous'}
+            </span>
+            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+          </Button>
+        ) : (
+          <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent bg-background data-[state=open]:text-sidebar-accent-foreground h-10">
+            {/* Sidebar-specific trigger */}
+            <Image
+              src={`https://avatar.vercel.sh/${user.email || 'anonymous'}`}
+              alt={displayName ?? 'User Avatar'}
+              width={24}
+              height={24}
+              className="rounded-full"
+            />
+            <span className="truncate">{displayName || 'Anonymous'}</span>
+            <ChevronUp className="ml-auto" />
+          </SidebarMenuButton>
+        )}
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end" className="w-56">
+        {/* Common dropdown content */}
+        <div className="flex items-center justify-start gap-2 p-2">
+          <div className={`relative ${variant === 'header' ? 'w-8 h-8' : 'w-10 h-10'} rounded-full overflow-hidden`}>
+            <Image
+              src={`https://avatar.vercel.sh/${user.email || 'anonymous'}`}
+              alt={displayName ?? 'User Avatar'}
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="flex flex-col space-y-0.5">
+            <p className="text-sm font-medium leading-none">{displayName || 'Anonymous'}</p>
+            <p className="text-xs text-muted-foreground leading-none">{user.email}</p>
+          </div>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/profile" className="flex items-center cursor-pointer">
+            <User className="mr-2 size-4" />
+            <span>Profile</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        >
+          {`Toggle ${theme === 'light' ? 'dark' : 'light'} mode`}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <button
+            type="button"
+            className="w-full cursor-pointer"
+            onClick={() => {
+              signOut({
+                redirectTo: '/',
+              });
+            }}
           >
-            <DropdownMenuItem asChild>
-              <Link href="/profile" className="flex items-center cursor-pointer">
-                <UserCircle className="mr-2 size-4" />
-                <span>View Profile</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onSelect={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            >
-              {`Toggle ${theme === 'light' ? 'dark' : 'light'} mode`}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <button
-                type="button"
-                className="w-full cursor-pointer"
-                onClick={() => {
-                  signOut({
-                    redirectTo: '/',
-                  });
-                }}
-              >
-                Sign out
-              </button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+            Sign out
+          </button>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

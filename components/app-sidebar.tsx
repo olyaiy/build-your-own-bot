@@ -15,12 +15,13 @@ import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { HistoryIcon, PlusIcon } from 'lucide-react';
 import { SidebarHistory } from './layout/sidebar-history';
-import { SidebarUserNav } from './layout/sidebar-user-nav';
+
 import { cn } from '@/lib/utils';
 import { Separator } from '@radix-ui/react-separator';
 import { SidebarToggle } from './layout/sidebar-toggle';
 import useSWR from 'swr';
 import { Logo } from './logo';
+import { UserNav } from './layout/sidebar-user-nav';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
@@ -70,13 +71,13 @@ export function AppSidebar({ user: initialUser }: { user: User | undefined | nul
     <Sidebar className="group-data-[side=left]:border-r-0">
       <SidebarHeader className="p-2">
         <SidebarMenu>
-          <div className="absolute top-4 right-2 aspect-square">
+          <div className="absolute top-2 right-2 aspect-square">
             <SidebarToggle />
           </div>
-          <div className="flex my-2 flex-row justify-between items-center">
+          <div className="flex my-0 flex-row justify-between items-center">
             <Logo />
           </div>
-          <Separator className="my-2 bg-primary/10   h-px rounded-full" />
+          <Separator className="my-1 bg-primary/10   h-px rounded-full" />
         </SidebarMenu>
 
         <Tooltip>
@@ -125,7 +126,7 @@ export function AppSidebar({ user: initialUser }: { user: User | undefined | nul
           </div>
         )}
       </SidebarContent>
-      <SidebarFooter><SidebarUserNav user={user} /></SidebarFooter>
+      <SidebarFooter><UserNav variant="sidebar" user={user} /></SidebarFooter>
     </Sidebar>
   );
 }
