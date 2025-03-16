@@ -4,7 +4,7 @@ import { Twitter, Mail, MessageSquare, ArrowRight } from "lucide-react";
 
 export default function ContactOptions() {
   return (
-    <section id="contact-options" className="relative bg-white/10 dark:bg-black/10 border border-white/20 dark:border-white/10 shadow-xl rounded-2xl p-8 m-4">
+    <div className="relative bg-blue-950/10 border border-white/20 dark:border-white/10  rounded-2xl p-8 m-4">
       <div className="container max-w-6xl px-4 mx-auto">          
         {/* Cards with simplified design and interactions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -97,6 +97,6 @@ export default function ContactOptions() {
           </a>
         </div>
       </div>
-    </section>
+    </div>
   );
 } 

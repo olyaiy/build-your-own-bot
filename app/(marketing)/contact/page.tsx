@@ -39,7 +39,9 @@ export default function ContactPage() {
         </div>
       </section>
       
+      <div className="bg-none">
       <ContactOptions />
+      </div>
       
       {/* Contact Form Section with improved visual design */}
       <section id="contact-form" className="py-16 bg-muted/30 scroll-mt-16">
