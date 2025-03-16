@@ -1,6 +1,7 @@
 "use client";
 
 import { Twitter, Mail, MessageSquare, ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 export default function ContactOptions() {
   return (
@@ -19,10 +20,12 @@ export default function ContactOptions() {
             <div className="relative z-20 p-8 flex flex-col h-full">
               <div className="mb-6 flex items-center">
                 <div className="size-12 rounded-full overflow-hidden border-2 border-white/50 mr-3">
-                  <img 
+                  <Image 
                     src="https://unavatar.io/x/alexfromvan" 
                     alt="Alex on X" 
-                    className="w-full h-full object-cover"
+                    className="size-full object-cover"
+                    width={48}
+                    height={48}
                   />
                 </div>
                 <div>
@@ -58,7 +61,7 @@ export default function ContactOptions() {
                 <h3 className="text-xl font-semibold text-white">Leave a Message</h3>
               </div>
               <p className="text-white/90 mb-6 grow">
-                Fill out our contact form and we'll get back to you as soon as possible.
+                Fill out our contact form and we&apos;ll get back to you as soon as possible.
               </p>
               <div className="mt-auto">
                 <span className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white group-hover:bg-white/20 transition-colors">

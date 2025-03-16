@@ -140,7 +140,7 @@ const PurePreviewMessage = ({
                   alt="Agent avatar" 
                   width={32} 
                   height={32} 
-                  className="w-full h-full object-cover"
+                  className="size-full object-cover"
                 />
               ) : (
                 <div className="translate-y-px">

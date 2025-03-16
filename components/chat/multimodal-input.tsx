@@ -165,7 +165,7 @@ function PureMultimodalInput({
     agentId,
   ]);
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = useCallback(async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
 
@@ -190,7 +190,7 @@ function PureMultimodalInput({
     } catch (error) {
       toast.error('Failed to upload file, please try again!');
     }
-  };
+  }, []);
 
   const handlePaste = useCallback(
     async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
