@@ -2,13 +2,6 @@
 
 import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { 
   Card, 
   CardContent, 
@@ -16,7 +9,6 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { 
   Eye, 
   EyeOff, 
@@ -29,7 +21,7 @@ import {
   Globe
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+
 
 
 interface AgentAppearanceSectionProps {
@@ -167,7 +159,7 @@ export default function AgentAppearanceSection({
                   <Info className="size-3.5 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-80">
-                  <p>Select a color scheme for your agent's interface</p>
+                  <p>Select a color scheme for your agent&apos;s interface</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
