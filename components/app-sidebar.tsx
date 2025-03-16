@@ -17,6 +17,7 @@ import { HistoryIcon, PlusIcon } from 'lucide-react';
 import { SidebarHistory } from './layout/sidebar-history';
 import { SidebarUserNav } from './layout/sidebar-user-nav';
 import { cn } from '@/lib/utils';
+import { Separator } from '@radix-ui/react-separator';
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
@@ -54,7 +55,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
     <Sidebar className="group-data-[side=left]:border-r-0">
       <SidebarHeader className="p-2">
         <SidebarMenu>
-          <div className="flex flex-row justify-between items-center">
+          <div className="flex  my-2 flex-row justify-between items-center">
             <Link
               href="/"
               onClick={() => {
@@ -62,35 +63,44 @@ export function AppSidebar({ user }: { user: User | undefined }) {
               }}
               className="flex flex-row gap-2 items-center"
             >
-              <span className="text-base font-semibold px-2 hover:bg-muted rounded-md cursor-pointer">
+              <span className="text-2xl font-semibold px-2 hover:bg-muted rounded-md cursor-pointer">
                 Agent Place
               </span>
             </Link>
-            <Tooltip>
+          </div>
+          <Separator className="my-2 bg-primary/10   h-[1px] rounded-full" />
+        </SidebarMenu>
+
+        <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   type="button"
-                  className="size-8 p-0"
+                  className={cn(
+                    "w-full flex items-center justify-start gap-2 h-10 px-2 text-sm",
+                    isHistoryPage && "bg-muted border-primary/50 text-primary"
+                  )}
                   onClick={handleNewChatClick}
-                >
+                > New Chat
                   <PlusIcon size={16} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent align="end">New Chat</TooltipContent>
             </Tooltip>
-          </div>
-        </SidebarMenu>
         
-        <div>
+        
+      </SidebarHeader>
+      <SidebarContent className="custom-sidebar-scrollbar">
+        <SidebarHistory user={user} currentConversationId={chatId} />
+        <div className="px-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="outline"
                 size="sm"
+                variant="ghost"
                 className={cn(
-                  "w-full flex items-center justify-start gap-2 h-8 px-2 text-sm",
-                  isHistoryPage && "bg-muted border-primary/50 text-primary"
+                  "w-full flex items-center justify-start gap-2 h-8 px-2 text-sm ",
+                  isHistoryPage && "bg-background border-primary/50 text-primary hover:bg-muted"
                 )}
                 onClick={() => {
                   setOpenMobile(false);
@@ -104,9 +114,6 @@ export function AppSidebar({ user }: { user: User | undefined }) {
             <TooltipContent side="right">All Conversations</TooltipContent>
           </Tooltip>
         </div>
-      </SidebarHeader>
-      <SidebarContent className="custom-sidebar-scrollbar">
-        <SidebarHistory user={user} currentConversationId={chatId} />
       </SidebarContent>
       <SidebarFooter>{user && <SidebarUserNav user={user} />}</SidebarFooter>
     </Sidebar>

@@ -3,8 +3,8 @@
 import type { Attachment, Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useState, useEffect } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
-import type { Agent, Vote,   } from '@/lib/db/schema';
+import { useSWRConfig } from 'swr';
+import type { Agent } from '@/lib/db/schema';
 import { useLocalStorage } from 'usehooks-ts';
 
 import { ChatHeader } from '@/components/chat/chat-header';
@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { ModelWithDefault } from './chat-model-selector';
 import { VisibilityType } from '../util/visibility-selector';
 import { Artifact } from '../artifact/artifact';
+import { Overview } from '../util/overview';
 
 
 export function Chat({
@@ -118,21 +119,54 @@ export function Chat({
         />
 
         <div className="flex-1 min-h-0 relative">
-          <Messages
-            chatId={id}
-            status={status}
-            messages={messages}
-            setMessages={setMessages}
-            reload={reload}
-            isReadonly={isReadonly}
-            isArtifactVisible={isArtifactVisible}
-            toolCallData={toolCallData}
-            agent={agent}
-          />
+          {messages.length > 0 ? (
+            <Messages
+              chatId={id}
+              status={status}
+              messages={messages}
+              setMessages={setMessages}
+              reload={reload}
+              isReadonly={isReadonly}
+              isArtifactVisible={isArtifactVisible}
+              toolCallData={toolCallData}
+              agent={agent}
+            />
+          ) : (
+            <div className="flex flex-col h-full justify-center items-center px-4 md:px-8 gap-6">
+              <div className="w-full md:max-w-3xl">
+                <Overview agent={agent} />
+              </div>
+              
+              {!isReadonly && (
+                <div className="w-full md:max-w-3xl">
+                  <MultimodalInput
+                    agentId={agent.id}
+                    chatId={id}
+                    input={input}
+                    setInput={setInput}
+                    handleSubmit={handleSubmit}
+                    status={status}
+                    stop={stop}
+                    attachments={attachments}
+                    setAttachments={setAttachments}
+                    messages={messages}
+                    setMessages={setMessages}
+                    append={append}
+                    availableModels={availableModels}
+                    currentModel={currentModel}
+                    onModelChange={handleModelChange}
+                    isReadonly={isReadonly}
+                    searchEnabled={searchEnabled}
+                    setSearchEnabled={setSearchEnabled}
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        <form className="flex flex-col mx-auto px-2 sm:px-4 bg-background pb-1 sm:pb-2 md:pb-4 gap-1 sm:gap-2 w-full md:max-w-3xl">
-          {!isReadonly && (
+        {messages.length > 0 && !isReadonly && (
+          <form className="flex flex-col mx-auto px-2 sm:px-4 bg-background pb-1 sm:pb-2 md:pb-4 gap-1 sm:gap-2 w-full md:max-w-3xl">
             <MultimodalInput
               agentId={agent.id}
               chatId={id}
@@ -153,8 +187,8 @@ export function Chat({
               searchEnabled={searchEnabled}
               setSearchEnabled={setSearchEnabled}
             />
-          )}
-        </form>
+          </form>
+        )}
       </div>
 
       <Artifact

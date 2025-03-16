@@ -2,9 +2,7 @@ import { Message } from 'ai';
 import { PreviewMessage, ThinkingMessage } from '@/components/chat/message';
 import { useScrollToBottom } from '@/components/hooks/use-scroll-to-bottom';
 import { useMemo, memo} from 'react';
-import { Vote } from '@/lib/db/schema';
 import equal from 'fast-deep-equal';
-import { Overview } from '../util/overview';
 import type { Agent } from '@/lib/db/schema';
 import { UseChatHelpers } from 'ai/react';
 
@@ -89,9 +87,6 @@ function PureMessages({
       ref={messagesContainerRef}
       className="flex flex-col min-w-0 gap-6 absolute inset-0 overflow-y-auto pt-4 px-4 md:px-8"
     >
-      {/* Show the Overview component when there are no messages */}
-      {messages.length === 0 && <Overview agent={agent} />}
-
       {/* Render each message with its associated metadata and interactions */}
       {messages.map((message, index) => (
         <PreviewMessage
