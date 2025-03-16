@@ -186,7 +186,7 @@ export async function POST(request: Request) {
               });
 
               console.log('THE USER ID IS:', session.user.id);
-              console.log('THE CREATOR ID IS:', chat?.userId);
+              console.log('THE CREATOR ID IS:', creatorId);
 
          
 

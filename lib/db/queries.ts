@@ -1231,7 +1231,8 @@ export async function recordTransaction({
     
     if (type === 'usage' && usage && (costPerMillionInput || costPerMillionOutput)) {
       // Apply markup factor based on applyCreatorMarkup flag
-      const MARKUP_FACTOR = applyCreatorMarkup === false ? -1.08 : -1.18;
+      const MARKUP_FACTOR = applyCreatorMarkup === false ? -1.18 : -1.08;
+      console.log('THE MARKUP FACTOR IS:', MARKUP_FACTOR, 'IS THE USER THE CREATOR?', applyCreatorMarkup);
       
       // Calculate input and output costs
       inputCost = usage.promptTokens 
