@@ -43,8 +43,7 @@ function PureMainHeader() {
       <div className="flex items-center gap-3">
         <div className="hidden md:flex items-center gap-1">
           <Link href="/agents/create">
-            <Button variant="default" size="sm" className="gap-1">
-              <Plus className="h-4 w-4" />
+            <Button variant="ghost" size="sm" className="gap-1">
               Create
             </Button>
           </Link>
