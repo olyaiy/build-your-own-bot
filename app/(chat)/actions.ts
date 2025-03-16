@@ -48,12 +48,21 @@ export async function generateTitleFromUserMessage({
     return title;
   } catch (error) {
     console.error('Error generating title:', error);
+    
+    // Type the error object properties that we want to access
+    const typedError = error as {
+      message?: string;
+      statusCode?: number;
+      responseBody?: unknown;
+      url?: string;
+    };
+    
     console.error('Error details:', {
       modelName: 'title-model',
-      errorMessage: error.message,
-      statusCode: error.statusCode,
-      responseBody: error.responseBody,
-      url: error.url
+      errorMessage: typedError.message,
+      statusCode: typedError.statusCode,
+      responseBody: typedError.responseBody,
+      url: typedError.url
     });
     
     // Return a fallback title to prevent the application from crashing
