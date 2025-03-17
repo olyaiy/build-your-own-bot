@@ -208,8 +208,7 @@ export async function POST(request: Request) {
                     await recordTransaction({
                       agentId: agentId,
                       userId: session.user.id,
-                      applyCreatorMarkup: creatorId === session.user.id,
-                      type: 'usage',
+                      type: creatorId === session.user.id ? 'self_usage' : 'usage',
                       messageId: sanitizedResponseMessages[0]?.id,
                       modelId: selectedModelId,
                       costPerMillionInput: modelDetails.cost_per_million_input_tokens || '0',
@@ -288,6 +287,8 @@ export async function POST(request: Request) {
           }
         })();
       }
+
+      
       
       // Return a more descriptive error message
       if (error instanceof Error) {

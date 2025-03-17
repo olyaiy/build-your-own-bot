@@ -1228,8 +1228,6 @@ export async function recordTransaction({
   tokenType,
   modelId,
   agentId,
-  // New parameters for cost calculation
-  applyCreatorMarkup,
   costPerMillionInput,
   costPerMillionOutput,
   usage
@@ -1244,7 +1242,6 @@ export async function recordTransaction({
   modelId?: string;
   agentId?: string;
   // New parameter types
-  applyCreatorMarkup: boolean;
   costPerMillionInput?: string;
   costPerMillionOutput?: string;
   usage?: { promptTokens?: number; completionTokens?: number };
@@ -1255,17 +1252,18 @@ export async function recordTransaction({
     let inputCost = 0;
     let outputCost = 0;
     
-    // Determine transaction type - if user is the creator, change type to self_usage
-    let transactionType = type;
-    if ((type === 'usage') && applyCreatorMarkup === false) {
-      transactionType = 'self_usage';
-    }
-    
     if ((type === 'usage' || type === 'self_usage') && usage && (costPerMillionInput || costPerMillionOutput)) {
       // Apply markup factor based on applyCreatorMarkup flag
-      const MARKUP_FACTOR = applyCreatorMarkup === false ? -1.08 : -1.18;
-      console.log('THE MARKUP FACTOR IS:', MARKUP_FACTOR, 'IS THE USER THE CREATOR?', applyCreatorMarkup);
-      
+      const MARKUP_FACTOR = type === 'self_usage' ? -1.08 : -1.18;
+
+      // 🚨 Debug logging
+      console.log(
+        `%c👑 CREATOR STATUS: ${type === 'self_usage' ? 'AGENT OWNER 👑' : 'REGULAR USER 👤'}\n` +
+        `%c🏷️ MARKUP FACTOR: ${MARKUP_FACTOR} applied since this is ${type}`,
+        'color: #4CAF50; font-weight: bold;', 
+        'color: #2196F3; font-weight: bold;'
+      );
+
       // Calculate input and output costs
       inputCost = usage.promptTokens 
         ? (((usage.promptTokens || 0) * parseFloat(costPerMillionInput || '0')) / 1000000) * MARKUP_FACTOR
@@ -1275,9 +1273,28 @@ export async function recordTransaction({
         ? (((usage.completionTokens || 0) * parseFloat(costPerMillionOutput || '0')) / 1000000) * MARKUP_FACTOR
         : 0;
 
-      
+      // 🚨 Token usage debug
+      console.log(
+        `%c📝 INPUT TOKENS: ${usage.promptTokens?.toLocaleString() || 0}\n` +
+        `%c📤 OUTPUT TOKENS: ${usage.completionTokens?.toLocaleString() || 0}\n` +
+        `%c💰 INPUT COST: $${inputCost.toFixed(4)}\n` +
+        `%c💰 OUTPUT COST: $${outputCost.toFixed(4)}`,
+        'color: #FF9800;',  // Orange
+        'color: #9C27B0;',  // Purple
+        'color: #4CAF50;',  // Green
+        'color: #2196F3;'   // Blue
+      );
+
       // Total cost is the sum of input and output costs
       calculatedAmount = inputCost + outputCost;
+      
+      // 🚨 Total cost debug
+      console.log(
+        `%c💸 TOTAL COST: $${calculatedAmount.toFixed(4)}\n` +
+        `%c🏷️ TRANSACTION TYPE: ${type.toUpperCase()}`,
+        'background: #FFEB3B; color: #000; font-weight: bold; padding: 2px 5px;',
+        'background: #E91E63; color: #fff; font-weight: bold; padding: 2px 5px;'
+      );
     }
     
     if (calculatedAmount === undefined) {
@@ -1289,7 +1306,7 @@ export async function recordTransaction({
       const result = [];
       
       // For usage transactions with both input and output tokens, create two separate transactions
-      if ((transactionType === 'usage' || transactionType === 'self_usage') && usage && usage.promptTokens && usage.completionTokens) {
+      if ((type === 'usage' || type === 'self_usage') && usage && usage.promptTokens && usage.completionTokens) {
         // Create transaction for input tokens
         const [inputTransaction] = await tx
           .insert(userTransactions)
@@ -1297,7 +1314,7 @@ export async function recordTransaction({
             userId,
             agentId,
             amount: inputCost.toString(), // Only the input cost
-            type: transactionType,
+            type: type,
             description: description ? `${description} (Input)` : 'Token usage (Input)',
             messageId,
             tokenAmount: usage.promptTokens,
@@ -1315,7 +1332,7 @@ export async function recordTransaction({
             userId,
             agentId,
             amount: outputCost.toString(), // Only the output cost
-            type: transactionType,
+            type: type,
             description: description ? `${description} (Output)` : 'Token usage (Output)',
             messageId,
             tokenAmount: usage.completionTokens,
@@ -1333,10 +1350,10 @@ export async function recordTransaction({
             userId,
             agentId,
             amount: calculatedAmount.toString(), // Convert to string for numeric type
-            type: transactionType,
+            type: type,
             description,
             messageId,
-            tokenAmount: tokenAmount || ((transactionType === 'usage' || transactionType === 'self_usage') ? (usage?.promptTokens || 0) + (usage?.completionTokens || 0) : undefined),
+            tokenAmount: tokenAmount || ((type === 'usage' || type === 'self_usage') ? (usage?.promptTokens || 0) + (usage?.completionTokens || 0) : undefined),
             tokenType,
             modelId
           })
@@ -1347,7 +1364,7 @@ export async function recordTransaction({
       
       // Update the user's credit balance with the total amount
       // For usage, refund, or adjustment types, we modify the credit balance
-      if (transactionType === 'usage' || transactionType === 'self_usage') {
+      if (type === 'usage' || type === 'self_usage') {
         // Get current balance before update
         const [userCredit] = await tx
           .select({ balance: userCredits.credit_balance })
@@ -1357,7 +1374,16 @@ export async function recordTransaction({
         const currentBalance = userCredit?.balance || 0;
         const newBalance = Number(currentBalance) + Number(calculatedAmount);
 
-        // For usage transactions, reduce the credit balance
+        // 🚨 Credit change debug
+        console.log(
+          `%c💳 CREDIT CHANGE:\n` +
+          `PREVIOUS BALANCE: $${currentBalance}\n` +
+          `NEW BALANCE: $${newBalance}\n` +
+          `AMOUNT CHANGE: $${calculatedAmount} ${calculatedAmount > 0 ? 'ADDED ➕' : 'SUBTRACTED ➖'}`,
+          'background: #607D8B; color: #fff; font-weight: bold; padding: 5px;'
+        );
+
+
         await tx
           .update(userCredits)
           .set({
@@ -1365,7 +1391,7 @@ export async function recordTransaction({
           })
           .where(eq(userCredits.user_id, userId));
 
-      } else if (transactionType === 'purchase' || transactionType === 'promotional') {
+      } else if (type === 'purchase' || type === 'promotional') {
         // Get current balance before update
         const [userCredit] = await tx
           .select({ 
@@ -1390,7 +1416,7 @@ export async function recordTransaction({
           .where(eq(userCredits.user_id, userId));
           
 
-      } else if (transactionType === 'refund' || transactionType === 'adjustment') {
+      } else if (type === 'refund' || type === 'adjustment') {
         // Get current balance before update
         const [userCredit] = await tx
           .select({ balance: userCredits.credit_balance })
