@@ -118,6 +118,8 @@ export const agents = pgTable("agents", {
       // customColors: false
     }
   }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at"),
 }, (table) => {
   return {
     creatorIdIdx: index("agents_creator_id_idx").on(table.creatorId),

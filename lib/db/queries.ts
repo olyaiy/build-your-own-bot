@@ -523,7 +523,9 @@ export async function createAgent({
         creatorId,
         artifacts_enabled: artifactsEnabled !== undefined ? artifactsEnabled : true,
         image_url: imageUrl,
-        customization: customization as any // Type cast for Drizzle JSON field
+        customization: customization as any, // Type cast for Drizzle JSON field
+        createdAt: new Date(),
+        updatedAt: new Date()
       })
       .returning();
 
@@ -643,6 +645,7 @@ export async function updateAgentById({
         artifacts_enabled: artifactsEnabled !== undefined ? artifactsEnabled : true,
         image_url: imageUrl,
         customization: customization as any, // Type cast for Drizzle JSON field
+        updatedAt: new Date()
       })
       .where(eq(agents.id, id))
       .returning();

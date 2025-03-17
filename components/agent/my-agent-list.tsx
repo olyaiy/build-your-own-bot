@@ -5,7 +5,6 @@ import { AgentCard } from "./agent-card";
 import { CreateAgentCard } from "./create-agent-card";
 import { Input } from "../ui/input";
 import { Search, Plus } from "lucide-react";
-import { TagFilters } from "./tag-filters";
 import { Button } from "../ui/button";
 import Link from "next/link";
 
@@ -26,7 +25,6 @@ interface MyAgentListProps {
 export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgentListProps) {
   const [agents, setAgents] = useState(initialAgents);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [filteredAgents, setFilteredAgents] = useState(initialAgents);
   
   // Cookie name for storing recently used agents
@@ -88,18 +86,7 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgen
     document.cookie = `${RECENT_AGENTS_COOKIE}=${recentAgentIds.join(',')}; path=/; expires=${expiryDate.toUTCString()}`;
   };
 
-  // Handle tag selection
-  const handleTagSelect = (tagId: string) => {
-    setSelectedTags(prevTags => {
-      if (prevTags.includes(tagId)) {
-        return prevTags.filter(id => id !== tagId);
-      } else {
-        return [...prevTags, tagId];
-      }
-    });
-  };
-
-  // Filter agents based on search query and selected tags
+  // Filter agents based on search query
   useEffect(() => {
     let filtered = agents;
     
@@ -113,15 +100,9 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgen
         );
       });
     }
-    
-    if (selectedTags.length > 0) {
-      filtered = filtered.filter((agent) => {
-        return agent.tags?.some((tag: Tag) => selectedTags.includes(tag.id));
-      });
-    }
 
     setFilteredAgents(filtered);
-  }, [searchQuery, agents, selectedTags]);
+  }, [searchQuery, agents]);
 
   // Empty state when user has no agents
   if (agents.length === 0) {
@@ -162,16 +143,6 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgen
         </Button>
       </div>
 
-      {tags.length > 0 && (
-        <div className="overflow-x-auto">
-          <TagFilters 
-            tags={tags} 
-            onTagSelect={handleTagSelect} 
-            selectedTags={selectedTags}
-          />
-        </div>
-      )}
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 justify-items-center">
         {filteredAgents.map((agent) => (
           <AgentCard 
@@ -181,7 +152,7 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgen
             onClick={handleAgentClick}
           />
         ))}
-        {(!searchQuery && !selectedTags.length) && (
+        {!searchQuery && (
           <CreateAgentCard key="create-agent" />
         )}
       </div>
@@ -191,9 +162,8 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgen
           <p className="text-muted-foreground mb-4">No agents match your search criteria.</p>
           <Button variant="outline" onClick={() => {
             setSearchQuery('');
-            setSelectedTags([]);
           }}>
-            Clear Filters
+            Clear Search
           </Button>
         </div>
       )}
