@@ -47,6 +47,11 @@ function PureMainHeader() {
               Create
             </Button>
           </Link>
+          <Link href="/profile/agents">
+            <Button variant="ghost" size="sm">
+              My Agents
+            </Button>
+          </Link>
           <Link href="/contact">
             <Button variant="ghost" size="sm">
               Support

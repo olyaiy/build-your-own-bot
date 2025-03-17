@@ -1,0 +1,9 @@
+The following is an application named Agent Vendor - An AI Agent Chatbot Marketplace
+Features: 
+Users can create their own chatbots, configure models, tools, prompts and more. They can 
+use each other's or their own chatbots.
+
+Built with: Next.js 15, React, Tailwind CSS, Shadcn, TypeScript
+Database: Neon.Tech (PostgreSQL)
+Payments: Stripe
+Hosting: Vercel

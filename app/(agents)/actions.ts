@@ -12,7 +12,7 @@ export async function createAgent({
   modelId,
   visibility,
   creatorId,
-  artifactsEnabled,
+  artifactsEnabled = true,
   imageUrl,
   alternateModelIds = [],
   toolGroupIds = [],

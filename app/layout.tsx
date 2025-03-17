@@ -1,5 +1,6 @@
 import './globals.css';
 import { cookies } from 'next/headers';
+import { Metadata } from 'next';
 
 import { Toaster } from 'sonner';
 import Script from 'next/script';
@@ -32,9 +33,34 @@ const THEME_COLOR_SCRIPT = `\
   updateThemeColor();
 })();`;
 
-export const metadata = {
-  title: 'AI Assistant Platform',
-  description: 'Next-generation AI agent development environment',
+export const metadata: Metadata = {
+  title: {
+    default: 'Agent Vendor - AI Chatbot Marketplace',
+    template: '%s | Agent Vendor'
+  },
+  description: 'Create, customize, and discover AI chatbots with Agent Vendor - the next-generation AI agent development platform',
+  keywords: ['AI chatbots', 'AI agents', 'chatbot marketplace', 'custom AI', 'agent development'],
+  metadataBase: new URL('https://agentvendor.ca'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_CA',
+    url: 'https://agentvendor.ca',
+    title: 'Agent Vendor - AI Chatbot Marketplace',
+    description: 'Create, customize, and discover AI chatbots with Agent Vendor - the next-generation AI agent development platform',
+    siteName: 'Agent Vendor',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Agent Vendor - AI Chatbot Marketplace',
+    description: 'Create, customize, and discover AI chatbots with Agent Vendor',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default async function Layout({
@@ -52,6 +78,7 @@ export default async function Layout({
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1"
         />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <script
           dangerouslySetInnerHTML={{
             __html: THEME_COLOR_SCRIPT,
@@ -72,11 +99,10 @@ export default async function Layout({
           >
             <Toaster position="top-center" richColors />
             <SidebarProvider defaultOpen={!isCollapsed}>
-            
               <AppSidebar user={session?.user} />
               <div className="w-full">
-              <MainHeader />
-                {children}
+                <MainHeader />
+                <main>{children}</main>
               </div>
             </SidebarProvider>
           </ThemeProvider>

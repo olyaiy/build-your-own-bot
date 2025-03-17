@@ -74,7 +74,6 @@ interface AgentFormProps {
     description?: string;
     modelId: string;
     visibility: "public" | "private" | "link";
-    artifactsEnabled: boolean | null;
     imageUrl?: string | null;
     alternateModelIds?: string[]; // Field for alternate models
     toolGroupIds?: string[]; // Field for tool groups
@@ -137,7 +136,6 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
           modelId: primaryModelId, // Use the primary model ID
           visibility: formData.get("visibility") as "public" | "private" | "link",
           creatorId: formData.get("userId") as string,
-          artifactsEnabled: formData.get("artifactsEnabled") === "on",
           imageUrl: imageUrl,
           alternateModelIds: alternateModelIds, // Include alternate models
           toolGroupIds: selectedToolGroupIds, // Include tool groups
@@ -381,22 +379,6 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 pt-2 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-100 dark:border-gray-800">
-                <Switch 
-                  id="artifactsEnabled" 
-                  name="artifactsEnabled"
-                  defaultChecked={initialData?.artifactsEnabled ?? true}
-                />
-                <div>
-                  <Label htmlFor="artifactsEnabled" className="text-sm font-medium">
-                    Enable Artifacts
-                  </Label>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Allow this agent to save and manage artifacts during conversations
-                  </p>
                 </div>
               </div>
             </div>
