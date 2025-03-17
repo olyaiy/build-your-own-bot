@@ -34,30 +34,42 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgen
   
   // Load recent agents from cookie on component mount
   useEffect(() => {
-    const sortAgentsByRecentUsage = () => {
-      const recentAgentsCookie = document.cookie
-        .split('; ')
-        .find(row => row.startsWith(`${RECENT_AGENTS_COOKIE}=`));
-      
-      if (!recentAgentsCookie) return initialAgents;
-      
-      const recentAgentIds = recentAgentsCookie.split('=')[1].split(',');
-      
-      const recentAgentPositions = new Map<string, number>();
-      recentAgentIds.forEach((id, index) => {
-        recentAgentPositions.set(id, index);
+    const sortAgentsByEarningsAndRecentUsage = () => {
+      // First sort by earnings (totalSpent), highest first
+      const agentsSortedByEarnings = [...initialAgents].sort((a, b) => {
+        // Sort by totalSpent first (highest earnings first)
+        const totalSpentDiff = (b.totalSpent || 0) - (a.totalSpent || 0);
+        
+        // If earnings are equal, use recent usage as tiebreaker
+        if (totalSpentDiff === 0) {
+          const recentAgentsCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith(`${RECENT_AGENTS_COOKIE}=`));
+          
+          if (!recentAgentsCookie) return 0;
+          
+          const recentAgentIds = recentAgentsCookie.split('=')[1].split(',');
+          
+          const posA = recentAgentIds.indexOf(a.id);
+          const posB = recentAgentIds.indexOf(b.id);
+          
+          // If both are in recent agents, compare positions
+          if (posA !== -1 && posB !== -1) return posA - posB;
+          // If only a is in recent agents, a comes first
+          if (posA !== -1) return -1;
+          // If only b is in recent agents, b comes first
+          if (posB !== -1) return 1;
+          // If neither is in recent agents, maintain original order
+          return 0;
+        }
+        
+        return totalSpentDiff;
       });
       
-      const sortedAgents = [...initialAgents].sort((a, b) => {
-        const posA = recentAgentPositions.has(a.id) ? recentAgentPositions.get(a.id)! : Number.MAX_SAFE_INTEGER;
-        const posB = recentAgentPositions.has(b.id) ? recentAgentPositions.get(b.id)! : Number.MAX_SAFE_INTEGER;
-        return posA - posB;
-      });
-      
-      return sortedAgents;
+      return agentsSortedByEarnings;
     };
     
-    const sortedAgents = sortAgentsByRecentUsage();
+    const sortedAgents = sortAgentsByEarningsAndRecentUsage();
     setAgents(sortedAgents);
     setFilteredAgents(sortedAgents);
   }, [initialAgents]);

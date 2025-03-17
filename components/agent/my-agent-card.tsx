@@ -8,6 +8,9 @@ import { InferSelectModel } from "drizzle-orm";
 import { agents, models } from "@/lib/db/schema";
 import { AgentCardSettings } from "./agent-card-settings";
 import { formatCurrency } from "@/lib/utils";
+import { Settings, MessageCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface MyAgentCardProps {
   agent: Omit<InferSelectModel<typeof agents>, 'model'> & {
@@ -18,6 +21,61 @@ interface MyAgentCardProps {
   };
   userId?: string;
   onClick?: (agentId: string) => void;
+}
+
+// New component for card actions
+function AgentCardActions({ agentId, userId, creatorId }: { agentId: string; userId?: string; creatorId?: string | null }) {
+  const router = useRouter();
+  
+  return (
+    <div className="flex flex-col gap-3">
+      <TooltipProvider delayDuration={300}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="py-2 px-3 bg-white/90 hover:bg-white text-black rounded-full flex items-center gap-2 shadow-sm backdrop-blur-sm transition-all"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                router.push(`/${agentId}`);
+              }}
+              aria-label="Chat with agent"
+            >
+              <MessageCircle className="size-4 flex-shrink-0" />
+              <span className="text-xs font-medium">Chat</span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p className="text-xs">Chat with Agent</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="py-2 px-3 bg-white/90 hover:bg-white text-black rounded-full flex items-center gap-2 shadow-sm backdrop-blur-sm transition-all"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                router.push(
+                  userId === creatorId 
+                    ? `/agents/${agentId}/edit` 
+                    : `/agents/${agentId}/view`
+                );
+              }}
+              aria-label="Agent settings"
+            >
+              <Settings className="size-4 flex-shrink-0" />
+              <span className="text-xs font-medium">Settings</span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p className="text-xs">Agent Settings</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </div>
+  );
 }
 
 export function MyAgentCard({ agent, userId, onClick }: MyAgentCardProps) {
@@ -37,20 +95,29 @@ export function MyAgentCard({ agent, userId, onClick }: MyAgentCardProps) {
             </div>
           )}
           
-          <div className="aspect-[4/3] w-full mb-2 rounded-lg bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 relative">
+          <div className="aspect-[4/3] w-full mb-2 rounded-lg bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 relative overflow-hidden">
             {agent.image_url ? (
-              <div className="absolute inset-0 overflow-hidden rounded-lg">
+              <div className="absolute inset-0 overflow-hidden rounded-t-lg">
                 <Image
                   src={agent.image_url}
                   alt={agent.agent_display_name}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-cover transition-transform duration-300 group-hover:scale-110"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
             ) : (
               <div className="absolute inset-0 bg-grid-slate-200 [mask-image:linear-gradient(0deg,transparent,black)] dark:bg-grid-slate-700 rounded-lg"></div>
             )}
+            
+            {/* Overlay that appears on hover */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <AgentCardActions 
+                agentId={agent.id}
+                userId={userId}
+                creatorId={agent.creatorId}
+              />
+            </div>
           </div>
 
           <h3 className="text-xl font-semibold mb-1 line-clamp-1">{agent.agent_display_name}</h3>
@@ -70,14 +137,6 @@ export function MyAgentCard({ agent, userId, onClick }: MyAgentCardProps) {
               <span className={`font-medium ${typeof agent.totalSpent === 'number' && agent.totalSpent > 0 ? 'text-indigo-500 dark:text-indigo-400' : 'text-muted-foreground'}`}>
                 {typeof agent.totalSpent === 'number' ? formatCurrency(agent.totalSpent) : '$0.00'}
               </span>
-            </div>
-
-            <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-              <AgentCardSettings 
-                agentId={agent.id}
-                userId={userId}
-                creatorId={agent.creatorId}
-              />
             </div>
           </div>
         </Card>

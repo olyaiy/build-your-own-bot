@@ -355,7 +355,7 @@ type AgentWithModels = Agent & {
   defaultModel: Model | null;
 };
 
-export const getAgents = async (userId?: string, includeAllModels?: boolean) => {
+export const getAgents = async (userId?: string, includeAllModels?: boolean, includeEarnings?: boolean) => {
   try {
     const result = await db.select({
       id: agents.id,
@@ -425,21 +425,26 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean) => 
         .where(eq(agentTags.agentId, agent.id)) // Will use the index on agentTags.agentId
         .orderBy(tags.name);
         
-        // Get total amount spent on this agent (only "usage" transactions, not "self_usage")
-        const transactionResults = await db
-          .select({
-            totalSpent: sql<string>`COALESCE(SUM(${userTransactions.amount}::numeric), 0)::text`
-          })
-          .from(userTransactions)
-          .where(
-            and(
-              eq(userTransactions.agentId, agent.id),
-              eq(userTransactions.type, 'usage')
-            )
-          );
+        // Always fetch total earnings for this agent if includeEarnings is true
+        let totalSpent = 0;
         
-        // Convert the string to a number, Math.abs because usage transactions are negative
-        const totalSpent = transactionResults[0] ? Math.abs(Number(transactionResults[0].totalSpent)) : 0;
+        if (includeEarnings) {
+          // Get total amount spent on this agent (only "usage" transactions, not "self_usage")
+          const transactionResults = await db
+            .select({
+              totalSpent: sql<string>`COALESCE(SUM(${userTransactions.amount}::numeric), 0)::text`
+            })
+            .from(userTransactions)
+            .where(
+              and(
+                eq(userTransactions.agentId, agent.id),
+                eq(userTransactions.type, 'usage')
+              )
+            );
+          
+          // Convert the string to a number, Math.abs because usage transactions are negative
+          totalSpent = transactionResults[0] ? Math.abs(Number(transactionResults[0].totalSpent)) : 0;
+        }
 
         if (includeAllModels) {
           return {

@@ -17,8 +17,8 @@ export default async function MyAgentsPage() {
     redirect("/login");
   }
   
-  // Fetch all agents created by the current user including models, tools, and tags
-  const userAgents = await getAgents(session.user.id, true);
+  // Fetch all agents created by the current user including models, tools, tags, and earnings
+  const userAgents = await getAgents(session.user.id, true, true);
   
   // Fetch most common tags to assist in filtering
   const commonTags = await getMostCommonTags(10);
