@@ -7,6 +7,7 @@ import { Input } from "../ui/input";
 import { Search, Plus } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { MyAgentCard } from "./my-agent-card";
 
 interface Tag {
   id: string;
@@ -145,7 +146,7 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgen
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 justify-items-center">
         {filteredAgents.map((agent) => (
-          <AgentCard 
+          <MyAgentCard 
             key={agent.id}
             agent={agent}
             userId={userId}

@@ -20,6 +20,9 @@ export default async function MyAgentsPage() {
   // Fetch all agents created by the current user including models, tools, and tags
   const userAgents = await getAgents(session.user.id, true);
   
+  // Fetch most common tags to assist in filtering
+  const commonTags = await getMostCommonTags(10);
+  
   return (
     <div className="container py-6 space-y-6 px-4 mx-auto">
       <div>
@@ -31,7 +34,8 @@ export default async function MyAgentsPage() {
       
       <MyAgentList 
         agents={userAgents} 
-        userId={session.user.id} 
+        userId={session.user.id}
+        tags={commonTags}
       />
     </div>
   );

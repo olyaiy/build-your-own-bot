@@ -242,6 +242,20 @@ export function sanitizeUIMessages(messages: Array<Message>): Array<Message> {
   );
 }
 
+/**
+ * Format a number as USD currency
+ * @param amount The number to format as currency
+ * @returns Formatted currency string (e.g. $123.45)
+ */
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 7,
+  }).format(amount);
+}
+
 export function getMostRecentUserMessage(messages: Array<Message>) {
   const userMessages = messages.filter((message) => message.role === 'user');
   return userMessages.at(-1);

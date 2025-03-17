@@ -424,20 +424,38 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean) => 
         .innerJoin(tags, eq(agentTags.tagId, tags.id)) // Will use the index on agentTags.tagId
         .where(eq(agentTags.agentId, agent.id)) // Will use the index on agentTags.agentId
         .orderBy(tags.name);
+        
+        // Get total amount spent on this agent (only "usage" transactions, not "self_usage")
+        const transactionResults = await db
+          .select({
+            totalSpent: sql<string>`COALESCE(SUM(${userTransactions.amount}::numeric), 0)::text`
+          })
+          .from(userTransactions)
+          .where(
+            and(
+              eq(userTransactions.agentId, agent.id),
+              eq(userTransactions.type, 'usage')
+            )
+          );
+        
+        // Convert the string to a number, Math.abs because usage transactions are negative
+        const totalSpent = transactionResults[0] ? Math.abs(Number(transactionResults[0].totalSpent)) : 0;
 
         if (includeAllModels) {
           return {
             ...agent,
             models: agentModelsArray,
             toolGroups: toolGroupsArray,
-            tags: tagResults
+            tags: tagResults,
+            totalSpent
           };
         } else {
           return {
             ...agent,
             model: defaultModel,
             toolGroups: toolGroupsArray,
-            tags: tagResults
+            tags: tagResults,
+            totalSpent
           };
         }
       })
