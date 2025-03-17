@@ -30,10 +30,10 @@ export async function generateTitleFromUserMessage({
   message: Message;
 }) {
   try {
-    console.log('Attempting to generate title with model:', 'title-model');
-    console.log('myProvider configuration:', JSON.stringify(myProvider, null, 2));
+    // console.log('Attempting to generate title with model:', 'title-model');
+    // console.log('myProvider configuration:', JSON.stringify(myProvider, null, 2));
     const modelToUse = myProvider.languageModel('title-model');
-    console.log('Model object:', JSON.stringify(modelToUse, null, 2));
+    // console.log('Model object:', JSON.stringify(modelToUse, null, 2));
     
     const { text: title } = await generateText({
       model: modelToUse,

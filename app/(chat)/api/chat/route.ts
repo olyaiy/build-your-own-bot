@@ -99,9 +99,17 @@ export async function POST(request: Request) {
   const modelDetails = await getModelById(selectedModelId);
   const providerOptions = modelDetails?.provider_options;
 
+  // Initialize running tally for usage outside execute to make it accessible to onError
+  const runningTally = {
+    promptTokens: 0,
+    completionTokens: 0,
+    totalTokens: 0
+  };
+
   // 
   return createDataStreamResponse({
     execute: async (dataStream) => {
+
 
       /* -------- TOOLS SET UP -------- */
         // Fetch the tool groups for this agent
@@ -145,7 +153,15 @@ export async function POST(request: Request) {
 
      
     /* -------- STREAM TEXT -------- */
+      // Initialize running tally for usage
+      // const runningTally = {
+      //   promptTokens: 0,
+      //   completionTokens: 0,
+      //   totalTokens: 0
+      // };
+
       const result = streamText({
+        
         // Model
           model: myProvider.languageModel(selectedChatModel),
         // System Prompt
@@ -167,7 +183,11 @@ export async function POST(request: Request) {
           tools,
 
         // config
-          experimental_transform: smoothStream({ chunking: 'word' }),
+        experimental_transform: smoothStream({
+          delayInMs: 10, // optional: defaults to 10ms
+          chunking: 'word', // optional: defaults to 'word'
+        }),
+      
           providerOptions: providerOptions as any,
           experimental_generateMessageId: generateUUID,
           experimental_telemetry: {
@@ -176,8 +196,51 @@ export async function POST(request: Request) {
           },
           toolCallStreaming: true,
 
+        onStepFinish: async ({ stepType, response, reasoning, usage }) => {
+          console.log('🤖 THE STEP TYPE IS:', stepType);
+          console.log('💬 THE USAGE IS:', usage);
+
+          // Update running tally if usage is available
+          if (usage) {
+            runningTally.promptTokens += usage.promptTokens || 0;
+            runningTally.completionTokens += usage.completionTokens || 0;
+            runningTally.totalTokens += usage.totalTokens || 0;
+            
+            console.log('🧮 RUNNING TALLY:', runningTally);
+          }
+
+          if (stepType !== 'initial') {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            throw new Error('This is a test error');
+          }
+        },
+
         /* ---- ON FINISH ---- */
-        onFinish: async ({ response, reasoning, usage }) => {
+        onFinish: async ({ response, reasoning, usage, finishReason }) => {
+          console.log('THE FINISHED REASON IS --->', finishReason);
+          console.log('🤖 THE MODEL IS:', selectedChatModel);
+          console.log('💬 THE RESPONSE IS:', response);
+
+          // Compare running tally with final usage
+          if (usage) {
+            console.log('📊 FINAL USAGE:', usage);
+            console.log('🧮 RUNNING TALLY:', runningTally);
+            
+            const tallyMatchesUsage = 
+              runningTally.promptTokens === usage.promptTokens && 
+              runningTally.completionTokens === usage.completionTokens &&
+              runningTally.totalTokens === usage.totalTokens;
+            
+            if (tallyMatchesUsage) {
+              console.log('✅ 🎉 🥳 TALLY MATCHES FINAL USAGE! 🎯 🙌 💯');
+            } else {
+              console.log('❌ TALLY DOES NOT MATCH FINAL USAGE');
+              console.log('Difference in promptTokens:', usage.promptTokens - runningTally.promptTokens);
+              console.log('Difference in completionTokens:', usage.completionTokens - runningTally.completionTokens);
+              console.log('Difference in totalTokens:', usage.totalTokens - runningTally.totalTokens);
+            }
+          }
+
           if (session.user?.id) {
             try {
               const sanitizedResponseMessages = sanitizeResponseMessages({
@@ -230,6 +293,26 @@ export async function POST(request: Request) {
         
       });
 
+      
+    //   for await (const part of result.fullStream) {
+    //     console.log('🤖 THE PART IS ------------------------------:');
+    //     if (part.type === "step-start") {
+    //     console.log(part.type);
+    //   } else if (part.type === "step-finish") {
+    //     console.log("🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔 WE FINISHED THE STEP");
+    //     console.log('💬 THE REASON WE STOPPED IS:');
+    //     console.log(part.finishReason);
+    //     console.log('💬 THE USAGE IS:');
+    //     console.log(part.usage);
+    //     console.log("--------------------------------");
+    //   } else if (part.type === 'text-delta' && part.textDelta.includes("Bazinga")) {
+    //     console.log(part);
+    //     throw new Error('BAZINGA! This is a test error');
+    //   } else {
+    //     console.log(part);
+    //   }
+    // }
+
 
       result.consumeStream();      
       result.mergeIntoDataStream(dataStream, {
@@ -240,6 +323,9 @@ export async function POST(request: Request) {
     /* -------- ERROR HANDLING -------- */
     onError: (error: unknown) => {
       console.error('THE MASSIVE Error in chat:', error);
+      console.log('💰 USAGE TALLY AT ERROR:', runningTally);
+
+  
       
       // Add detailed debugging for tool invocation errors
       if (error instanceof Error && error.message && error.message.includes('ToolInvocation must have a result')) {
@@ -269,34 +355,14 @@ export async function POST(request: Request) {
         }
       }
       
-      // Save at least the user message if we encounter an error
-      // We'll do this in a fire-and-forget manner to avoid changing the return type
-      if (session.user?.id) {
-        (async () => {
-          try {
-            await saveMessages({
-              messages: [{
-                ...userMessage,
-                chatId: id,
-                createdAt: new Date(),
-                model_id: selectedModelId // Use the database model ID for saving
-              }]
-            });
-          } catch (saveError) {
-            console.error('Failed to save user message on error:', saveError);
-          }
-        })();
-      }
-
-      
       
       // Return a more descriptive error message
       if (error instanceof Error) {
-        return `Error: ${error.message}`;
+        return `Error: ${error.message} (Usage tally: ${JSON.stringify(runningTally)})`;
       } else if (typeof error === 'string') {
-        return `Error: ${error}`;
+        return `Error: ${error} (Usage tally: ${JSON.stringify(runningTally)})`;
       } else {
-        return 'Oops, an error occurred! Please try again.';
+        return `Oops, an error occurred! Please try again. (Usage tally: ${JSON.stringify(runningTally)})`;
       }
     },
   });

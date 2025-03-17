@@ -81,7 +81,7 @@ export function Chat({
       searchEnabled, // Pass the search toggle state to the API
     },
     initialMessages,
-    experimental_throttle: 100,
+    // experimental_throttle: 100,
     sendExtraMessageFields: true,
     generateId: generateUUID,
     onFinish: () => {
