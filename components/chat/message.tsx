@@ -123,7 +123,7 @@ const PurePreviewMessage = ({
         
         <div
           className={cn(
-            'flex gap-4 w-full group-data-[role=user]/message:ml-auto',
+            'flex flex-col sm:flex-row gap-4 w-full group-data-[role=user]/message:ml-auto',
             {
               'w-full': mode === 'edit',
               'group-data-[role=user]/message:w-fit': mode !== 'edit',
