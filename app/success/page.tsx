@@ -94,9 +94,16 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
           
           <Link 
             href="/"
-            className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 w-full"
+            className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 w-full mb-3"
           >
             Return to Home
+          </Link>
+          
+          <Link 
+            href="/profile"
+            className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 w-full"
+          >
+            View Profile
           </Link>
         </div>
       </div>

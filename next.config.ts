@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
     ppr: true,
     serverActions: {
       // Allow server actions from GitHub Codespaces domains
-      allowedOrigins: ['localhost:3000', '.app.github.dev'],
+      allowedOrigins: ['localhost:3000', '.app.github.dev', 
+        'https://build-your-own-bot.d619751979aaf828d617a645de8d8b1c.r2.cloudflarestorage.com','agentvendor.ca'],
     }
   },
   images: {
@@ -16,6 +17,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'build-your-own-bot.d619751979aaf828d617a645de8d8b1c.r2.cloudflarestorage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'agentvendor.ca',
       },
       {
         // Added the domain from the deprecated config
