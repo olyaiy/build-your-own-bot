@@ -57,66 +57,21 @@ export function MyAgentCard({ agent, userId, onClick }: MyAgentCardProps) {
       
           <div className="flex flex-col gap-1 mt-auto">
             {agent.description && (
-              <p className="text-xs text-muted-foreground mb-1 line-clamp-2 flex-1">
-                {agent.description}
+              <p className="text-xs text-muted-foreground mb-1 flex-1">
+                {agent.description.length > 40 
+                  ? `${agent.description.substring(0, 40)}...` 
+                  : agent.description}
               </p>
             )}
 
             {/* Display spending information */}
             <div className="flex items-center space-x-1 text-xs mb-2">
-              <span className="font-medium text-muted-foreground">Earnings:</span>
+              <span className="font-medium text-muted-foreground">Estimated Earnings:</span>
               <span className={`font-medium ${typeof agent.totalSpent === 'number' && agent.totalSpent > 0 ? 'text-indigo-500 dark:text-indigo-400' : 'text-muted-foreground'}`}>
                 {typeof agent.totalSpent === 'number' ? formatCurrency(agent.totalSpent) : '$0.00'}
               </span>
             </div>
 
-            {/* Combined Tags and Tool Groups display */}
-            {((agent.tags && agent.tags.length > 0) || (agent.toolGroups && agent.toolGroups.length > 0)) && (
-              <div className="flex flex-wrap items-start gap-1 max-w-full max-h-[42px] overflow-hidden">
-                {/* Display tags first */}
-                {agent.tags && agent.tags.slice(0, 2).map((tag) => (
-                  <Badge 
-                    key={`tag-${tag.id}`} 
-                    variant="secondary" 
-                    className="text-[10px] px-2 py-0 h-5 truncate max-w-28"
-                  >
-                    {tag.name}
-                  </Badge>
-                ))}
-                
-                {/* More tags indicator */}
-                {agent.tags && agent.tags.length > 2 && (
-                  <Badge 
-                    variant="secondary" 
-                    className="text-[10px] px-2 py-0 h-5"
-                  >
-                    +{agent.tags.length - 2}
-                  </Badge>
-                )}
-                
-                {/* Display tool groups */}
-                {agent.toolGroups && agent.toolGroups.slice(0, 2).map((toolGroup) => (
-                  <Badge 
-                    key={`tool-${toolGroup.id}`} 
-                    variant="outline" 
-                    className="text-[10px] px-2 py-0 h-5 truncate max-w-28 border-dashed"
-                  >
-                    {toolGroup.display_name}
-                  </Badge>
-                ))}
-                
-                {/* More tool groups indicator */}
-                {agent.toolGroups && agent.toolGroups.length > 2 && (
-                  <Badge 
-                    variant="outline" 
-                    className="text-[10px] px-2 py-0 h-5 border-dashed"
-                  >
-                    +{agent.toolGroups.length - 2}
-                  </Badge>
-                )}
-              </div>
-            )}
-            
             <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
               <AgentCardSettings 
                 agentId={agent.id}
