@@ -24,7 +24,7 @@ export function Logo({
         'text-2xl font-semibold px-2 rounded-md cursor-pointer',
         spanClassName
       )}>
-        Agent Place
+        agent vendor
       </span>
     </Link>
   );
