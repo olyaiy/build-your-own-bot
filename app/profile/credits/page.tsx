@@ -5,16 +5,30 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { getUserById } from "../actions";
 import { auth } from "@/app/(auth)/auth";
-import { MainHeader } from "@/components/layout/main-header";
 import { DollarSign, CreditCard, ArrowLeft, ShieldCheck, Zap } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { createOrRetrieveCustomer } from "@/lib/stripe/actions";
 
 export const creditPackages = [
-    { id: "price_1R1CQHPikexl2RtD7kNr3Z4f", credits: 5, price: "$5", popular: false },
-    { id: "price_1R1CQVPikexl2RtDjXiSeoIL", credits: 10, price: "$10", popular: true },
-    { id: "price_1R1CR6Pikexl2RtDm0uXxc2T", credits: 20, price: "$20", popular: false }
+    { 
+      id: process.env.STRIPE_PRICE_ID_5_CREDITS || '', 
+      credits: 5, 
+      price: "$5", 
+      popular: false 
+    },
+    { 
+      id: process.env.STRIPE_PRICE_ID_10_CREDITS || '', 
+      credits: 10, 
+      price: "$10", 
+      popular: true 
+    },
+    { 
+      id: process.env.STRIPE_PRICE_ID_20_CREDITS || '', 
+      credits: 20, 
+      price: "$20", 
+      popular: false 
+    }
   ];
 
 export const metadata: Metadata = {

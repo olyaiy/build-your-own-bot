@@ -30,11 +30,11 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   const lineItems = checkoutSession.line_items?.data || [];
   const priceId = lineItems[0]?.price?.id;
   
-  // Define credit packages (should match those in the credits page)
+  // Define credit packages using environment variables (matching credits page)
   const creditPackages = [
-    { id: "price_1R0II9Pikexl2RtDVzeHL5pL", credits: 5, price: "$5" },
-    { id: "price_1R0IIAPikexl2RtD5yd9S8GW", credits: 10, price: "$10" },
-    { id: "price_1R0IIAPikexl2RtDJOADwSqA", credits: 20, price: "$20" }
+    { id: process.env.STRIPE_PRICE_ID_5_CREDITS || '', credits: 5, price: "$5" },
+    { id: process.env.STRIPE_PRICE_ID_10_CREDITS || '', credits: 10, price: "$10" },
+    { id: process.env.STRIPE_PRICE_ID_20_CREDITS || '', credits: 20, price: "$20" }
   ];
   
   // Find the matching credit package

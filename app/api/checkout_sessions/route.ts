@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     
     // Get the price ID from the form data
     const formData = await request.formData()
-    const priceId = formData.get('priceId') as string || 'price_1R1CQHPikexl2RtD7kNr3Z4f' // Default to $5 if not specified
+    const priceId = formData.get('priceId') as string || process.env.STRIPE_PRICE_ID_5_CREDITS || '' // Default to $5 package from env
     const customerId = formData.get('customerId') as string
 
     // Create Checkout Sessions from body params.
