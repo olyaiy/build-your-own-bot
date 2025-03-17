@@ -17,7 +17,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-2xl font-semibold mb-4 text-foreground">Introduction</h2>
           <p className="text-foreground">
             We respect your privacy and are committed to protecting the personal information you share with us. 
-            This Privacy Policy explains how we collect, use, and safeguard your information when you use our AI assistant platform.
+            This Privacy Policy explains how we collect, use, and safeguard your information when you use our &quot;AI assistant platform&quot;.
           </p>
         </section>
         
