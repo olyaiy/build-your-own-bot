@@ -313,7 +313,8 @@ export const transactionTypeEnum = pgEnum("transaction_type", [
   "purchase",
   "refund",
   "promotional",
-  "adjustment"
+  "adjustment",
+  "self_usage"
 ]);
 
 // Enum for token types

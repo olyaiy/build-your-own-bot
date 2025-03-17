@@ -1213,7 +1213,7 @@ export async function recordTransaction({
 }: {
   userId: string;
   amount?: number;
-  type: 'usage' | 'purchase' | 'refund' | 'promotional' | 'adjustment';
+  type: 'usage' | 'purchase' | 'refund' | 'promotional' | 'adjustment' | 'self_usage';
   description?: string;
   messageId?: string;
   tokenAmount?: number;
@@ -1232,9 +1232,15 @@ export async function recordTransaction({
     let inputCost = 0;
     let outputCost = 0;
     
-    if (type === 'usage' && usage && (costPerMillionInput || costPerMillionOutput)) {
+    // Determine transaction type - if user is the creator, change type to self_usage
+    let transactionType = type;
+    if ((type === 'usage') && applyCreatorMarkup === false) {
+      transactionType = 'self_usage';
+    }
+    
+    if ((type === 'usage' || type === 'self_usage') && usage && (costPerMillionInput || costPerMillionOutput)) {
       // Apply markup factor based on applyCreatorMarkup flag
-      const MARKUP_FACTOR = applyCreatorMarkup === false ? -1.18 : -1.08;
+      const MARKUP_FACTOR = applyCreatorMarkup === false ? -1.08 : -1.18;
       console.log('THE MARKUP FACTOR IS:', MARKUP_FACTOR, 'IS THE USER THE CREATOR?', applyCreatorMarkup);
       
       // Calculate input and output costs
@@ -1260,7 +1266,7 @@ export async function recordTransaction({
       const result = [];
       
       // For usage transactions with both input and output tokens, create two separate transactions
-      if (type === 'usage' && usage && usage.promptTokens && usage.completionTokens) {
+      if ((transactionType === 'usage' || transactionType === 'self_usage') && usage && usage.promptTokens && usage.completionTokens) {
         // Create transaction for input tokens
         const [inputTransaction] = await tx
           .insert(userTransactions)
@@ -1268,7 +1274,7 @@ export async function recordTransaction({
             userId,
             agentId,
             amount: inputCost.toString(), // Only the input cost
-            type,
+            type: transactionType,
             description: description ? `${description} (Input)` : 'Token usage (Input)',
             messageId,
             tokenAmount: usage.promptTokens,
@@ -1286,7 +1292,7 @@ export async function recordTransaction({
             userId,
             agentId,
             amount: outputCost.toString(), // Only the output cost
-            type,
+            type: transactionType,
             description: description ? `${description} (Output)` : 'Token usage (Output)',
             messageId,
             tokenAmount: usage.completionTokens,
@@ -1304,10 +1310,10 @@ export async function recordTransaction({
             userId,
             agentId,
             amount: calculatedAmount.toString(), // Convert to string for numeric type
-            type,
+            type: transactionType,
             description,
             messageId,
-            tokenAmount: tokenAmount || (type === 'usage' ? (usage?.promptTokens || 0) + (usage?.completionTokens || 0) : undefined),
+            tokenAmount: tokenAmount || ((transactionType === 'usage' || transactionType === 'self_usage') ? (usage?.promptTokens || 0) + (usage?.completionTokens || 0) : undefined),
             tokenType,
             modelId
           })
@@ -1318,7 +1324,7 @@ export async function recordTransaction({
       
       // Update the user's credit balance with the total amount
       // For usage, refund, or adjustment types, we modify the credit balance
-      if (type === 'usage') {
+      if (transactionType === 'usage' || transactionType === 'self_usage') {
         // Get current balance before update
         const [userCredit] = await tx
           .select({ balance: userCredits.credit_balance })
@@ -1336,7 +1342,7 @@ export async function recordTransaction({
           })
           .where(eq(userCredits.user_id, userId));
 
-      } else if (type === 'purchase' || type === 'promotional') {
+      } else if (transactionType === 'purchase' || transactionType === 'promotional') {
         // Get current balance before update
         const [userCredit] = await tx
           .select({ 
@@ -1361,7 +1367,7 @@ export async function recordTransaction({
           .where(eq(userCredits.user_id, userId));
           
 
-      } else if (type === 'refund' || type === 'adjustment') {
+      } else if (transactionType === 'refund' || transactionType === 'adjustment') {
         // Get current balance before update
         const [userCredit] = await tx
           .select({ balance: userCredits.credit_balance })
