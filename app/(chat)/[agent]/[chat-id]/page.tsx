@@ -42,13 +42,14 @@ export default async function Page(props: {
           message="Please log in to access this conversation."
           actionHref="/login"
           actionText="Log In"
+          showHeader={true}
         />
       );
     }
     
     // If logged in but not the chat owner, show access denied
     if (session.user.id !== chat.userId) {
-      return <AccessDenied message="Sorry, you don't have access to this conversation." />;
+      return <AccessDenied message="Sorry, you don't have access to this conversation." showHeader={true} />;
     }
   }
   
