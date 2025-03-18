@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getUserById } from "../actions";
@@ -243,7 +244,13 @@ export default async function BuyCreditsPage({
               </div>
               <div className="hidden md:block h-4 w-px bg-border"></div>
               <div className="flex items-center gap-2">
-                <img src="https://www.stripe.com/favicon.ico" alt="Stripe" className="size-4" />
+                <Image 
+                  src="https://www.stripe.com/favicon.ico" 
+                  alt="Stripe" 
+                  width={16} 
+                  height={16}
+                  className="size-4"
+                />
                 <span className="text-sm">Powered by Stripe</span>
               </div>
             </CardFooter>
