@@ -49,7 +49,7 @@ export default function AboutPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:shadow-blue-500/20 hover:scale-105" asChild>
-              <Link href="/sign-up">
+              <Link href="/agents/create">
                 Start Creating
                 <Zap className="ml-2 h-4 w-4" />
               </Link>
@@ -206,7 +206,7 @@ export default function AboutPage() {
           
           <div className="mt-12 text-center">
             <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600" asChild>
-              <Link href="/sign-up">
+              <Link href="/agents/create">
                 Start Creating Today
                 <Zap className="ml-2 h-4 w-4" />
               </Link>
@@ -393,7 +393,7 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:shadow-blue-500/20 hover:scale-105" asChild>
-                <Link href="/sign-up">
+                <Link href="/agents/create">
                   Get Started Today
                   <Zap className="ml-2 h-4 w-4" />
                 </Link>

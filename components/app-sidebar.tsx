@@ -30,7 +30,7 @@ export function AppSidebar({ user: initialUser }: { user: User | undefined | nul
   const { setOpenMobile } = useSidebar();
   const params = useParams();
   const pathname = usePathname();
-  const agentId = params.agent ?? 'fb4a1d96-bd42-46cb-a153-4aac537f3720';
+  const agentId = params.agentId ?? '5a2c146b-7017-4deb-8b76-ff1034c11ba7';
   const chatId = params['chat-id'] as string | undefined;
   const isHistoryPage = pathname === '/chats';
 
@@ -48,19 +48,18 @@ export function AppSidebar({ user: initialUser }: { user: User | undefined | nul
   const handleNewChatClick = () => {
     setOpenMobile(false);
     
-    // Check if we're on an agent edit page
-    if (pathname.includes('/agents/') && pathname.includes('/edit')) {
-      // Extract the agent-id from the URL
+    // Get current agent ID from URL path when not on history/edit pages
+    const currentAgentId = pathname.split('/')[1]; // Extract from URL like /[agentId]
+
+    if (currentAgentId && !isHistoryPage && !pathname.includes('/edit')) {
+      // Navigate to current agent's chat page
+      router.push(`/${currentAgentId}`);
+    } else if (pathname.includes('/agents/') && pathname.includes('/edit')) {
+      // Existing edit page handling
       const agentIdMatch = pathname.match(/\/agents\/([^\/]+)\/edit/);
-      if (agentIdMatch && agentIdMatch[1]) {
-        // Navigate to the chat page with the extracted agent ID
-        router.push(`/${agentIdMatch[1]}`);
-      } else {
-        // Fallback to the current agentId from params
-        router.push(`/${agentId}`);
-      }
+      router.push(`/${agentIdMatch?.[1] || agentId}`);
     } else {
-      // Default behavior - use the agentId from params
+      // Fallback to default agent
       router.push(`/${agentId}`);
     }
     

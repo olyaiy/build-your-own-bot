@@ -1,5 +1,5 @@
 'use client';
-import { ChevronUp, UserCircle, LogIn, UserPlus, User, ChevronDown, HelpCircle, MessageSquare, PlusCircle } from 'lucide-react';
+import { ChevronUp, UserCircle, LogIn, UserPlus, User, ChevronDown, HelpCircle, MessageSquare, PlusCircle, Info } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { User as AuthUser } from 'next-auth';
@@ -193,6 +193,13 @@ export function UserNav({ variant = 'sidebar', user }: UserNavProps) {
               <Link href="/contact" className="flex items-center cursor-pointer">
                 <MessageSquare className="mr-2 size-4" />
                 <span>Support</span>
+              </Link>
+            </DropdownMenuItem>
+            
+            <DropdownMenuItem asChild>
+              <Link href="/about" className="flex items-center cursor-pointer">
+                <Info className="mr-2 size-4" />
+                <span>About</span>
               </Link>
             </DropdownMenuItem>
             
