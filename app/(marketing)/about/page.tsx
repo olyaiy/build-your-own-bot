@@ -37,7 +37,7 @@ export default function AboutPage() {
             <div className="p-8 md:p-10">
               <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
                 <div className="shrink-0">
-                  <div className="relative h-48 w-48 md:h-72 md:w-72 rounded-xl overflow-hidden border-4 border-background shadow-lg">
+                  <div className="relative size-48 md:h-72 md:w-72 rounded-xl overflow-hidden border-4 border-background shadow-lg">
                     <Image 
                       src="/images/alex.png" 
                       alt="Alex Olyaiy" 

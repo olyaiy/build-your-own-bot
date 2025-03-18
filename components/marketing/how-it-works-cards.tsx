@@ -277,7 +277,7 @@ export default function HowItWorksCards() {
               <button
                 key={index}
                 aria-label={`Go to slide ${index + 1}`}
-                className={`w-2 h-2 rounded-full transition-all ${
+                className={`size-2 rounded-full transition-all ${
                   activeStep === index 
                     ? "bg-blue-400 w-4" 
                     : "bg-slate-600 hover:bg-slate-500"

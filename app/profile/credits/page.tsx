@@ -176,7 +176,7 @@ export default async function BuyCreditsPage({
             <CardHeader className="pb-3 border-b">
               <CardTitle className="text-xl font-semibold">Select a Credit Package</CardTitle>
               <CardDescription>
-                Choose the amount of credits you'd like to purchase
+                Choose the amount of credits you&apos;d like to purchase
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
