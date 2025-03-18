@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { AgentCard } from "./agent-card";
 import { CreateAgentCard } from "./create-agent-card";
 import { Input } from "../ui/input";
 import { Search, Plus } from "lucide-react";
@@ -129,7 +128,7 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgen
           Create your first AI agent to start building custom assistants for your needs.
         </p>
         <Button asChild size="lg">
-          <Link href="/profile/agents/create">Create Your First Agent</Link>
+          <Link href="/agents/create">Create Your First Agent</Link>
         </Button>
       </div>
     );
@@ -149,7 +148,7 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgen
           />
         </div>
         <Button asChild>
-          <Link href="/profile/agents/create">
+          <Link href="/agents/create">
             <Plus className="mr-2 h-4 w-4" />
             Create New Agent
           </Link>

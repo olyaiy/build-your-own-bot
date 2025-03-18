@@ -355,7 +355,7 @@ type AgentWithModels = Agent & {
   defaultModel: Model | null;
 };
 
-export const getAgents = async (userId?: string, includeAllModels?: boolean, includeEarnings?: boolean) => {
+export const getAgents = async (userId?: string, includeAllModels?: boolean, includeEarnings?: boolean, onlyUserCreated?: boolean) => {
   try {
     const result = await db.select({
       id: agents.id,
@@ -369,10 +369,14 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean, inc
       image_url: agents.image_url,
     })
     .from(agents)
-    .where(or(
-      eq(agents.visibility, 'public'), // Will use the index on agents.visibility
-      userId ? eq(agents.creatorId, userId) : undefined // Will use the index on agents.creatorId
-    ))
+    .where(
+      onlyUserCreated && userId 
+        ? eq(agents.creatorId, userId)
+        : or(
+            eq(agents.visibility, 'public'), 
+            userId ? eq(agents.creatorId, userId) : undefined
+          )
+    )
     .orderBy(desc(agents.id));
 
     // For each agent, fetch their models, tool groups, and tags
