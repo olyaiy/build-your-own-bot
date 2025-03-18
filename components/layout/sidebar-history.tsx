@@ -242,7 +242,10 @@ export function SidebarHistory({
     const filteredOptimisticChats = optimisticChats.filter(
       (oc) => !history.some((c) => c.id === oc.id)
     );
-    return [...history, ...filteredOptimisticChats];
+    // Sort by creation date (newest first) and limit to 20 items
+    return [...history, ...filteredOptimisticChats]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 20);
   }, [history, optimisticChats]);
 
   const handleDelete = async () => {

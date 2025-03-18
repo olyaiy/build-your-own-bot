@@ -117,7 +117,7 @@ export function AppSidebar({ user: initialUser }: { user: User | undefined | nul
                   }}
                 >
                   <HistoryIcon size={14} />
-                  <span>View Chat History</span>
+                  <span>View All Chats</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right">All Conversations</TooltipContent>
