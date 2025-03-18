@@ -40,7 +40,7 @@ export function AgentCard({ agent, userId, onClick, stepNumber }: AgentCardProps
           {stepNumber && (
             <div className="absolute -top-3 -left-3 z-20">
               <motion.div
-                className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 text-white font-bold text-sm shadow-lg shadow-blue-500/30 border-2 border-white/25 dark:border-black/25"
+                className="size-8 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 text-white font-bold text-sm shadow-lg shadow-blue-500/30 border-2 border-white/25 dark:border-black/25"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 15 }}

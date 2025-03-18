@@ -24,7 +24,7 @@ export default async function CreateAgentPage() {
   ]);
 
   return (
-    <div className="container mx-auto py-4 px-4">
+    <div className="container mx-auto p-4">
       <AgentForm
         mode="create"
         userId={session?.user?.id}

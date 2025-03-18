@@ -122,7 +122,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
             {/* Agent Avatar */}
             <div className="hidden sm:block shrink-0">
               {agentData.imageUrl ? (
-                <div className="relative w-32 h-32 rounded-lg overflow-hidden">
+                <div className="relative size-32 rounded-lg overflow-hidden">
                   <Image
                     src={agentData.imageUrl}
                     alt={agentData.agentDisplayName}
@@ -131,7 +131,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
                   />
                 </div>
               ) : (
-                <div className="w-32 h-32 bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                <div className="size-32 bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
                   <ImageIcon className="size-16 text-white/50" />
                 </div>
               )}
@@ -235,7 +235,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
             <ul className="space-y-3">
               {agentData.customization.overview.points.map((point, index) => (
                 <li key={index} className="flex gap-3">
-                  <div className={`shrink-0 w-6 h-6 ${colorScheme.accent} rounded-full flex items-center justify-center text-white text-sm font-medium`}>
+                  <div className={`shrink-0 size-6 ${colorScheme.accent} rounded-full flex items-center justify-center text-white text-sm font-medium`}>
                     {index + 1}
                   </div>
                   <p className="text-base">{point}</p>
@@ -286,7 +286,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
       <Card>
         <CardHeader>
           <CardTitle>System Prompt</CardTitle>
-          <CardDescription>The foundational instructions that define this agent's behavior</CardDescription>
+          <CardDescription>The foundational instructions that define this agent&apos;s behavior</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="bg-muted rounded-md p-4 overflow-auto max-h-[500px]">

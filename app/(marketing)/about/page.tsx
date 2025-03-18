@@ -37,7 +37,7 @@ export default function AboutPage() {
             <div className="p-8 md:p-10">
               <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
                 <div className="shrink-0">
-                  <div className="relative size-48 md:h-72 md:w-72 rounded-xl overflow-hidden border-4 border-background shadow-lg">
+                  <div className="relative size-48 md:size-72 rounded-xl overflow-hidden border-4 border-background shadow-lg">
                     <Image 
                       src="/images/alex.png" 
                       alt="Alex Olyaiy" 
@@ -83,8 +83,8 @@ export default function AboutPage() {
         <div className="absolute inset-0 z-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 size-80 rounded-full bg-primary/5 blur-3xl"></div>
           <div className="absolute top-60 -left-20 size-60 rounded-full bg-primary/10 blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/4 w-24 h-24 rounded-full bg-blue-500/10 blur-2xl"></div>
-          <div className="absolute bottom-1/4 right-1/3 w-16 h-16 rounded-full bg-purple-500/10 blur-xl"></div>
+          <div className="absolute top-1/2 left-1/4 size-24 rounded-full bg-blue-500/10 blur-2xl"></div>
+          <div className="absolute bottom-1/4 right-1/3 size-16 rounded-full bg-purple-500/10 blur-xl"></div>
         </div>
         
         <div className="container relative z-10 max-w-4xl text-center mx-auto">
@@ -157,7 +157,7 @@ export default function AboutPage() {
               <div className="absolute -bottom-10 -left-10 size-40 rounded-full bg-primary/5 blur-2xl -z-10"></div>
               <div className="bg-card rounded-xl border border-border p-6 shadow-lg">
                 <div className="text-center mb-6">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
+                  <div className="inline-flex size-12 items-center justify-center rounded-full bg-primary/10 mb-4">
                     <Sparkles className="size-6 text-primary" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">The Future of AI</h3>
@@ -430,13 +430,13 @@ export default function AboutPage() {
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white relative overflow-hidden">
         {/* Top border gradient */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500" />
+        <div className="absolute inset-x-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500" />
         
         {/* Decorative elements */}
-        <div className="absolute -bottom-12 -right-12 w-48 h-48 rounded-full bg-blue-500/15 blur-3xl" />
-        <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-purple-500/15 blur-3xl" />
-        <div className="absolute top-1/2 left-1/4 w-24 h-24 rounded-full bg-pink-500/10 blur-2xl" />
-        <div className="absolute bottom-1/4 right-1/3 w-16 h-16 rounded-full bg-blue-500/10 blur-xl" />
+        <div className="absolute -bottom-12 -right-12 size-48 rounded-full bg-blue-500/15 blur-3xl" />
+        <div className="absolute -top-12 -left-12 size-48 rounded-full bg-purple-500/15 blur-3xl" />
+        <div className="absolute top-1/2 left-1/4 size-24 rounded-full bg-pink-500/10 blur-2xl" />
+        <div className="absolute bottom-1/4 right-1/3 size-16 rounded-full bg-blue-500/10 blur-xl" />
         
         <div className="container max-w-4xl mx-auto px-4 relative z-10">
           <div className="text-center">
