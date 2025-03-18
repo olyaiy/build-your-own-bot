@@ -19,6 +19,7 @@ function PureMainHeader() {
   const { open } = useSidebar();
   const { width: windowWidth } = useWindowSize();
   const { data: session } = useSession();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,6 +32,10 @@ function PureMainHeader() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Hide header on chat pages (UUID routes)
   if (pathname && /^\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?$/i.test(pathname)) {
     return null;
@@ -39,8 +44,8 @@ function PureMainHeader() {
   return (
     <header className={`flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-3 gap-2 z-50 justify-between ${hasScrolled ? 'border-b' : ''}`}>
       <div className="flex items-center gap-2">
-        {(!open || windowWidth < 768) && <SidebarToggle />}
-        {!open && windowWidth >= 768 && <Logo />}
+        {(!open || (mounted && windowWidth < 768)) && <SidebarToggle />}
+        {!open && mounted && windowWidth >= 768 && <Logo />}
       </div>
       <div className="flex items-center gap-3">
         <div className="hidden md:flex items-center gap-1">
