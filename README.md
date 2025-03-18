@@ -13,16 +13,13 @@ Agent Vendor is a marketplace where **AI creators** build specialized agents and
 ```diff
 + For Creators: Monetize your AI expertise
 + For Users: Access domain-specific AI solutions
-+ For Everyone: Fair compensation model with transparent economics
++ For Everyone: Modern AI infrastructure with fair revenue sharing
 ```
 
 ## Key Features
 
 **🛠️ No-Code Agent Creation**  
 Build sophisticated AI agents through an intuitive visual interface - define personality, knowledge base, and capabilities without writing code.
-
-**💸 Built-In Monetization**  
-Earn 10% of all token usage when users interact with your agents. Payments processed monthly with real-time analytics.
 
 **🔍 Specialized Marketplace**  
 Discover AI agents for:
@@ -32,70 +29,65 @@ Discover AI agents for:
 - Academic research
 - Niche domain expertise
 
-**⚖️ Transparent Pricing**  
-- Pay only for what you use (token-based system)
-- Clear cost breakdown: AI costs + creator fee (10%) + platform fee (8%)
-- $0.30 transaction fee per interaction
+**⚡ High-Performance Platform**  
+- Real-time AI interactions with streaming responses
+- Secure token-based authentication
+- Scalable infrastructure handling thousands of RPM
 
-**📈 Real-Time Analytics**  
-Track usage statistics, earnings, and user feedback through detailed dashboards.
+**📈 Transparent Ecosystem**  
+- Revenue sharing model with creators
+- Clear cost breakdown between AI costs and platform fees
+- Real-time usage analytics for creators
+
+## Technology Stack
+
+**Frontend**
+- Next.js 15 App Router for server-side rendering
+- React 18 with Suspense and Concurrent Mode
+- Shadcn UI components with Tailwind CSS
+- TypeScript for type-safe development
+
+**Backend**
+- Next.js API Routes for edge functions
+- Neon.Tech serverless PostgreSQL database
+- Upstash Redis for rate limiting and caching
+- Stripe integration for payments
+
+**AI Infrastructure**
+- Unified API for multiple LLM providers
+- Automated token cost calculation
+- Conversation history with vector embeddings
+- Real-time usage metrics
+
+**DevOps**
+- Vercel Edge Network deployment
+- Lighthouse CI for performance monitoring
+- Sentry for error tracking
+- GitHub Actions for CI/CD
 
 ## For AI Creators
 
-Turn your expertise into passive income:
-
+Turn your expertise into value:
 1. **Create** specialized agents using natural language instructions
-2. **Configure** model parameters, knowledge sources, and tools
+2. **Configure** model parameters and knowledge sources
 3. **Publish** to our curated marketplace
-4. **Earn** 10% of all token usage + platform bonuses
-
-**Example Creator Earnings:**  
-If your agent processes $1,000 in token usage:
-```bash
-Base tokens: $847 (84.7%)
-Creator earnings: $100 (10%)
-Platform fee: $80 (8%)
-+ $0.30 per transaction processing fee
-```
+4. **Earn** revenue share from agent usage
 
 ## For Users
 
 Access specialized AI solutions:
-
 1. **Browse** our marketplace of expert-created agents
 2. **Preview** agents with free starter tokens
 3. **Engage** with domain-specific AI expertise
 4. **Pay** only for successful interactions
 
-**Example User Cost:**  
-```bash
-$10 base token cost
-+ $1.80 premium ($1 to creator, $0.80 platform)
-+ $0.30 transaction fee
-Total: $12.10
-```
-
-## Our Ecosystem
-
-![Agent Vendor Ecosystem](https://agentvendor.ca/ecosystem-diagram.svg)
-
-A balanced economy that fairly compensates all participants:
-
-1. **Creators** focus on building quality agents
-2. **Users** access specialized AI solutions
-3. **Platform** handles infrastructure and payments
-4. **AI Providers** deliver model capabilities
-
 ## Why Choose Agent Vendor?
 
-✅ **Creator Empowerment**  
-Monetize your expertise without infrastructure costs
+✅ **Modern Web Architecture**  
+Built with cutting-edge web technologies for reliability and speed
 
 ✅ **Quality-Curated Marketplace**  
 All agents undergo technical and quality reviews
-
-✅ **Fair Compensation Model**  
-Clear 10% creator fee + transparent platform costs
 
 ✅ **Privacy-First Approach**  
 - End-to-end encryption for sensitive conversations
