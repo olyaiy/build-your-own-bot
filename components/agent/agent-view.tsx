@@ -207,15 +207,12 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
 
       {/* Overview Section */}
       <Card>
-        {/* <CardHeader>
-          <CardTitle>{agentData.customization?.overview?.title || "About this Agent"}</CardTitle>
-          <CardDescription>Learn more about this agent's purpose and capabilities</CardDescription>
-        </CardHeader> */}
-        <CardContent className="space-y-4">
+
+        <CardContent className="space-y-0  m-0 p-0">
           <div className="flex items-start gap-3">
             
             {/* Message bubble - Apple iMessage style */}
-            <div className="relative max-w-[85%]">
+            <div className="relative max-w-[85%] m-0">
               <div className="bg-blue-500 text-white p-4 rounded-2xl rounded-tl-sm shadow-sm">
                 <p className="text-base leading-relaxed">
                   {agentData.customization?.overview?.content || agentData.description || "No description available for this agent."}
@@ -224,20 +221,6 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
             </div>
           </div>
           
-          {/* Featured badges - e.g. if has web search capability */}
-          {agentData.toolGroups && agentData.toolGroups.length > 0 && (
-            <div className="flex flex-col gap-4 mt-4">
-              <h3 className="text-sm font-medium">Features</h3>
-              <div className="flex flex-wrap gap-2">
-                {agentData.toolGroups.map(toolGroup => (
-                  <Badge key={toolGroup.id} variant="secondary" className="flex gap-1.5 items-center">
-                    <Puzzle className="h-3 w-3" />
-                    <span>{toolGroup.displayName}</span>
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
       
@@ -269,38 +252,34 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
         {agentData.toolGroups && agentData.toolGroups.length > 0 && (
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Tools</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                Tools
+              </CardTitle>
+              <CardDescription>This agent has access to the following tools</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-1 gap-3">
                 {agentData.toolGroups.map(tool => (
-                  <Badge key={tool.id} variant="secondary" className="flex gap-1.5 items-center">
-                    <Puzzle className="h-3 w-3" />
-                    <span>{tool.displayName}</span>
-                  </Badge>
+                  <div
+                    key={tool.id}
+                    className="border border-primary bg-primary/5 rounded-lg p-3 flex flex-col"
+                  >
+                    <div className="font-medium flex items-center gap-2">
+                      {tool.displayName}
+                    </div>
+                    {tool.description && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {tool.description}
+                      </p>
+                    )}
+                  </div>
                 ))}
               </div>
             </CardContent>
           </Card>
         )}
         
-        {/* Categories/Tags List */}
-        {agentData.tags && agentData.tags.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Categories</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {agentData.tags.map(tag => (
-                  <Badge key={tag.id} variant="outline">
-                    {tag.name}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+      
       </div>
       
       {/* System Prompt Section */}
@@ -323,16 +302,37 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
           <CardDescription>Advanced information about this agent's configuration</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Model Section */}
+          {/* Models Section */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium">Model</h3>
+            <h3 className="text-sm font-medium">Models</h3>
             {selectedModel ? (
-              <div className="bg-muted p-3 rounded-md">
-                <div className="text-sm font-medium">{selectedModel.displayName}</div>
-                <div className="text-xs text-muted-foreground flex flex-col gap-1 mt-1">
-                  <span>Type: {selectedModel.modelType || "Unknown"}</span>
-                  {selectedModel.description && <span>{selectedModel.description}</span>}
+              <div className="space-y-3">
+                {/* Default Model */}
+                <div className="bg-muted p-3 rounded-md relative">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="text-sm font-medium">{selectedModel.displayName}</div>
+                      <div className="text-xs text-muted-foreground flex flex-col gap-1 mt-1">
+                        <span>Type: {selectedModel.modelType || "Unknown"}</span>
+                        {selectedModel.description && <span>{selectedModel.description}</span>}
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="bg-primary/10 text-primary text-[10px]">Default</Badge>
+                  </div>
                 </div>
+                
+                {/* Alternate Models */}
+                {models
+                  .filter(m => m.id !== agentData.modelId && models.some(am => am.id === m.id))
+                  .map(model => (
+                    <div key={model.id} className="bg-muted/50 p-3 rounded-md">
+                      <div className="text-sm font-medium">{model.displayName}</div>
+                      <div className="text-xs text-muted-foreground flex flex-col gap-1 mt-1">
+                        <span>Type: {model.modelType || "Unknown"}</span>
+                        {model.description && <span>{model.description}</span>}
+                      </div>
+                    </div>
+                  ))}
               </div>
             ) : (
               <div className="text-sm text-muted-foreground">No model information available</div>
@@ -383,7 +383,11 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
           Back to List
         </Button>
         
-        <Button variant="default" className="flex items-center gap-2">
+        <Button 
+          variant="default" 
+          onClick={() => router.push(`/${agentData.id}`)}
+          className="flex items-center gap-2"
+        >
           <MessageSquare className="h-4 w-4" />
           Start Chat
         </Button>

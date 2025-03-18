@@ -34,7 +34,7 @@ export default async function ViewAgentPage({
   }
 
   // Proceed with full data fetch if authorized
-  const [agentData, rawModels, defaultModelData] = await Promise.all([
+  const [agentData, rawModels] = await Promise.all([
     db.select().from(agents).where(eq(agents.id, agentId)),
     db.select({
       id: models.id,
@@ -42,23 +42,26 @@ export default async function ViewAgentPage({
       modelType: models.model_type,
       description: models.description
     }).from(models),
-    // Fetch the default model ID for this agent
-    db.select({
-      modelId: agentModels.modelId
-    })
-    .from(agentModels)
-    .where(and(
-      eq(agentModels.agentId, agentId),
-      eq(agentModels.isDefault, true)
-    ))
   ]);
 
   if (!agentData.length) {
     return notFound();
   }
 
+  // Fetch agent's models (both default and alternate)
+  const agentModelsData = await db
+    .select({
+      modelId: agentModels.modelId,
+      isDefault: agentModels.isDefault
+    })
+    .from(agentModels)
+    .where(eq(agentModels.agentId, agentId));
+
   // Get the default model ID, or empty string if not found
-  const defaultModelId = defaultModelData.length > 0 ? defaultModelData[0].modelId : '';
+  const defaultModelId = agentModelsData.find(m => m.isDefault)?.modelId || '';
+  
+  // Get all model IDs (both default and alternate)
+  const allModelIds = agentModelsData.map(m => m.modelId);
 
   // Fetch agent tags
   const agentTagsData = await db
@@ -90,12 +93,15 @@ export default async function ViewAgentPage({
     description: tool.description ?? undefined
   }));
 
+  // Find the default model for modelDetails
+  const defaultModel = rawModels.find(m => m.id === defaultModelId);
+
   const agentViewData = {
     id: agentId,
     agentDisplayName: agentData[0].agent_display_name,
     systemPrompt: agentData[0].system_prompt,
     description: agentData[0].description ?? undefined,
-    modelId: defaultModelId, // Use the actual model ID instead of agent slug
+    modelId: defaultModelId,
     visibility: agentData[0].visibility || 'public',
     artifactsEnabled: agentData[0].artifacts_enabled,
     imageUrl: agentData[0].image_url || undefined,
@@ -104,16 +110,24 @@ export default async function ViewAgentPage({
     updatedAt: agentData[0].updatedAt || undefined,
     tags: agentTagsData,
     toolGroups: formattedToolGroups,
+    // Add modelDetails in the exact format expected by AgentView
+    modelDetails: defaultModel ? {
+      displayName: defaultModel.displayName,
+      modelType: defaultModel.modelType || 'Unknown',
+      description: defaultModel.description ?? undefined
+    } : undefined
   };
 
-  const modelsList = rawModels.map(m => ({
-    ...m,
-    description: m.description ?? undefined
-  }));
+  // Filter models list to only include those associated with this agent
+  const modelsList = rawModels
+    .filter(model => allModelIds.includes(model.id))
+    .map(m => ({
+      ...m,
+      description: m.description ?? undefined
+    }));
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold mb-6">View Agent</h1>
       <AgentView
         agentData={agentViewData}
         models={modelsList}
