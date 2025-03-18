@@ -38,7 +38,7 @@ export function HowItWorksBanner() {
              
               
               <h2 className="mt-4 text-3xl md:text-4xl lg:text-5xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
-                Turn Your AI Expertise Into Revenue
+                Build and Monetize AI Agents
               </h2>
               
               <p className="text-lg text-slate-300 leading-relaxed">

@@ -268,7 +268,7 @@ function PureMultimodalInput({
         setUploadQueue([]);
       }
     },
-    [setAttachments],
+    [setAttachments, uploadFile],
   );
 
   // Check if agent has search capability

@@ -85,6 +85,7 @@ function PureArtifact({
   setMessages: UseChatHelpers['setMessages'];
 
 
+
   append: UseChatHelpers['append'];
   handleSubmit: UseChatHelpers['handleSubmit'];
   reload: UseChatHelpers['reload'];
@@ -347,7 +348,7 @@ function PureArtifact({
                     messages={messages}
                     append={append}
                     className="bg-background dark:bg-muted"
-                    setMessages={setMessages}
+                    setMessages={setMessages as UseChatHelpers['setMessages']}
                     availableModels={[]}
                     currentModel=""
                     onModelChange={() => {}}
