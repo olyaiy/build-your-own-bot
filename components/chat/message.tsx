@@ -149,7 +149,20 @@ const PurePreviewMessage = ({
               if (type === 'text') {
                 if (mode === 'view') {
                   return (
-                    <div key={key} className="flex flex-row gap-2 items-start">
+                    <div key={key} className="flex flex-col  items-start">
+                     
+
+                      {/* Message content */}
+                      <div
+                        data-testid="message-content"
+                        className={cn('flex flex-col gap-4', {
+                          'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
+                            message.role === 'user',
+                        })}
+                      >
+                        <Markdown>{part.text}</Markdown>
+                      </div>
+                      {/* USER Message Actions */}
                       {message.role === 'user' && !isReadonly && (
                         <div className="flex flex-row gap-2 items-center">
                           <CopyButton 
@@ -173,16 +186,6 @@ const PurePreviewMessage = ({
                         </Tooltip>
                         </div>
                       )}
-
-                      <div
-                        data-testid="message-content"
-                        className={cn('flex flex-col gap-4', {
-                          'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
-                            message.role === 'user',
-                        })}
-                      >
-                        <Markdown>{part.text}</Markdown>
-                      </div>
                     </div>
                   );
                 }
@@ -366,14 +369,16 @@ export const ThinkingMessage = ({ agentImageUrl }: { agentImageUrl?: string }) =
             )}
           </div>
           
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            transition={{ duration: 0.4 }}
-            className="text-xs text-muted-foreground/80 max-w-lg"
-          >
-            Working on a thoughtful response{elapsedTime > 8 ? ". This might take a moment for complex questions" : ""}
-          </motion.div>
+          {elapsedTime > 1 && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              transition={{ duration: 0.4 }}
+              className="text-xs text-muted-foreground/80 max-w-lg"
+            >
+              Working on a thoughtful response{elapsedTime > 8 ? ". This might take a moment for complex questions" : ""}
+            </motion.div>
+          )}
           <span className="sr-only">AI is thinking - elapsed time: {elapsedTime} seconds</span>
         </div>
       </div>
