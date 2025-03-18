@@ -239,7 +239,9 @@ export const suggestion = pgTable(
 export type Suggestion = InferSelectModel<typeof suggestion>;
 
 // Third level of dependencies
-export const message = pgTable('Message', {
+
+// DEPRECATED MESSAGES TABLE
+export const messageDeprecated = pgTable("Message", {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
   chatId: uuid('chatId')
     .notNull()
@@ -257,7 +259,43 @@ export const message = pgTable('Message', {
   };
 });
 
-export type Message = InferSelectModel<typeof message>;
+export type MessageDeprecated = InferSelectModel<typeof messageDeprecated>;
+
+// NEW MESSAGES TABLE
+export const message = pgTable("Message_v2", {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  chatId: uuid('chatId')
+    .notNull()
+    .references(() => chat.id, { onDelete: 'cascade' }),
+  role: varchar('role').notNull(),
+  parts: json("parts").notNull(),
+  attachments: json("attachments").notNull(),
+  createdAt: timestamp('createdAt').notNull(),
+  model_id: uuid("model_id")
+    .references(() => models.id, { onDelete: "cascade" }),
+}, (table) => {
+  return {
+    chatIdIdx: index("message_v2_chat_id_idx").on(table.chatId),
+    modelIdIdx: index("message_v2_model_id_idx").on(table.model_id),
+    createdAtIdx: index("message_v2_created_at_idx").on(table.createdAt),
+  };
+});
+
+export type message = InferSelectModel<typeof message>;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 export const tools = pgTable("tools", {
@@ -329,7 +367,7 @@ export const userTransactions = pgTable('user_transactions', {
   amount: numeric('amount', { precision: 19, scale: 9 }).notNull(),
   type: transactionTypeEnum('type').notNull(),
   description: text('description'),
-  messageId: uuid('message_id').references(() => message.id, { onDelete: 'set null' }),
+  messageId: uuid('message_id').references(() => messageDeprecated.id, { onDelete: 'set null' }),
   modelId: uuid('model_id').references(() => models.id, { onDelete: 'set null' }),
   agentId: uuid('agent_id').references(() => agents.id),
   tokenAmount: integer('token_amount'),
