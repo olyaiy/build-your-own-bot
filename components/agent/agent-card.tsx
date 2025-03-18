@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { InferSelectModel } from "drizzle-orm";
 import { agents, models } from "@/lib/db/schema";
 import { AgentCardSettings } from "./agent-card-settings";
+import { motion } from "framer-motion";
 
 interface AgentCardProps {
   agent: Omit<InferSelectModel<typeof agents>, 'model'> & {
@@ -37,10 +38,16 @@ export function AgentCard({ agent, userId, onClick, stepNumber }: AgentCardProps
           )}
           
           {stepNumber && (
-            <div className="absolute top-2 left-2 z-10">
-              <Badge className="w-6 h-6 rounded-full flex items-center justify-center bg-blue-500 text-white p-0 font-semibold">
+            <div className="absolute -top-3 -left-3 z-20">
+              <motion.div
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 text-white font-bold text-sm shadow-lg shadow-blue-500/30 border-2 border-white/25 dark:border-black/25"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                whileHover={{ y: -2, scale: 1.1 }}
+              >
                 {stepNumber}
-              </Badge>
+              </motion.div>
             </div>
           )}
           
