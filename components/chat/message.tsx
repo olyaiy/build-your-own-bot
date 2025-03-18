@@ -220,15 +220,24 @@ const PurePreviewMessage = ({
                   />
                 );
               }
+
+              
             })}
 
-            {!isReadonly && (
-              <MessageActions
-                key={`action-${message.id}`}
-                chatId={chatId}
-                message={message}
-                isLoading={isLoading}
+            {!isReadonly && message.role === 'assistant' && (
+
+              <div className="flex flex-row gap-2 -mt-6">
+                <CopyButton 
+                className="h-fit opacity-0 group-hover/message:opacity-100" 
+                textToCopy={message.parts?.map((part) => {
+                  if ('text' in part) return part.text;
+                  if ('reasoning' in part) return part.reasoning;
+                  return '';
+                }).filter(Boolean).join('\n')} 
               />
+              
+             
+              </div>
             )}
           </div>
         </div>
