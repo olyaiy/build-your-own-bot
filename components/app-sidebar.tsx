@@ -69,9 +69,9 @@ export function AppSidebar({ user: initialUser }: { user: User | undefined | nul
 
   return (
     <Sidebar className="group-data-[side=left]:border-r-0">
-      <SidebarHeader className="p-2">
+      <SidebarHeader className="p-2 my-2">
         <SidebarMenu>
-          <div className="absolute top-2 right-2 aspect-square">
+          <div className="absolute top-4 right-2 aspect-square">
             <SidebarToggle />
           </div>
           <div className="flex my-0 flex-row justify-between items-center">
@@ -81,21 +81,21 @@ export function AppSidebar({ user: initialUser }: { user: User | undefined | nul
         </SidebarMenu>
 
         <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  type="button"
-                  className={cn(
-                    "w-full flex items-center justify-start gap-2 h-10 px-2 text-sm",
-                    isHistoryPage && "bg-muted border-primary/50 text-primary"
-                  )}
-                  onClick={handleNewChatClick}
-                > New Chat
-                  <PlusIcon size={16} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent align="end">New Chat</TooltipContent>
-            </Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              type="button"
+              className={cn(
+                "w-full flex items-center justify-start gap-2 h-10 px-2 text-sm",
+                isHistoryPage && "bg-muted border-primary/50 text-primary"
+              )}
+              onClick={handleNewChatClick}
+            > New Chat
+              <PlusIcon size={16} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent align="end">New Chat</TooltipContent>
+        </Tooltip>
         
         
       </SidebarHeader>

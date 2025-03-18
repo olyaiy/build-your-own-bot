@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { useSession } from 'next-auth/react';
-import { PlusCircle, User, HelpCircle, MessageSquare } from 'lucide-react';
+import { PlusCircle, User, HelpCircle, MessageSquare, Info } from 'lucide-react';
 
 import { usePathname } from 'next/navigation';
 import { UserNav } from './sidebar-user-nav';
@@ -62,6 +62,12 @@ function PureMainHeader() {
             <Button variant="ghost" size="sm">
               <MessageSquare className="size-4 mr-1" />
               Support
+            </Button>
+          </Link>
+          <Link href="/about">
+            <Button variant="ghost" size="sm">
+              <Info className="size-4 mr-1" />
+              About
             </Button>
           </Link>
           <Link href="/faq">

@@ -349,34 +349,23 @@ export default function AboutPage() {
                 <p className="text-sm text-muted-foreground mb-4">
                   If a user spends $10 worth of tokens with an agent:
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="p-3 bg-white/5 rounded-lg text-center">
-                    <p className="text-muted-foreground text-xs mb-1">Base Cost</p>
-                    <p className="font-semibold">$10.00</p>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-lg text-center">
-                    <p className="text-muted-foreground text-xs mb-1">Premium (18%)</p>
-                    <p className="font-semibold">$1.80</p>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-lg text-center">
-                    <p className="text-muted-foreground text-xs mb-1">Transaction Fee</p>
-                    <p className="font-semibold">$0.30</p>
-                  </div>
-                </div>
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-3 bg-primary/5 rounded-lg text-center">
                     <p className="text-primary text-xs mb-1">User Pays</p>
-                    <p className="font-semibold">$12.10</p>
+                    <p className="font-semibold">$10.00</p>
                   </div>
                   <div className="p-3 bg-green-500/5 rounded-lg text-center">
                     <p className="text-green-500 text-xs mb-1">Creator Receives</p>
-                    <p className="font-semibold">$1.00</p>
+                    <p className="font-semibold">$0.85</p>
                   </div>
                   <div className="p-3 bg-blue-500/5 rounded-lg text-center">
                     <p className="text-blue-500 text-xs mb-1">Platform Fee</p>
-                    <p className="font-semibold">$1.10</p>
+                    <p className="font-semibold">$0.68</p>
                   </div>
                 </div>
+                <p className="text-xs text-muted-foreground mt-4 text-center">
+                  Note: All transactions include a $0.30 processing fee to cover payment gateway costs.
+                </p>
               </div>
             </div>
           </div>
