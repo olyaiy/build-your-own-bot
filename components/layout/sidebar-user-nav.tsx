@@ -1,11 +1,12 @@
 'use client';
-import { ChevronUp, UserCircle, LogIn, UserPlus, User, ChevronDown } from 'lucide-react';
+import { ChevronUp, UserCircle, LogIn, UserPlus, User, ChevronDown, HelpCircle, MessageSquare, PlusCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { User as AuthUser } from 'next-auth';
 import { signOut } from 'next-auth/react';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
+import { useWindowSize } from 'usehooks-ts';
 
 import {
   DropdownMenu,
@@ -32,6 +33,8 @@ export function UserNav({ variant = 'sidebar', user }: UserNavProps) {
   const { setTheme, theme } = useTheme();
   const [dbUser, setDbUser] = useState<DbUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { width } = useWindowSize();
+  const isMobile = width < 768; // md breakpoint in Tailwind
 
   // Consolidated data fetching logic
   useEffect(() => {
@@ -166,6 +169,44 @@ export function UserNav({ variant = 'sidebar', user }: UserNavProps) {
           </div>
         </div>
         <DropdownMenuSeparator />
+        
+        {/* Mobile-only header navigation items */}
+        {isMobile && variant === 'header' && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/agents/create" className="flex items-center cursor-pointer">
+                <PlusCircle className="mr-2 size-4" />
+                <span>Create</span>
+              </Link>
+            </DropdownMenuItem>
+            
+            {user && (
+              <DropdownMenuItem asChild>
+                <Link href="/profile/agents" className="flex items-center cursor-pointer">
+                  <User className="mr-2 size-4" />
+                  <span>My Agents</span>
+                </Link>
+              </DropdownMenuItem>
+            )}
+            
+            <DropdownMenuItem asChild>
+              <Link href="/contact" className="flex items-center cursor-pointer">
+                <MessageSquare className="mr-2 size-4" />
+                <span>Support</span>
+              </Link>
+            </DropdownMenuItem>
+            
+            <DropdownMenuItem asChild>
+              <Link href="/faq" className="flex items-center cursor-pointer">
+                <HelpCircle className="mr-2 size-4" />
+                <span>FAQ</span>
+              </Link>
+            </DropdownMenuItem>
+            
+            <DropdownMenuSeparator />
+          </>
+        )}
+        
         <DropdownMenuItem asChild>
           <Link href="/profile" className="flex items-center cursor-pointer">
             <User className="mr-2 size-4" />
