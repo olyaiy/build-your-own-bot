@@ -8,17 +8,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { useSession } from 'next-auth/react';
-import { ChevronDown, PlusCircle, User, HelpCircle, MessageSquare } from 'lucide-react';
-import Image from 'next/image';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { signOut } from 'next-auth/react';
-import { useTheme } from 'next-themes';
+import { PlusCircle, User, HelpCircle, MessageSquare } from 'lucide-react';
+
 import { usePathname } from 'next/navigation';
 import { UserNav } from './sidebar-user-nav';
 

@@ -1,20 +1,19 @@
 import { Metadata } from "next";
 import { auth } from "@/app/(auth)/auth";
-import { getAgents, getMostCommonTags } from "@/lib/db/queries";
+import { getAgents } from "@/lib/db/queries";
 import { redirect } from "next/navigation";
 import { MyAgentList } from "@/components/agent/my-agent-list";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
-import { CreateAgentButton } from "@/components/agent/create-agent-button";
-
 
 export const metadata: Metadata = {
   title: "My Agents",
   description: "Manage your AI agents",
 };
 
-export default async function MyAgentsPage() {
+export default async function MyAgentsPage({ 
+  searchParams 
+}: { 
+  searchParams: { timePeriod?: string } 
+}) {
   const session = await auth();
   
   // If user is not logged in, redirect to login page
@@ -22,12 +21,12 @@ export default async function MyAgentsPage() {
     redirect("/login");
   }
   
+  // Get the time period from search params or default to all-time
+  const timePeriod = searchParams.timePeriod || 'all-time';
+  
   // Fetch only agents created by the current user including models, tools, tags, and earnings
-  const userAgents = await getAgents(session.user.id, true, true, true);
-  
-  // Fetch most common tags to assist in filtering
-  const commonTags = await getMostCommonTags(10);
-  
+  const userAgents = await getAgents(session.user.id, true, true, true, timePeriod);
+
   return (
     <div className="container py-6 space-y-6 px-4 mx-auto">
       <div className="flex items-center justify-between">
@@ -42,7 +41,7 @@ export default async function MyAgentsPage() {
       <MyAgentList 
         agents={userAgents} 
         userId={session.user.id}
-        tags={commonTags}
+        timePeriod={timePeriod}
       />
     </div>
   );

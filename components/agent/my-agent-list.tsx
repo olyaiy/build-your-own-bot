@@ -3,10 +3,18 @@
 import { useEffect, useState } from "react";
 import { CreateAgentCard } from "./create-agent-card";
 import { Input } from "../ui/input";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, CalendarIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { MyAgentCard } from "./my-agent-card";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Tag {
   id: string;
@@ -20,9 +28,13 @@ interface MyAgentListProps {
   agents: any[]; // We'll use any type to avoid type conflicts for now
   userId?: string;
   tags?: { id: string; name: string; count: number }[];
+  timePeriod?: string;
 }
 
-export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgentListProps) {
+export function MyAgentList({ agents: initialAgents, userId, tags = [], timePeriod = 'all-time' }: MyAgentListProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [agents, setAgents] = useState(initialAgents);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredAgents, setFilteredAgents] = useState(initialAgents);
@@ -30,6 +42,13 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgen
   // Cookie name for storing recently used agents
   const RECENT_AGENTS_COOKIE = 'recent-agents';
   const MAX_RECENT_AGENTS = 50;
+  
+  // Function to handle time period changes
+  const handleTimePeriodChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('timePeriod', value);
+    router.push(`${pathname}?${params.toString()}`);
+  };
   
   // Load recent agents from cookie on component mount
   useEffect(() => {
@@ -134,18 +153,48 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [] }: MyAgen
     );
   }
 
+  // Get display text for current time period
+  const getTimePeriodDisplay = () => {
+    switch (timePeriod) {
+      case 'current-month':
+        return 'Current Month';
+      case 'previous-month':
+        return 'Previous Month';
+      default:
+        return 'All Time';
+    }
+  };
+
   return (
     <div className="w-full space-y-4 md:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4 mb-2">
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search my agents..."
-            className="pl-10 w-full"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="flex gap-3 items-center">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search my agents..."
+              className="pl-10 w-full"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center">
+            <Select
+              value={timePeriod}
+              onValueChange={handleTimePeriodChange}
+            >
+              <SelectTrigger className="w-[180px]">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                <SelectValue placeholder={getTimePeriodDisplay()} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all-time">All Time</SelectItem>
+                <SelectItem value="current-month">Current Month</SelectItem>
+                <SelectItem value="previous-month">Previous Month</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <Button asChild>
           <Link href="/agents/create">

@@ -1,5 +1,5 @@
 import { genSaltSync, hashSync } from 'bcrypt-ts';
-import { and, asc, desc, eq, gt, gte, inArray, isNotNull, or, sql} from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, inArray, isNotNull, or, sql, lt } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { generateSlug, generateUUID } from '@/lib/utils';
@@ -354,7 +354,7 @@ type AgentWithModels = Agent & {
   defaultModel: Model | null;
 };
 
-export const getAgents = async (userId?: string, includeAllModels?: boolean, includeEarnings?: boolean, onlyUserCreated?: boolean) => {
+export const getAgents = async (userId?: string, includeAllModels?: boolean, includeEarnings?: boolean, onlyUserCreated?: boolean, timePeriod: string = 'all-time') => {
   try {
     const result = await db.select({
       id: agents.id,
@@ -432,6 +432,27 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean, inc
         let totalSpent = 0;
         
         if (includeEarnings) {
+          // Define date filtering conditions based on timePeriod
+          let dateCondition;
+          
+          if (timePeriod === 'current-month') {
+            // Current month
+            const now = new Date();
+            const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            dateCondition = and(
+              gte(userTransactions.created_at, firstDayOfMonth)
+            );
+          } else if (timePeriod === 'previous-month') {
+            // Previous month
+            const now = new Date();
+            const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const firstDayOfPreviousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            dateCondition = and(
+              gte(userTransactions.created_at, firstDayOfPreviousMonth),
+              lt(userTransactions.created_at, firstDayOfCurrentMonth)
+            );
+          }
+          
           // Get total amount spent on this agent (only "usage" transactions, not "self_usage")
           const transactionResults = await db
             .select({
@@ -439,10 +460,16 @@ export const getAgents = async (userId?: string, includeAllModels?: boolean, inc
             })
             .from(userTransactions)
             .where(
-              and(
-                eq(userTransactions.agentId, agent.id),
-                eq(userTransactions.type, 'usage')
-              )
+              dateCondition 
+                ? and(
+                    eq(userTransactions.agentId, agent.id),
+                    eq(userTransactions.type, 'usage'),
+                    dateCondition
+                  )
+                : and(
+                    eq(userTransactions.agentId, agent.id),
+                    eq(userTransactions.type, 'usage')
+                  )
             );
           
           // Convert the string to a number, Math.abs because usage transactions are negative
