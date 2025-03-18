@@ -1256,14 +1256,6 @@ export async function recordTransaction({
       // Apply markup factor based on applyCreatorMarkup flag
       const MARKUP_FACTOR = type === 'self_usage' ? -1.08 : -1.18;
 
-      // 🚨 Debug logging
-      console.log(
-        `%c👑 CREATOR STATUS: ${type === 'self_usage' ? 'AGENT OWNER 👑' : 'REGULAR USER 👤'}\n` +
-        `%c🏷️ MARKUP FACTOR: ${MARKUP_FACTOR} applied since this is ${type}`,
-        'color: #4CAF50; font-weight: bold;', 
-        'color: #2196F3; font-weight: bold;'
-      );
-
       // Calculate input and output costs
       inputCost = usage.promptTokens 
         ? (((usage.promptTokens || 0) * parseFloat(costPerMillionInput || '0')) / 1000000) * MARKUP_FACTOR
@@ -1273,28 +1265,12 @@ export async function recordTransaction({
         ? (((usage.completionTokens || 0) * parseFloat(costPerMillionOutput || '0')) / 1000000) * MARKUP_FACTOR
         : 0;
 
-      // 🚨 Token usage debug
-      console.log(
-        `%c📝 INPUT TOKENS: ${usage.promptTokens?.toLocaleString() || 0}\n` +
-        `%c📤 OUTPUT TOKENS: ${usage.completionTokens?.toLocaleString() || 0}\n` +
-        `%c💰 INPUT COST: $${inputCost.toFixed(4)}\n` +
-        `%c💰 OUTPUT COST: $${outputCost.toFixed(4)}`,
-        'color: #FF9800;',  // Orange
-        'color: #9C27B0;',  // Purple
-        'color: #4CAF50;',  // Green
-        'color: #2196F3;'   // Blue
-      );
 
       // Total cost is the sum of input and output costs
       calculatedAmount = inputCost + outputCost;
       
       // 🚨 Total cost debug
-      console.log(
-        `%c💸 TOTAL COST: $${calculatedAmount.toFixed(4)}\n` +
-        `%c🏷️ TRANSACTION TYPE: ${type.toUpperCase()}`,
-        'background: #FFEB3B; color: #000; font-weight: bold; padding: 2px 5px;',
-        'background: #E91E63; color: #fff; font-weight: bold; padding: 2px 5px;'
-      );
+   
     }
     
     if (calculatedAmount === undefined) {
@@ -1373,15 +1349,6 @@ export async function recordTransaction({
 
         const currentBalance = userCredit?.balance || 0;
         const newBalance = Number(currentBalance) + Number(calculatedAmount);
-
-        // 🚨 Credit change debug
-        console.log(
-          `%c💳 CREDIT CHANGE:\n` +
-          `PREVIOUS BALANCE: $${currentBalance}\n` +
-          `NEW BALANCE: $${newBalance}\n` +
-          `AMOUNT CHANGE: $${calculatedAmount} ${calculatedAmount > 0 ? 'ADDED ➕' : 'SUBTRACTED ➖'}`,
-          'background: #607D8B; color: #fff; font-weight: bold; padding: 5px;'
-        );
 
 
         await tx

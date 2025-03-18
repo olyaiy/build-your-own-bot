@@ -106,6 +106,15 @@ export async function POST(request: Request) {
     totalTokens: 0
   };
 
+  // Initialize array to accumulate messages outside execute to make it accessible to onError
+  const accumulatedMessages: any[] = [];
+
+  // Initialize step counter
+  let stepCounter = 0;
+
+  // Track saved message IDs to avoid duplicates
+  const savedMessageIds = new Set<string>();
+
   // 
   return createDataStreamResponse({
     execute: async (dataStream) => {
@@ -181,24 +190,68 @@ export async function POST(request: Request) {
               : [],
         // Tools
           tools,
-
         // config
         experimental_transform: smoothStream({
           delayInMs: 10, // optional: defaults to 10ms
           chunking: 'word', // optional: defaults to 'word'
         }),
-      
-          providerOptions: providerOptions as any,
-          experimental_generateMessageId: generateUUID,
-          experimental_telemetry: {
-            isEnabled: true,
-            functionId: 'stream-text',
-          },
-          toolCallStreaming: true,
+        providerOptions: providerOptions as any,
+        experimental_generateMessageId: generateUUID,
+        experimental_telemetry: {
+          isEnabled: true,
+          functionId: 'stream-text',
+        },
+        toolCallStreaming: true,
+
+        
 
         onStepFinish: async ({ stepType, response, reasoning, usage }) => {
           console.log('🤖 THE STEP TYPE IS:', stepType);
           console.log('💬 THE USAGE IS:', usage);
+          
+          // Increment step counter for each step
+          stepCounter++;
+          console.log(`🔢 CURRENT STEP: ${stepCounter}`);
+
+          if (session.user?.id) {
+            try {
+              const sanitizedResponseMessages = sanitizeResponseMessages({
+                messages: response.messages,
+                reasoning,
+              });
+              
+              // Debug: Log message IDs before adding to accumulated messages
+              console.log('🔍 Message IDs to accumulate:', sanitizedResponseMessages.map(m => m.id));
+              
+              // Filter out messages that already exist in accumulatedMessages
+              const newMessages = sanitizedResponseMessages.filter(msg => 
+                !accumulatedMessages.some(existingMsg => existingMsg.id === msg.id)
+              );
+              
+              if (newMessages.length < sanitizedResponseMessages.length) {
+                console.log('⚠️ Filtered out duplicate messages:', 
+                  sanitizedResponseMessages.length - newMessages.length);
+              }
+              
+              accumulatedMessages.push(...newMessages.map((message) => {
+                return {
+                  id: message.id,
+                  chatId: id,
+                  role: message.role,
+                  content: message.content,
+                  createdAt: new Date(),
+                  model_id: selectedModelId
+                };
+              }));
+              
+              // Debug: Log accumulated message IDs after adding
+              console.log('📊 Total accumulated messages:', accumulatedMessages.length);
+              console.log('📋 Accumulated message IDs:', accumulatedMessages.map(m => m.id));
+            
+            } catch (error) {
+              console.error('Failed to save chat TEMPORARILY');
+            }
+          }
 
           // Update running tally if usage is available
           if (usage) {
@@ -209,22 +262,23 @@ export async function POST(request: Request) {
             console.log('🧮 RUNNING TALLY:', runningTally);
           }
 
-          if (stepType !== 'initial') {
+          // Only throw error on the fourth step
+          if (stepCounter === 3) {
             await new Promise(resolve => setTimeout(resolve, 2000));
-            throw new Error('This is a test error');
+            throw new Error('This is a test error on step 4');
           }
         },
 
         /* ---- ON FINISH ---- */
         onFinish: async ({ response, reasoning, usage, finishReason }) => {
           console.log('THE FINISHED REASON IS --->', finishReason);
-          console.log('🤖 THE MODEL IS:', selectedChatModel);
-          console.log('💬 THE RESPONSE IS:', response);
+          
+          
 
           // Compare running tally with final usage
           if (usage) {
-            console.log('📊 FINAL USAGE:', usage);
-            console.log('🧮 RUNNING TALLY:', runningTally);
+            // console.log('📊 FINAL USAGE:', usage);
+            // console.log('🧮 RUNNING TALLY:', runningTally);
             
             const tallyMatchesUsage = 
               runningTally.promptTokens === usage.promptTokens && 
@@ -241,18 +295,20 @@ export async function POST(request: Request) {
             }
           }
 
+          // Save the messages
           if (session.user?.id) {
             try {
               const sanitizedResponseMessages = sanitizeResponseMessages({
                 messages: response.messages,
                 reasoning,
               });
-
-              console.log('THE USER ID IS:', session.user.id);
-              console.log('THE CREATOR ID IS:', creatorId);
-
-         
-
+              
+              // Debug: Log sanitized message IDs before saving
+              console.log('💾 About to save message IDs:', sanitizedResponseMessages.map(m => m.id));
+              
+              // Track which message IDs we're saving
+              sanitizedResponseMessages.forEach(msg => savedMessageIds.add(msg.id));
+              
               await saveMessages({
                 messages: sanitizedResponseMessages.map((message) => {
                   return {
@@ -266,66 +322,77 @@ export async function POST(request: Request) {
                 }),
               });
 
-                   // Instead of calculating cost here, use recordTransaction to track usage
-                   if (usage && modelDetails) {
-                    await recordTransaction({
-                      agentId: agentId,
-                      userId: session.user.id,
-                      type: creatorId === session.user.id ? 'self_usage' : 'usage',
-                      messageId: sanitizedResponseMessages[0]?.id,
-                      modelId: selectedModelId,
-                      costPerMillionInput: modelDetails.cost_per_million_input_tokens || '0',
-                      costPerMillionOutput: modelDetails.cost_per_million_output_tokens || '0',
-                      usage: {
-                        promptTokens: usage.promptTokens,
-                        completionTokens: usage.completionTokens
-                      }
-                    });
-                  }
 
+              // Instead of calculating cost here, use recordTransaction to track usage
+              if (usage && modelDetails) {
+              await recordTransaction({
+                agentId: agentId,
+                userId: session.user.id,
+                type: creatorId === session.user.id ? 'self_usage' : 'usage',
+                messageId: sanitizedResponseMessages[0]?.id,
+                modelId: selectedModelId,
+                costPerMillionInput: modelDetails.cost_per_million_input_tokens || '0',
+                costPerMillionOutput: modelDetails.cost_per_million_output_tokens || '0',
+                usage: {
+                  promptTokens: usage.promptTokens,
+                  completionTokens: usage.completionTokens
+                }
+              });
+            }
                   
             } catch (error) {
               console.error('Failed to save chat');
             }
           }
+
+          console.log('THE ACCUMULATED MESSAGES ARE --->', accumulatedMessages);
+          console.log('THE MESSAGES ARE --->', messages);
+    
         },
    
         
       });
 
-      
-    //   for await (const part of result.fullStream) {
-    //     console.log('🤖 THE PART IS ------------------------------:');
-    //     if (part.type === "step-start") {
-    //     console.log(part.type);
-    //   } else if (part.type === "step-finish") {
-    //     console.log("🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔🔔 WE FINISHED THE STEP");
-    //     console.log('💬 THE REASON WE STOPPED IS:');
-    //     console.log(part.finishReason);
-    //     console.log('💬 THE USAGE IS:');
-    //     console.log(part.usage);
-    //     console.log("--------------------------------");
-    //   } else if (part.type === 'text-delta' && part.textDelta.includes("Bazinga")) {
-    //     console.log(part);
-    //     throw new Error('BAZINGA! This is a test error');
-    //   } else {
-    //     console.log(part);
-    //   }
-    // }
 
 
       result.consumeStream();      
       result.mergeIntoDataStream(dataStream, {
         sendReasoning: true,
       });
+
     },
     
     /* -------- ERROR HANDLING -------- */
     onError: (error: unknown) => {
       console.error('THE MASSIVE Error in chat:', error);
       console.log('💰 USAGE TALLY AT ERROR:', runningTally);
-
-  
+      
+      // Record the transaction using runningTally if we have accumulated tokens
+      if (runningTally.totalTokens > 0 && session?.user?.id && modelDetails) {
+        const userId = session.user.id; // Capture in variable for TypeScript
+        // We use a fire-and-forget pattern here to avoid changing the return type of onError
+        (async () => {
+          try {
+            await recordTransaction({
+              agentId: agentId,
+              userId: userId,
+              type: creatorId === userId ? 'self_usage' : 'usage',
+              messageId: userMessage.id || generateUUID(), // Ensure we have an ID
+              modelId: selectedModelId,
+              costPerMillionInput: modelDetails.cost_per_million_input_tokens || '0',
+              costPerMillionOutput: modelDetails.cost_per_million_output_tokens || '0',
+              usage: {
+                promptTokens: runningTally.promptTokens,
+                completionTokens: runningTally.completionTokens
+              },
+              description: 'Error occurred during generation - this was the usage up until the error'
+            });
+            console.log('✅ Successfully recorded transaction for error case');
+          } catch (txError) {
+            console.error('Failed to record transaction on error:', txError);
+          }
+        })().catch(e => console.error('Unhandled error in fire-and-forget transaction:', e));
+      }
       
       // Add detailed debugging for tool invocation errors
       if (error instanceof Error && error.message && error.message.includes('ToolInvocation must have a result')) {
@@ -355,6 +422,44 @@ export async function POST(request: Request) {
         }
       }
       
+      // Save accumulated messages to the database if we have any
+      if (accumulatedMessages.length > 0 && session?.user?.id) {
+        (async () => {
+          try {
+            console.log('🔄 About to save accumulated messages in error handler');
+            console.log('📋 Message IDs to save in error handler:', accumulatedMessages.map(m => m.id));
+            
+            // Check if we have any message IDs that were already saved in onFinish
+            const duplicateIds = accumulatedMessages
+              .map(msg => msg.id)
+              .filter(id => savedMessageIds.has(id));
+            
+            if (duplicateIds.length > 0) {
+              console.log('⚠️ Found duplicate message IDs that were already saved:', duplicateIds);
+              // Filter out messages that were already saved
+              const uniqueMessages = accumulatedMessages.filter(msg => !savedMessageIds.has(msg.id));
+              console.log(`🔢 Filtered from ${accumulatedMessages.length} to ${uniqueMessages.length} unique messages`);
+              
+              if (uniqueMessages.length > 0) {
+                await saveMessages({
+                  messages: uniqueMessages,
+                });
+                console.log('✅ Successfully saved filtered unique messages');
+              } else {
+                console.log('⏭️ No unique messages to save, skipping saveMessages call');
+              }
+            } else {
+              // No duplicates, proceed with saving all accumulated messages
+              await saveMessages({
+                messages: accumulatedMessages,
+              });
+              console.log('✅ Successfully saved all accumulated messages');
+            }
+          } catch (saveError) {
+            console.error('Failed to save accumulated messages on error:', saveError);
+          }
+        })().catch(e => console.error('Unhandled error in fire-and-forget message save:', e));
+      }
       
       // Return a more descriptive error message
       if (error instanceof Error) {
