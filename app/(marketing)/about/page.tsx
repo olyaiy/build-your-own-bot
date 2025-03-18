@@ -10,7 +10,9 @@ import {
   Sparkles,
   BrainCircuit,
   BarChart4,
-  HandCoins
+  HandCoins,
+  Linkedin,
+  Twitter
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -22,8 +24,61 @@ export const metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen">
+      {/* From the Creator Section */}
+      <section className="pt-24 pb-16 relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute top-20 -left-20 size-60 rounded-full bg-primary/5 blur-3xl"></div>
+          <div className="absolute -bottom-20 -right-20 size-60 rounded-full bg-blue-500/5 blur-3xl"></div>
+        </div>
+        
+        <div className="container max-w-4xl mx-auto px-4 relative z-10">
+          <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
+            <div className="p-8 md:p-10">
+              <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
+                <div className="flex-shrink-0">
+                  <div className="relative h-48 w-48 md:h-72 md:w-72 rounded-xl overflow-hidden border-4 border-background shadow-lg">
+                    <Image 
+                      src="/images/alex.png" 
+                      alt="Alex Olyaiy" 
+                      fill 
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 text-center md:text-left">
+                  <h2 className="text-2xl font-bold mb-4">From the Creator</h2>
+                  <p className="text-muted-foreground mb-4">
+                    Hi! I'm Alex, the creator of Agent Vendor. I'm currently studying Computer Science at UBC, and in my free time, you'll often find me hiking the beautiful mountains around Vancouver. I built this platform because I believe that AI's greatest potential is unlocked when domain experts can easily create specialized tools that solve real problems.
+                  </p>
+                  <p className="text-muted-foreground mb-6">
+                    My vision is to create an ecosystem where anyone with expertise can build and monetize AI agents without needing to code, while users get access to high-quality, purpose-built AI solutions for their specific needs. I'm always happy to connect - feel free to reach out and message me anytime!
+                  </p>
+                  
+                  <div className="flex gap-4 justify-center md:justify-start">
+                    <Button variant="outline" size="sm" className="inline-flex gap-2" asChild>
+                      <Link href="https://linkedin.com/in/olyaiy" target="_blank" rel="noopener noreferrer">
+                        <Linkedin className="h-4 w-4" />
+                        LinkedIn
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="inline-flex gap-2" asChild>
+                      <Link href="https://x.com/alexfromvan" target="_blank" rel="noopener noreferrer">
+                        <Twitter className="h-4 w-4" />
+                        Twitter
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
+      <section className="relative py-16 overflow-hidden">
         {/* Decorative background elements */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 size-80 rounded-full bg-primary/5 blur-3xl"></div>
