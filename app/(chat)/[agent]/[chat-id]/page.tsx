@@ -1,5 +1,5 @@
 // import { cookies } from 'next/headers';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/app/(auth)/auth';
 import { Chat } from '@/components/chat/chat';
 import { 
@@ -13,6 +13,7 @@ import { Attachment, UIMessage } from 'ai';
 
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { DataStreamHandler } from '@/components/util/data-stream-handler';
+import { AccessDenied } from '@/components/ui/access-denied';
 
 export default async function Page(props: { 
   params: Promise<{ 
@@ -21,12 +22,36 @@ export default async function Page(props: {
   }>
 }) {
   const { agent: agentSlug, 'chat-id': chatId } = await props.params;
+  const session = await auth();
 
   const agentWithModel = await getAgentWithModelById(agentSlug);
   if (!agentWithModel?.agent) {
     return notFound();
   }
 
+  const chat = await getChatById({ id: chatId });
+  if (!chat) notFound();
+
+  // Access control: Check if the user has permission to view this chat
+  if (chat.visibility === 'private') {
+    // If not logged in, redirect to login page
+    if (!session?.user) {
+      return (
+        <AccessDenied 
+          title="Authentication Required" 
+          message="Please log in to access this conversation."
+          actionHref="/login"
+          actionText="Log In"
+        />
+      );
+    }
+    
+    // If logged in but not the chat owner, show access denied
+    if (session.user.id !== chat.userId) {
+      return <AccessDenied message="Sorry, you don't have access to this conversation." />;
+    }
+  }
+  
   // Get all available models for this agent
   const agentWithAvailableModels = await getAgentWithAvailableModels(agentSlug);
   const availableModels = agentWithAvailableModels?.availableModels || [];
@@ -41,10 +66,6 @@ export default async function Page(props: {
   // Use existing model ID if available, otherwise use the default model
   const selectedModelId = existingModelId || defaultModelId;
 
-  const chat = await getChatById({ id: chatId });
-  if (!chat) notFound();
-
-  const session = await auth();
   const messagesFromDb = await getMessagesByChatId({ id: chatId });
 
   function convertToUIMessages(messages: Array<DBMessage>): Array<UIMessage> {
@@ -59,8 +80,6 @@ export default async function Page(props: {
         (message.attachments as Array<Attachment>) ?? [],
     }));
   }
-
-
 
   return (
     <>
