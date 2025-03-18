@@ -1,8 +1,8 @@
 import { db } from "@/lib/db/queries";
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
-import { models, agents } from "@/lib/db/schema";
+import { models, agents, agentTags, tags, agentToolGroups, toolGroups, AgentCustomization } from "@/lib/db/schema";
 import { auth } from "@/app/(auth)/auth";
 import AgentView from "@/components/agent/agent-view";
 
@@ -48,6 +48,36 @@ export default async function ViewAgentPage({
     return notFound();
   }
 
+  // Fetch agent tags
+  const agentTagsData = await db
+    .select({
+      id: tags.id,
+      name: tags.name
+    })
+    .from(agentTags)
+    .innerJoin(tags, eq(agentTags.tagId, tags.id))
+    .where(eq(agentTags.agentId, agentId));
+
+  // Fetch agent tool groups
+  const agentToolGroupsData = await db
+    .select({
+      id: toolGroups.id,
+      name: toolGroups.name,
+      displayName: toolGroups.display_name,
+      description: toolGroups.description
+    })
+    .from(agentToolGroups)
+    .innerJoin(toolGroups, eq(agentToolGroups.toolGroupId, toolGroups.id))
+    .where(eq(agentToolGroups.agentId, agentId));
+    
+  // Map tool groups to the correct format
+  const formattedToolGroups = agentToolGroupsData.map(tool => ({
+    id: tool.id,
+    name: tool.name,
+    displayName: tool.displayName,
+    description: tool.description ?? undefined
+  }));
+
   const agentViewData = {
     id: agentId,
     agentDisplayName: agentData[0].agent_display_name,
@@ -56,6 +86,12 @@ export default async function ViewAgentPage({
     modelId: agentData[0].agent || '',
     visibility: agentData[0].visibility || 'public',
     artifactsEnabled: agentData[0].artifacts_enabled,
+    imageUrl: agentData[0].image_url || undefined,
+    customization: agentData[0].customization as AgentCustomization | undefined,
+    createdAt: agentData[0].createdAt || undefined,
+    updatedAt: agentData[0].updatedAt || undefined,
+    tags: agentTagsData,
+    toolGroups: formattedToolGroups,
   };
 
   const modelsList = rawModels.map(m => ({
@@ -65,7 +101,7 @@ export default async function ViewAgentPage({
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold mb-4">View Agent</h1>
+      <h1 className="text-2xl font-bold mb-6">View Agent</h1>
       <AgentView
         agentData={agentViewData}
         models={modelsList}

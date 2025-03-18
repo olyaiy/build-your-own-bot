@@ -1,18 +1,44 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { formatDistance } from "date-fns";
+
+// UI Components
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// Icons
+import {
+  Clock,
+  Eye,
+  EyeOff,
+  Globe,
+  Link as LinkIcon,
+  MessageSquare,
+  FileText,
+  Book,
+  Cpu,
+  Puzzle,
+  Tag,
+  ArrowLeft,
+  ImageIcon,
+} from "lucide-react";
 
 interface AgentViewProps {
   agentData: {
@@ -23,6 +49,22 @@ interface AgentViewProps {
     modelId: string;
     visibility: "public" | "private" | "link";
     artifactsEnabled: boolean | null;
+    imageUrl?: string;
+    customization?: {
+      overview: {
+        title: string;
+        content: string;
+        showPoints: boolean;
+        points: string[];
+      };
+      style: {
+        colorSchemeId: string;
+      };
+    };
+    createdAt?: Date;
+    updatedAt?: Date;
+    tags?: { id: string; name: string }[];
+    toolGroups?: { id: string; name: string; displayName: string; description?: string }[];
     modelDetails?: {
       displayName: string;
       modelType: string;
@@ -40,104 +82,323 @@ interface AgentViewProps {
 export default function AgentView({ agentData, models }: AgentViewProps) {
   const router = useRouter();
   const selectedModel = models.find(m => m.id === agentData.modelId);
+  
+  // Color schemes based on colorSchemeId
+  const colorSchemes: Record<string, { bg: string; accent: string }> = {
+    default: { bg: "bg-gradient-to-br from-slate-800 to-slate-900", accent: "bg-blue-600" },
+    blue: { bg: "bg-gradient-to-br from-blue-800 to-blue-950", accent: "bg-blue-500" },
+    green: { bg: "bg-gradient-to-br from-emerald-800 to-emerald-950", accent: "bg-emerald-500" },
+    purple: { bg: "bg-gradient-to-br from-violet-800 to-violet-950", accent: "bg-violet-500" },
+    red: { bg: "bg-gradient-to-br from-rose-800 to-rose-950", accent: "bg-rose-500" },
+    orange: { bg: "bg-gradient-to-br from-orange-800 to-orange-950", accent: "bg-orange-500" },
+  };
+  
+  // Set color scheme based on agent customization or default
+  const colorSchemeId = agentData.customization?.style?.colorSchemeId || "default";
+  const colorScheme = colorSchemes[colorSchemeId] || colorSchemes.default;
+  
+  // Helper function to get visibility icon and text
+  const getVisibilityInfo = () => {
+    switch (agentData.visibility) {
+      case "public":
+        return { icon: <Globe className="h-4 w-4" />, text: "Public" };
+      case "private":
+        return { icon: <EyeOff className="h-4 w-4" />, text: "Private" };
+      case "link":
+        return { icon: <LinkIcon className="h-4 w-4" />, text: "Link Sharing" };
+      default:
+        return { icon: <Globe className="h-4 w-4" />, text: "Public" };
+    }
+  };
+
+  const visibilityInfo = getVisibilityInfo();
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      <div className="flex gap-8">
-        {/* Profile Placeholder - Same as form */}
-        <div className="w-1/4 aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-          <svg
-            className="size-1/2 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
-          </svg>
-        </div>
-
-        {/* Right Column - Display Fields */}
-        <div className="flex-1 space-y-6">
-          <div>
-            <Label className="text-lg font-semibold">Agent Name</Label>
-            <Input
-              readOnly
-              value={agentData.agentDisplayName}
-              className="mt-2 text-xl h-16 px-6 font-medium bg-muted"
-            />
-          </div>
-
-          <div>
-            <Label className="text-lg font-semibold">Description</Label>
-            <Textarea
-              readOnly
-              value={agentData.description || ''}
-              className="mt-2 bg-muted"
-            />
-          </div>
-
-          {/* Settings Row */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label className="text-sm font-medium">Model</Label>
-              <Select value={agentData.modelId} disabled>
-                <SelectTrigger className="mt-2 bg-muted">
-                  <SelectValue placeholder="Selected model" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={selectedModel?.id || ''}>
-                    <div className="flex flex-col justify-start items-start">
-                      <span className="font-medium">{selectedModel?.displayName}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {selectedModel?.modelType ?? ''}
-                      </span>
-                      <span className="text-xs text-muted-foreground">{selectedModel?.description}</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+      {/* Hero section with agent info */}
+      <Card className="border-0 shadow-lg overflow-hidden">
+        <div className={`${colorScheme.bg} text-white p-8`}>
+          <div className="flex items-start gap-8">
+            {/* Agent Avatar */}
+            <div className="hidden sm:block flex-shrink-0">
+              {agentData.imageUrl ? (
+                <div className="relative w-32 h-32 rounded-lg overflow-hidden">
+                  <Image
+                    src={agentData.imageUrl}
+                    alt={agentData.agentDisplayName}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-32 h-32 bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                  <ImageIcon className="size-16 text-white/50" />
+                </div>
+              )}
             </div>
-
-            <div>
-              <Label className="text-sm font-medium">Visibility</Label>
-              <Input
-                readOnly
-                value={agentData.visibility}
-                className="mt-2 bg-muted capitalize"
-              />
-            </div>
-
-            <div className="flex items-end h-full">
-              <div className="flex items-center gap-2">
-                <Switch 
-                  checked={agentData.artifactsEnabled ?? false}
-                  disabled
-                />
-                <Label>Artifacts Enabled</Label>
+            
+            {/* Agent Info */}
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <h1 className="text-3xl font-bold mb-2">{agentData.agentDisplayName}</h1>
+                <Badge variant="outline" className="text-xs border-white/20 bg-white/10 flex gap-1 items-center">
+                  {visibilityInfo.icon}
+                  <span>{visibilityInfo.text}</span>
+                </Badge>
+              </div>
+              
+              <p className="text-white/80 mb-4 max-w-3xl">
+                {agentData.description || agentData.customization?.overview?.content || "No description provided."}
+              </p>
+              
+              <div className="flex flex-wrap gap-2">
+                {/* Agent Model Badge */}
+                {selectedModel && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant="secondary" className="bg-white/10 hover:bg-white/20 flex gap-1.5 items-center">
+                          <Cpu className="h-3 w-3" />
+                          <span>{selectedModel.displayName}</span>
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p>{selectedModel.modelType}</p>
+                        {selectedModel.description && <p className="text-xs text-muted-foreground">{selectedModel.description}</p>}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+                
+                {/* Artifacts Enabled Badge */}
+                <Badge variant="secondary" className="bg-white/10 hover:bg-white/20 flex gap-1.5 items-center">
+                  <FileText className="h-3 w-3" />
+                  <span>Artifacts {agentData.artifactsEnabled ? "Enabled" : "Disabled"}</span>
+                </Badge>
+                
+                {/* Timestamp Badge if available */}
+                {agentData.createdAt && (
+                  <Badge variant="secondary" className="bg-white/10 hover:bg-white/20 flex gap-1.5 items-center">
+                    <Clock className="h-3 w-3" />
+                    <span>Created {formatDistance(agentData.createdAt, new Date(), { addSuffix: true })}</span>
+                  </Badge>
+                )}
+                
+                {/* Tags */}
+                {agentData.tags && agentData.tags.length > 0 && (
+                  <div className="flex gap-1.5 items-center flex-wrap">
+                    {agentData.tags.slice(0, 3).map(tag => (
+                      <Badge key={tag.id} variant="outline" className="bg-white/5 border-white/20 text-xs">
+                        {tag.name}
+                      </Badge>
+                    ))}
+                    {agentData.tags.length > 3 && (
+                      <Badge variant="outline" className="bg-white/5 border-white/20 text-xs">
+                        +{agentData.tags.length - 3} more
+                      </Badge>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
+      {/* Overview Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{agentData.customization?.overview?.title || "About this Agent"}</CardTitle>
+          <CardDescription>Learn more about this agent's purpose and capabilities</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="prose prose-sm dark:prose-invert max-w-none">
+            <p className="text-base leading-relaxed">
+              {agentData.customization?.overview?.content || agentData.description || "No description available for this agent."}
+            </p>
+          </div>
+          
+          {/* Featured badges - e.g. if has web search capability */}
+          {agentData.toolGroups && agentData.toolGroups.length > 0 && (
+            <div className="flex flex-col gap-4 mt-4">
+              <h3 className="text-sm font-medium">Features</h3>
+              <div className="flex flex-wrap gap-2">
+                {agentData.toolGroups.map(toolGroup => (
+                  <Badge key={toolGroup.id} variant="secondary" className="flex gap-1.5 items-center">
+                    <Puzzle className="h-3 w-3" />
+                    <span>{toolGroup.displayName}</span>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
+      {/* Capabilities Section - only show if there are points */}
+      {agentData.customization?.overview?.showPoints && agentData.customization.overview.points.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Capabilities</CardTitle>
+            <CardDescription>What this agent can do for you</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-3">
+              {agentData.customization.overview.points.map((point, index) => (
+                <li key={index} className="flex gap-3">
+                  <div className={`flex-shrink-0 w-6 h-6 ${colorScheme.accent} rounded-full flex items-center justify-center text-white text-sm font-medium`}>
+                    {index + 1}
+                  </div>
+                  <p className="text-base">{point}</p>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+        
+      {/* Features Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Agent Features</CardTitle>
+          <CardDescription>Key capabilities and integrations</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Artifacts Section */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-medium">Artifacts</h3>
+            </div>
+            <p className="text-sm text-muted-foreground pl-7">
+              {agentData.artifactsEnabled 
+                ? "This agent can generate and save artifacts like documents, code, and other outputs." 
+                : "This agent does not generate or save artifacts."}
+            </p>
+          </div>
+          
+          {/* Tool Groups Section */}
+          {agentData.toolGroups && agentData.toolGroups.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Puzzle className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-medium">Tool Integrations</h3>
+              </div>
+              <div className="grid gap-3 pl-7">
+                {agentData.toolGroups.map(tool => (
+                  <div key={tool.id} className="space-y-1">
+                    <h4 className="text-sm font-medium">{tool.displayName}</h4>
+                    {tool.description && (
+                      <p className="text-sm text-muted-foreground">{tool.description}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Tags Section */}
+          {agentData.tags && agentData.tags.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Tag className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-medium">Categories</h3>
+              </div>
+              <div className="flex flex-wrap gap-2 pl-7">
+                {agentData.tags.map(tag => (
+                  <Badge key={tag.id} variant="outline">
+                    {tag.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
       {/* System Prompt Section */}
-      <div className="border-t pt-8">
-        <Label className="text-lg font-semibold">System Prompt</Label>
-        <Textarea
-          readOnly
-          value={agentData.systemPrompt}
-          className="mt-2 min-h-[150px] bg-muted"
-        />
-      </div>
-
-      <div className="flex gap-4 pt-4 border-t">
-        <Button variant="outline" onClick={() => router.back()}>
+      <Card>
+        <CardHeader>
+          <CardTitle>System Prompt</CardTitle>
+          <CardDescription>The foundational instructions that define this agent's behavior</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-muted rounded-md p-4 overflow-auto max-h-[500px]">
+            <pre className="text-sm whitespace-pre-wrap">{agentData.systemPrompt}</pre>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Technical Details Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Technical Details</CardTitle>
+          <CardDescription>Advanced information about this agent's configuration</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Model Section */}
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium">Model</h3>
+            {selectedModel ? (
+              <div className="bg-muted p-3 rounded-md">
+                <div className="text-sm font-medium">{selectedModel.displayName}</div>
+                <div className="text-xs text-muted-foreground flex flex-col gap-1 mt-1">
+                  <span>Type: {selectedModel.modelType || "Unknown"}</span>
+                  {selectedModel.description && <span>{selectedModel.description}</span>}
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">No model information available</div>
+            )}
+          </div>
+          
+          {/* Visibility Section */}
+          <div className="space-y-2 pt-2">
+            <h3 className="text-sm font-medium">Visibility</h3>
+            <div className="flex items-center gap-2">
+              {visibilityInfo.icon}
+              <span className="text-sm capitalize">{agentData.visibility}</span>
+              <span className="text-xs text-muted-foreground">
+                {agentData.visibility === "public" && "Accessible to everyone"}
+                {agentData.visibility === "private" && "Only accessible to the creator"}
+                {agentData.visibility === "link" && "Accessible to anyone with the link"}
+              </span>
+            </div>
+          </div>
+          
+          {/* Timestamps Section */}
+          {(agentData.createdAt || agentData.updatedAt) && (
+            <div className="space-y-2 pt-2">
+              <h3 className="text-sm font-medium">Timestamps</h3>
+              <div className="grid gap-2 text-sm">
+                {agentData.createdAt && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span>Created: {formatDistance(agentData.createdAt, new Date(), { addSuffix: true })}</span>
+                  </div>
+                )}
+                {agentData.updatedAt && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span>Updated: {formatDistance(agentData.updatedAt, new Date(), { addSuffix: true })}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
+      {/* Footer Actions */}
+      <div className="flex justify-between items-center pt-2">
+        <Button variant="outline" onClick={() => router.back()} className="flex items-center gap-2">
+          <ArrowLeft className="h-4 w-4" />
           Back to List
+        </Button>
+        
+        <Button variant="default" className="flex items-center gap-2">
+          <MessageSquare className="h-4 w-4" />
+          Start Chat
         </Button>
       </div>
     </div>
