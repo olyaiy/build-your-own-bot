@@ -243,7 +243,7 @@ export default function HowItWorksCards() {
             {steps.map((step, index) => (
               <div 
                 key={index} 
-                className="w-full flex-shrink-0 flex-grow-0 snap-center"
+                className="w-full shrink-0 flex-grow-0 snap-center"
                 style={{ 
                   flexBasis: '100%',
                   scrollSnapAlign: 'center'

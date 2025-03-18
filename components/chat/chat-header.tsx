@@ -156,7 +156,7 @@ function PureChatHeader({
       {isMobile && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="ml-auto">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="size-8">
               <EllipsisIcon />
               <span className="sr-only">Menu</span>
             </Button>

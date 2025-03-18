@@ -101,13 +101,13 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
   const getVisibilityInfo = () => {
     switch (agentData.visibility) {
       case "public":
-        return { icon: <Globe className="h-4 w-4" />, text: "Public" };
+        return { icon: <Globe className="size-4" />, text: "Public" };
       case "private":
-        return { icon: <EyeOff className="h-4 w-4" />, text: "Private" };
+        return { icon: <EyeOff className="size-4" />, text: "Private" };
       case "link":
-        return { icon: <LinkIcon className="h-4 w-4" />, text: "Link Sharing" };
+        return { icon: <LinkIcon className="size-4" />, text: "Link Sharing" };
       default:
-        return { icon: <Globe className="h-4 w-4" />, text: "Public" };
+        return { icon: <Globe className="size-4" />, text: "Public" };
     }
   };
 
@@ -120,7 +120,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
         <div className={`${colorScheme.bg} text-white p-8`}>
           <div className="flex items-start gap-8">
             {/* Agent Avatar */}
-            <div className="hidden sm:block flex-shrink-0">
+            <div className="hidden sm:block shrink-0">
               {agentData.imageUrl ? (
                 <div className="relative w-32 h-32 rounded-lg overflow-hidden">
                   <Image
@@ -158,7 +158,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Badge variant="secondary" className="bg-white/10 hover:bg-white/20 flex gap-1.5 items-center">
-                          <Cpu className="h-3 w-3" />
+                          <Cpu className="size-3" />
                           <span>{selectedModel.displayName}</span>
                         </Badge>
                       </TooltipTrigger>
@@ -172,14 +172,14 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
                 
                 {/* Artifacts Enabled Badge */}
                 <Badge variant="secondary" className="bg-white/10 hover:bg-white/20 flex gap-1.5 items-center">
-                  <FileText className="h-3 w-3" />
+                  <FileText className="size-3" />
                   <span>Artifacts {agentData.artifactsEnabled ? "Enabled" : "Disabled"}</span>
                 </Badge>
                 
                 {/* Timestamp Badge if available */}
                 {agentData.createdAt && (
                   <Badge variant="secondary" className="bg-white/10 hover:bg-white/20 flex gap-1.5 items-center">
-                    <Clock className="h-3 w-3" />
+                    <Clock className="size-3" />
                     <span>Created {formatDistance(agentData.createdAt, new Date(), { addSuffix: true })}</span>
                   </Badge>
                 )}
@@ -215,7 +215,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
             <div className="relative max-w-[85%] m-0">
               <div className="bg-blue-500 text-white p-4 rounded-2xl rounded-tl-sm shadow-sm">
                 <p className="text-base leading-relaxed">
-                  {agentData.customization?.overview?.content || agentData.description || "No description available for this agent."}
+                  {agentData.customization?.overview?.content || agentData.description || "No description available for this agent&apos;s."}
                 </p>
               </div>
             </div>
@@ -229,13 +229,13 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
         <Card>
           <CardHeader>
             <CardTitle>Capabilities</CardTitle>
-            <CardDescription>What this agent can do for you</CardDescription>
+            <CardDescription>What this agent&apos;s can do for you</CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-3">
               {agentData.customization.overview.points.map((point, index) => (
                 <li key={index} className="flex gap-3">
-                  <div className={`flex-shrink-0 w-6 h-6 ${colorScheme.accent} rounded-full flex items-center justify-center text-white text-sm font-medium`}>
+                  <div className={`shrink-0 w-6 h-6 ${colorScheme.accent} rounded-full flex items-center justify-center text-white text-sm font-medium`}>
                     {index + 1}
                   </div>
                   <p className="text-base">{point}</p>
@@ -360,13 +360,13 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
               <div className="grid gap-2 text-sm">
                 {agentData.createdAt && (
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <Clock className="size-4 text-muted-foreground" />
                     <span>Created: {formatDistance(agentData.createdAt, new Date(), { addSuffix: true })}</span>
                   </div>
                 )}
                 {agentData.updatedAt && (
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <Clock className="size-4 text-muted-foreground" />
                     <span>Updated: {formatDistance(agentData.updatedAt, new Date(), { addSuffix: true })}</span>
                   </div>
                 )}
@@ -379,7 +379,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
       {/* Footer Actions */}
       <div className="flex justify-between items-center pt-2">
         <Button variant="outline" onClick={() => router.back()} className="flex items-center gap-2">
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="size-4" />
           Back to List
         </Button>
         
@@ -388,7 +388,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
           onClick={() => router.push(`/${agentData.id}`)}
           className="flex items-center gap-2"
         >
-          <MessageSquare className="h-4 w-4" />
+          <MessageSquare className="size-4" />
           Start Chat
         </Button>
       </div>

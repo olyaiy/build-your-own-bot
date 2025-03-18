@@ -41,7 +41,7 @@ function AgentCardActions({ agentId, userId, creatorId }: { agentId: string; use
               }}
               aria-label="Chat with agent"
             >
-              <MessageCircle className="size-4 flex-shrink-0" />
+              <MessageCircle className="size-4 shrink-0" />
               <span className="text-xs font-medium">Chat</span>
             </button>
           </TooltipTrigger>
@@ -65,7 +65,7 @@ function AgentCardActions({ agentId, userId, creatorId }: { agentId: string; use
               }}
               aria-label="Agent settings"
             >
-              <Settings className="size-4 flex-shrink-0" />
+              <Settings className="size-4 shrink-0" />
               <span className="text-xs font-medium">Settings</span>
             </button>
           </TooltipTrigger>

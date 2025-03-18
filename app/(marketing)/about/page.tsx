@@ -36,7 +36,7 @@ export default function AboutPage() {
           <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
             <div className="p-8 md:p-10">
               <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="relative h-48 w-48 md:h-72 md:w-72 rounded-xl overflow-hidden border-4 border-background shadow-lg">
                     <Image 
                       src="/images/alex.png" 
@@ -50,22 +50,22 @@ export default function AboutPage() {
                 <div className="flex-1 text-center md:text-left">
                   <h2 className="text-2xl font-bold mb-4">From the Creator</h2>
                   <p className="text-muted-foreground mb-4">
-                    Hi! I'm Alex, the creator of Agent Vendor. I'm currently studying Computer Science at UBC, and in my free time, you'll often find me hiking the beautiful mountains around Vancouver. I built this platform because I believe that AI's greatest potential is unlocked when domain experts can easily create specialized tools that solve real problems.
+                    Hi! I&apos;m Alex, the creator of Agent Vendor. I&apos;m currently studying Computer Science at UBC, and in my free time, you&apos;ll often find me hiking the beautiful mountains around Vancouver. I built this platform because I believe that AI&apos;s greatest potential is unlocked when domain experts can easily create specialized tools that solve real problems.
                   </p>
                   <p className="text-muted-foreground mb-6">
-                    My vision is to create an ecosystem where anyone with expertise can build and monetize AI agents without needing to code, while users get access to high-quality, purpose-built AI solutions for their specific needs. I'm always happy to connect - feel free to reach out and message me anytime!
+                    My vision is to create an ecosystem where anyone with expertise can build and monetize AI agents without needing to code, while users get access to high-quality, purpose-built AI solutions for their specific needs. I&apos;m always happy to connect - feel free to reach out and message me anytime!
                   </p>
                   
                   <div className="flex gap-4 justify-center md:justify-start">
                     <Button variant="outline" size="sm" className="inline-flex gap-2" asChild>
                       <Link href="https://linkedin.com/in/olyaiy" target="_blank" rel="noopener noreferrer">
-                        <Linkedin className="h-4 w-4" />
+                        <Linkedin className="size-4" />
                         LinkedIn
                       </Link>
                     </Button>
                     <Button variant="outline" size="sm" className="inline-flex gap-2" asChild>
                       <Link href="https://x.com/alexfromvan" target="_blank" rel="noopener noreferrer">
-                        <Twitter className="h-4 w-4" />
+                        <Twitter className="size-4" />
                         Twitter
                       </Link>
                     </Button>
@@ -106,13 +106,13 @@ export default function AboutPage() {
             <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:shadow-blue-500/20 hover:scale-105" asChild>
               <Link href="/agents/create">
                 Start Creating
-                <Zap className="ml-2 h-4 w-4" />
+                <Zap className="ml-2 size-4" />
               </Link>
             </Button>
             <Button variant="outline" size="lg" className="bg-white/10 hover:bg-white/15 border border-white/10" asChild>
               <Link href="/#agent-list">
                 Explore Agents
-                <BrainCircuit className="ml-2 h-4 w-4" />
+                <BrainCircuit className="ml-2 size-4" />
               </Link>
             </Button>
           </div>
@@ -133,20 +133,20 @@ export default function AboutPage() {
               </p>
               <div className="space-y-4">
                 <div className="flex items-start">
-                  <div className="mt-1 mr-3 flex-shrink-0 h-5 w-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-                    <Check className="h-3 w-3 text-white" />
+                  <div className="mt-1 mr-3 shrink-0 size-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                    <Check className="size-3 text-white" />
                   </div>
                   <p className="text-muted-foreground">Empowering domain experts to monetize their knowledge</p>
                 </div>
                 <div className="flex items-start">
-                  <div className="mt-1 mr-3 flex-shrink-0 h-5 w-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-                    <Check className="h-3 w-3 text-white" />
+                  <div className="mt-1 mr-3 shrink-0 size-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                    <Check className="size-3 text-white" />
                   </div>
                   <p className="text-muted-foreground">Connecting users with specialized AI solutions</p>
                 </div>
                 <div className="flex items-start">
-                  <div className="mt-1 mr-3 flex-shrink-0 h-5 w-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-                    <Check className="h-3 w-3 text-white" />
+                  <div className="mt-1 mr-3 shrink-0 size-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                    <Check className="size-3 text-white" />
                   </div>
                   <p className="text-muted-foreground">Creating a sustainable ecosystem that rewards quality</p>
                 </div>
@@ -158,7 +158,7 @@ export default function AboutPage() {
               <div className="bg-card rounded-xl border border-border p-6 shadow-lg">
                 <div className="text-center mb-6">
                   <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
-                    <Sparkles className="h-6 w-6 text-primary" />
+                    <Sparkles className="size-6 text-primary" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">The Future of AI</h3>
                   <p className="text-sm text-muted-foreground">
@@ -168,8 +168,8 @@ export default function AboutPage() {
                 <div className="h-px w-full bg-border my-6"></div>
                 <ul className="space-y-4">
                   <li className="flex items-center">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-                      <BrainCircuit className="h-4 w-4 text-primary" />
+                    <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                      <BrainCircuit className="size-4 text-primary" />
                     </div>
                     <div>
                       <p className="font-medium">Specialized Knowledge</p>
@@ -177,8 +177,8 @@ export default function AboutPage() {
                     </div>
                   </li>
                   <li className="flex items-center">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-                      <HandCoins className="h-4 w-4 text-primary" />
+                    <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                      <HandCoins className="size-4 text-primary" />
                     </div>
                     <div>
                       <p className="font-medium">Democratized Value</p>
@@ -186,8 +186,8 @@ export default function AboutPage() {
                     </div>
                   </li>
                   <li className="flex items-center">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-                      <Shield className="h-4 w-4 text-primary" />
+                    <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                      <Shield className="size-4 text-primary" />
                     </div>
                     <div>
                       <p className="font-medium">Responsible AI</p>
@@ -263,7 +263,7 @@ export default function AboutPage() {
             <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600" asChild>
               <Link href="/agents/create">
                 Start Creating Today
-                <Zap className="ml-2 h-4 w-4" />
+                <Zap className="ml-2 size-4" />
               </Link>
             </Button>
           </div>
@@ -289,20 +289,20 @@ export default function AboutPage() {
                 </p>
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-start">
-                    <div className="mt-1 mr-3 flex-shrink-0 h-5 w-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-white" />
+                    <div className="mt-1 mr-3 shrink-0 size-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                      <Check className="size-3 text-white" />
                     </div>
                     <p className="text-sm text-muted-foreground">Domain-specific knowledge built in</p>
                   </li>
                   <li className="flex items-start">
-                    <div className="mt-1 mr-3 flex-shrink-0 h-5 w-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-white" />
+                    <div className="mt-1 mr-3 shrink-0 size-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                      <Check className="size-3 text-white" />
                     </div>
                     <p className="text-sm text-muted-foreground">Curated marketplace of quality agents</p>
                   </li>
                   <li className="flex items-start">
-                    <div className="mt-1 mr-3 flex-shrink-0 h-5 w-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-white" />
+                    <div className="mt-1 mr-3 shrink-0 size-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                      <Check className="size-3 text-white" />
                     </div>
                     <p className="text-sm text-muted-foreground">Ratings and reviews from real users</p>
                   </li>
@@ -318,20 +318,20 @@ export default function AboutPage() {
                 </p>
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-start">
-                    <div className="mt-1 mr-3 flex-shrink-0 h-5 w-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-white" />
+                    <div className="mt-1 mr-3 shrink-0 size-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                      <Check className="size-3 text-white" />
                     </div>
                     <p className="text-sm text-muted-foreground">No subscriptions or hidden fees</p>
                   </li>
                   <li className="flex items-start">
-                    <div className="mt-1 mr-3 flex-shrink-0 h-5 w-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-white" />
+                    <div className="mt-1 mr-3 shrink-0 size-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                      <Check className="size-3 text-white" />
                     </div>
                     <p className="text-sm text-muted-foreground">Free tokens for new users to try the platform</p>
                   </li>
                   <li className="flex items-start">
-                    <div className="mt-1 mr-3 flex-shrink-0 h-5 w-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-white" />
+                    <div className="mt-1 mr-3 shrink-0 size-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                      <Check className="size-3 text-white" />
                     </div>
                     <p className="text-sm text-muted-foreground">Only pay for successful interactions</p>
                   </li>
@@ -344,7 +344,7 @@ export default function AboutPage() {
             <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600" asChild>
               <Link href="/#agent-list">
                 Find Your AI Agent
-                <BrainCircuit className="ml-2 h-4 w-4" />
+                <BrainCircuit className="ml-2 size-4" />
               </Link>
             </Button>
           </div>
@@ -368,8 +368,8 @@ export default function AboutPage() {
             
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-500/10 mb-4">
-                  <Users className="h-7 w-7 text-blue-500" />
+                <div className="inline-flex size-14 items-center justify-center rounded-full bg-blue-500/10 mb-4">
+                  <Users className="size-7 text-blue-500" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Users Access AI</h3>
                 <p className="text-sm text-muted-foreground">
@@ -378,8 +378,8 @@ export default function AboutPage() {
               </div>
               
               <div className="text-center">
-                <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-purple-500/10 mb-4">
-                  <BarChart4 className="h-7 w-7 text-purple-500" />
+                <div className="inline-flex size-14 items-center justify-center rounded-full bg-purple-500/10 mb-4">
+                  <BarChart4 className="size-7 text-purple-500" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Token Economics</h3>
                 <p className="text-sm text-muted-foreground">
@@ -388,8 +388,8 @@ export default function AboutPage() {
               </div>
               
               <div className="text-center">
-                <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-green-500/10 mb-4">
-                  <HandCoins className="h-7 w-7 text-green-500" />
+                <div className="inline-flex size-14 items-center justify-center rounded-full bg-green-500/10 mb-4">
+                  <HandCoins className="size-7 text-green-500" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Creator Rewards</h3>
                 <p className="text-sm text-muted-foreground">
@@ -444,19 +444,19 @@ export default function AboutPage() {
               Ready to Join the AI Agent Economy?
             </h2>
             <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
-              Whether you're creating AI agents or using them to solve problems, Agent Vendor connects experts with those who need their knowledge.
+              Whether you&apos;re creating AI agents or using them to solve problems, Agent Vendor connects experts with those who need their knowledge.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:shadow-blue-500/20 hover:scale-105" asChild>
                 <Link href="/agents/create">
                   Get Started Today
-                  <Zap className="ml-2 h-4 w-4" />
+                  <Zap className="ml-2 size-4" />
                 </Link>
               </Button>
               <Button variant="outline" size="lg" className="bg-white/10 hover:bg-white/15 border border-white/10" asChild>
                 <Link href="/faq">
                   Explore FAQ
-                  <BrainCircuit className="ml-2 h-4 w-4" />
+                  <BrainCircuit className="ml-2 size-4" />
                 </Link>
               </Button>
             </div>

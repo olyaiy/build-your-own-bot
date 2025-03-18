@@ -17,7 +17,7 @@ export function CreateAgentButton() {
       onClick={handleClick}
       className="flex items-center gap-2"
     >
-      <PlusCircle className="h-4 w-4" />
+      <PlusCircle className="size-4" />
       Create Agent
     </Button>
   );

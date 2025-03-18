@@ -140,7 +140,7 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [], timePeri
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <div className="rounded-full bg-primary-50 p-4 mb-4">
-          <Plus className="h-8 w-8 text-primary" />
+          <Plus className="size-8 text-primary" />
         </div>
         <h2 className="text-2xl font-semibold mb-2">No agents yet</h2>
         <p className="text-muted-foreground mb-6 max-w-md">
@@ -193,7 +193,7 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [], timePeri
               onValueChange={handleTimePeriodChange}
             >
               <SelectTrigger className="w-[220px]">
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarIcon className="mr-2 size-4" />
                 <span>Earnings: {getTimePeriodDisplay()}</span>
               </SelectTrigger>
               <SelectContent>
@@ -206,7 +206,7 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [], timePeri
         </div>
         <Button asChild>
           <Link href="/agents/create">
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="mr-2 size-4" />
             Create New Agent
           </Link>
         </Button>
