@@ -82,7 +82,7 @@ function PureArtifact({
   attachments: Array<Attachment>;
   setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
   messages: Array<UIMessage>;
-  setMessages: Dispatch<SetStateAction<Array<UIMessage>>>;
+  setMessages: UseChatHelpers['setMessages'];
 
 
   append: UseChatHelpers['append'];
@@ -347,7 +347,7 @@ function PureArtifact({
                     messages={messages}
                     append={append}
                     className="bg-background dark:bg-muted"
-                    setMessages={setMessages as UseChatHelpers['setMessages']}
+                    setMessages={setMessages}
                     availableModels={[]}
                     currentModel=""
                     onModelChange={() => {}}
@@ -494,7 +494,7 @@ function PureArtifact({
                     append={append}
                     status={status}
                     stop={stop}
-                    setMessages={setMessages as UseChatHelpers['setMessages']}
+                    setMessages={setMessages}
                     artifactKind={artifact.kind}
                   />
                 )}

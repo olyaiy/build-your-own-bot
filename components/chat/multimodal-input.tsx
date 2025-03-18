@@ -2,6 +2,7 @@
 import type {
   Attachment,
   Message,
+  UIMessage,
 } from 'ai';
 import cx from 'classnames';
 import type React from 'react';
@@ -69,6 +70,7 @@ function PureMultimodalInput({
   setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
   messages: Array<Message>;
   setMessages: Dispatch<SetStateAction<Array<Message>>>;
+
   append: UseChatHelpers['append'];
   handleSubmit: UseChatHelpers['handleSubmit'];
   isAuthenticated: boolean;
