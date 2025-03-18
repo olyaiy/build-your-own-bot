@@ -174,71 +174,91 @@ export default function ChatHistoryView({
               <Card 
                 key={chat.id} 
                 className={cn(
-                  "overflow-hidden transition-all duration-200 hover:shadow-md hover:border-primary/50",
-                  "flex flex-col group",
-                  chat.matchCount && chat.matchCount > 0 ? "border-yellow-300/50" : ""
+                  "overflow-hidden transition-all duration-300",
+                  "flex flex-col group relative isolate",
+                  "bg-card/40 border-border/60",
+                  "shadow-sm hover:shadow-lg",
+                  "before:absolute before:inset-0 before:-z-10 before:transition-opacity before:opacity-0",
+                  "before:bg-gradient-to-b before:from-primary/5 before:to-muted/20",
+                  "hover:before:opacity-100 hover:border-primary/30",
+                  chat.matchCount && chat.matchCount > 0 
+                    ? "ring-1 ring-yellow-300/50 bg-yellow-50/5" 
+                    : "ring-1 ring-border/60 hover:ring-primary/20"
                 )}
               >
                 <Link href={`/${chat.agentId}/${chat.id}`} className="flex-1 flex flex-col h-full">
-                  <CardHeader className="p-4 pb-2">
+                  <CardHeader className="p-4 pb-2 space-y-3">
                     <div className="flex justify-between items-start gap-2">
-                      <CardTitle className="text-lg line-clamp-1">
+                      <CardTitle className="text-lg font-semibold tracking-tight line-clamp-1">
                         {chat.title}
                         {chat.matchCount && chat.matchCount > 0 && (
-                          <Badge variant="secondary" className="ml-2">
+                          <Badge variant="secondary" className="ml-2 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400">
                             {chat.matchCount} match{chat.matchCount !== 1 ? 'es' : ''}
                           </Badge>
                         )}
                       </CardTitle>
                       <Badge 
                         variant={chat.visibility === 'public' ? 'secondary' : 'outline'}
-                        className="shrink-0"
+                        className={cn(
+                          "shrink-0 transition-colors",
+                          chat.visibility === 'public' 
+                            ? "bg-primary/10 text-primary hover:bg-primary/20" 
+                            : "hover:bg-muted"
+                        )}
                       >
                         {chat.visibility === 'public' ? (
-                          <div className="flex items-center space-x-1">
-                            <GlobeIcon className="size-3" />
+                          <div className="flex items-center gap-1.5">
+                            <GlobeIcon className="size-3.5" />
                             <span>Public</span>
                           </div>
                         ) : (
-                          <div className="flex items-center space-x-1">
-                            <LockIcon className="size-3" />
+                          <div className="flex items-center gap-1.5">
+                            <LockIcon className="size-3.5" />
                             <span>Private</span>
                           </div>
                         )}
                       </Badge>
                     </div>
-                    <CardDescription className="line-clamp-1 mt-1 text-sm">
-                      <span className="font-medium">{chat.agentDisplayName || 'Unknown Agent'}</span>
+                    <CardDescription className="flex items-center gap-2 text-sm">
+                      <span className="font-medium text-foreground/80">{chat.agentDisplayName || 'Unknown Agent'}</span>
+                      <span className="size-1 rounded-full bg-muted-foreground/20" />
+                      <span className="text-xs text-muted-foreground">{formatDate(chat.createdAt)}</span>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-4 pt-2 flex-1">
                     {chat.matchSnippets && chat.matchSnippets.length > 0 ? (
-                      <div className="space-y-2 text-xs">
+                      <div className="space-y-2.5">
                         {chat.matchSnippets.map((snippet, i) => (
-                          <div key={i} className="bg-muted p-2 rounded-md overflow-hidden">
-                            <div className="flex items-center text-xs mb-1">
-                              <SearchIcon className="size-3 text-muted-foreground" />
-                              <span className="ml-1.5 text-muted-foreground">Match {i + 1}</span>
+                          <div 
+                            key={i} 
+                            className="relative bg-muted/50 p-2.5 rounded-lg overflow-hidden group/snippet
+                                     hover:bg-muted/70 transition-colors"
+                          >
+                            <div className="flex items-center gap-1.5 text-xs mb-1.5">
+                              <SearchIcon className="size-3.5 text-primary" />
+                              <span className="font-medium text-primary">Match {i + 1}</span>
                             </div>
-                            <p className="line-clamp-2">
+                            <p className="text-sm line-clamp-2 leading-relaxed">
                               <HighlightText text={snippet.text} searchTerm={searchQuery} />
                             </p>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <MessageIcon className="size-3" />
-                        <span className="ml-1.5 truncate">{formatDate(chat.createdAt)}</span>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MessageIcon className="size-4" />
+                        <span className="truncate">Start or continue your conversation</span>
                       </div>
                     )}
                   </CardContent>
                 </Link>
-                <CardFooter className="p-4 pt-1 border-t bg-muted/20">
+                <CardFooter className="p-4 pt-3 border-t bg-muted/10">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="w-full group-hover:bg-primary/10 group-hover:text-primary transition-colors"
+                    className="w-full font-medium transition-colors
+                             hover:bg-primary hover:text-primary-foreground
+                             group-hover:bg-primary/90 group-hover:text-primary-foreground"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
