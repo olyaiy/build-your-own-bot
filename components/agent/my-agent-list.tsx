@@ -178,7 +178,7 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [], timePeri
       <div className="flex flex-col sm:flex-row justify-between gap-4 mb-2">
         <div className="flex gap-3 items-center">
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Search my agents..."

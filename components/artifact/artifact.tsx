@@ -326,7 +326,7 @@ function PureArtifact({
                   chatId={chatId}
                   status={status}
                   messages={messages}
-                  setMessages={setMessages}
+                  setMessages={setMessages as UseChatHelpers['setMessages']}
                   reload={reload}
                   isReadonly={isReadonly}
                   artifactStatus={artifact.status}
@@ -347,7 +347,7 @@ function PureArtifact({
                     messages={messages}
                     append={append}
                     className="bg-background dark:bg-muted"
-                    setMessages={setMessages}
+                    setMessages={setMessages as UseChatHelpers['setMessages']}
                     availableModels={[]}
                     currentModel=""
                     onModelChange={() => {}}
@@ -494,7 +494,7 @@ function PureArtifact({
                     append={append}
                     status={status}
                     stop={stop}
-                    setMessages={setMessages}
+                    setMessages={setMessages as UseChatHelpers['setMessages']}
                     artifactKind={artifact.kind}
                   />
                 )}

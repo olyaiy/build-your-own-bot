@@ -95,7 +95,7 @@ export function ToolGroupSelector({
       </div>
 
       <div className="relative">
-        <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
+        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input
           placeholder="Search tool groups..."
           className="pl-10"
