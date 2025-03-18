@@ -207,15 +207,21 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
 
       {/* Overview Section */}
       <Card>
-        <CardHeader>
+        {/* <CardHeader>
           <CardTitle>{agentData.customization?.overview?.title || "About this Agent"}</CardTitle>
           <CardDescription>Learn more about this agent's purpose and capabilities</CardDescription>
-        </CardHeader>
+        </CardHeader> */}
         <CardContent className="space-y-4">
-          <div className="prose prose-sm dark:prose-invert max-w-none">
-            <p className="text-base leading-relaxed">
-              {agentData.customization?.overview?.content || agentData.description || "No description available for this agent."}
-            </p>
+          <div className="flex items-start gap-3">
+            
+            {/* Message bubble - Apple iMessage style */}
+            <div className="relative max-w-[85%]">
+              <div className="bg-blue-500 text-white p-4 rounded-2xl rounded-tl-sm shadow-sm">
+                <p className="text-base leading-relaxed">
+                  {agentData.customization?.overview?.content || agentData.description || "No description available for this agent."}
+                </p>
+              </div>
+            </div>
           </div>
           
           {/* Featured badges - e.g. if has web search capability */}
@@ -257,64 +263,45 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
         </Card>
       )}
         
-      {/* Features Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Agent Features</CardTitle>
-          <CardDescription>Key capabilities and integrations</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Artifacts Section */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-medium">Artifacts</h3>
-            </div>
-            <p className="text-sm text-muted-foreground pl-7">
-              {agentData.artifactsEnabled 
-                ? "This agent can generate and save artifacts like documents, code, and other outputs." 
-                : "This agent does not generate or save artifacts."}
-            </p>
-          </div>
-          
-          {/* Tool Groups Section */}
-          {agentData.toolGroups && agentData.toolGroups.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Puzzle className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-medium">Tool Integrations</h3>
-              </div>
-              <div className="grid gap-3 pl-7">
+      {/* Simple Tools and Categories Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Tools List */}
+        {agentData.toolGroups && agentData.toolGroups.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Tools</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
                 {agentData.toolGroups.map(tool => (
-                  <div key={tool.id} className="space-y-1">
-                    <h4 className="text-sm font-medium">{tool.displayName}</h4>
-                    {tool.description && (
-                      <p className="text-sm text-muted-foreground">{tool.description}</p>
-                    )}
-                  </div>
+                  <Badge key={tool.id} variant="secondary" className="flex gap-1.5 items-center">
+                    <Puzzle className="h-3 w-3" />
+                    <span>{tool.displayName}</span>
+                  </Badge>
                 ))}
               </div>
-            </div>
-          )}
-          
-          {/* Tags Section */}
-          {agentData.tags && agentData.tags.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Tag className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-medium">Categories</h3>
-              </div>
-              <div className="flex flex-wrap gap-2 pl-7">
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Categories/Tags List */}
+        {agentData.tags && agentData.tags.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Categories</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
                 {agentData.tags.map(tag => (
                   <Badge key={tag.id} variant="outline">
                     {tag.name}
                   </Badge>
                 ))}
               </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        )}
+      </div>
       
       {/* System Prompt Section */}
       <Card>

@@ -2,7 +2,7 @@ import { db } from "@/lib/db/queries";
 import { notFound } from "next/navigation";
 import { eq, and } from "drizzle-orm";
 
-import { models, agents, agentTags, tags, agentToolGroups, toolGroups, AgentCustomization } from "@/lib/db/schema";
+import { models, agents, agentTags, tags, agentToolGroups, toolGroups, AgentCustomization, agentModels } from "@/lib/db/schema";
 import { auth } from "@/app/(auth)/auth";
 import AgentView from "@/components/agent/agent-view";
 
@@ -34,7 +34,7 @@ export default async function ViewAgentPage({
   }
 
   // Proceed with full data fetch if authorized
-  const [agentData, rawModels] = await Promise.all([
+  const [agentData, rawModels, defaultModelData] = await Promise.all([
     db.select().from(agents).where(eq(agents.id, agentId)),
     db.select({
       id: models.id,
@@ -42,11 +42,23 @@ export default async function ViewAgentPage({
       modelType: models.model_type,
       description: models.description
     }).from(models),
+    // Fetch the default model ID for this agent
+    db.select({
+      modelId: agentModels.modelId
+    })
+    .from(agentModels)
+    .where(and(
+      eq(agentModels.agentId, agentId),
+      eq(agentModels.isDefault, true)
+    ))
   ]);
 
   if (!agentData.length) {
     return notFound();
   }
+
+  // Get the default model ID, or empty string if not found
+  const defaultModelId = defaultModelData.length > 0 ? defaultModelData[0].modelId : '';
 
   // Fetch agent tags
   const agentTagsData = await db
@@ -83,7 +95,7 @@ export default async function ViewAgentPage({
     agentDisplayName: agentData[0].agent_display_name,
     systemPrompt: agentData[0].system_prompt,
     description: agentData[0].description ?? undefined,
-    modelId: agentData[0].agent || '',
+    modelId: defaultModelId, // Use the actual model ID instead of agent slug
     visibility: agentData[0].visibility || 'public',
     artifactsEnabled: agentData[0].artifacts_enabled,
     imageUrl: agentData[0].image_url || undefined,
