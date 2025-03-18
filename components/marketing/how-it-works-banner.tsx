@@ -41,7 +41,7 @@ export function HowItWorksBanner() {
                 Build and Monetize AI Agents
               </h2>
               
-              <p className="text-lg text-slate-300 leading-relaxed">
+              <p className="hidden md:block text-lg text-slate-300 leading-relaxed">
                 Create specialized AI agents that solve real problems, share them on our marketplace, 
                 and earn passive income when others put your creations to work. No coding required.
               </p>
