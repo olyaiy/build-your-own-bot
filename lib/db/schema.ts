@@ -281,7 +281,7 @@ export const message = pgTable("Message_v2", {
   };
 });
 
-export type message = InferSelectModel<typeof message>;
+export type DBMessage = InferSelectModel<typeof message>;
 
 
 
