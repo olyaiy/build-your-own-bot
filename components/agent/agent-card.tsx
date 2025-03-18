@@ -28,7 +28,7 @@ export function AgentCard({ agent, userId, onClick, stepNumber }: AgentCardProps
   return (
     <div className="w-full">
       <Link href={`/${agent.id}`} onClick={handleClick}>
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer relative group min-w-[240px] max-w-[400px] w-full mx-auto flex flex-col">
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer relative group min-w-[180px] max-w-[400px] w-full mx-auto flex flex-col">
           {agent.visibility !== 'public' && (
             <div className="absolute top-2 right-2 z-10">
               <Badge variant="secondary" className="text-[10px] px-2 py-0 h-5 bg-muted">
@@ -51,7 +51,7 @@ export function AgentCard({ agent, userId, onClick, stepNumber }: AgentCardProps
             </div>
           )}
           
-          <div className="aspect-[4/3] w-full mb-2 rounded-lg bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 relative">
+          <div className="aspect-[4/3] w-full mb-1 rounded-lg bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 relative">
             {agent.image_url ? (
               <div className="absolute inset-0 overflow-hidden rounded-lg">
                 <Image
@@ -67,7 +67,7 @@ export function AgentCard({ agent, userId, onClick, stepNumber }: AgentCardProps
             )}
           </div>
 
-          <h3 className="text-xl font-semibold mb-1 line-clamp-1">{agent.agent_display_name}</h3>
+          <h3 className="text-lg sm:text-xl font-semibold mb-1 line-clamp-1">{agent.agent_display_name}</h3>
       
           <div className="flex flex-col gap-1 mt-auto ">
 
