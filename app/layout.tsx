@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 
 import { Toaster } from 'sonner';
 import Script from 'next/script';
+import { Analytics } from "@vercel/analytics/react"
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -103,6 +104,7 @@ export default async function Layout({
               <div className="w-full">
                 <MainHeader />
                 <main>{children}</main>
+                <Analytics />
               </div>
             </SidebarProvider>
           </ThemeProvider>
