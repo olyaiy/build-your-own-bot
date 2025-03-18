@@ -202,12 +202,14 @@ const PurePreviewMessage = ({
                 const { toolInvocation } = part;
                 const { toolName, toolCallId, state } = toolInvocation;
 
-                <ToolInvocationItem 
-                    key={toolInvocation.toolCallId} 
+                return (
+                  <ToolInvocationItem 
+                    key={toolCallId} 
                     toolInvocation={toolInvocation} 
                     isReadonly={isReadonly} 
                     isCompact={isCompact}
                   />
+                );
               }
             })}
 

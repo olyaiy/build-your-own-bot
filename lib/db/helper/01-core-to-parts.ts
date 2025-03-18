@@ -9,6 +9,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { inArray } from 'drizzle-orm';
 import { appendResponseMessages, UIMessage } from 'ai';
 
+
 config({
   path: '.env.local',
 });
@@ -30,13 +31,9 @@ type NewMessageInsert = {
   role: string;
   attachments: any[];
   createdAt: Date;
+  model_id: string;
 };
 
-type NewVoteInsert = {
-  messageId: string;
-  chatId: string;
-  isUpvoted: boolean;
-};
 
 async function createNewTable() {
   const chats = await db.select().from(chat);
@@ -47,17 +44,14 @@ async function createNewTable() {
     const chatBatch = chats.slice(i, i + BATCH_SIZE);
     const chatIds = chatBatch.map((chat) => chat.id);
 
-    // Fetch all messages and votes for the current batch of chats in bulk
+    // Fetch all messages for the current batch of chats in bulk
     const allMessages = await db
       .select()
       .from(messageDeprecated)
       .where(inArray(messageDeprecated.chatId, chatIds));
 
-   
-
     // Prepare batches for insertion
     const newMessagesToInsert: NewMessageInsert[] = [];
-    const newVotesToInsert: NewVoteInsert[] = [];
 
     // Process each chat in the batch
     for (const chat of chatBatch) {
@@ -105,6 +99,8 @@ async function createNewTable() {
 
           const projectedUISection = uiSection
             .map((message) => {
+              const originalMessage = messages.find(m => m.id === message.id);
+
               if (message.role === 'user') {
                 return {
                   id: message.id,
@@ -112,8 +108,10 @@ async function createNewTable() {
                   parts: [{ type: 'text', text: message.content }],
                   role: message.role,
                   createdAt: message.createdAt,
-                  attachments: [],
+                  model_id: originalMessage?.model_id,
+                  attachments: []
                 } as NewMessageInsert;
+      
               } else if (message.role === 'assistant') {
                 return {
                   id: message.id,
@@ -121,11 +119,13 @@ async function createNewTable() {
                   parts: message.parts || [],
                   role: message.role,
                   createdAt: message.createdAt,
-                  attachments: [],
+                  model_id: originalMessage?.model_id,
+                  attachments: []
                 } as NewMessageInsert;
               }
               return null;
             })
+      
             .filter((msg): msg is NewMessageInsert => msg !== null);
 
           // Add messages to batch
@@ -151,6 +151,7 @@ async function createNewTable() {
           role: msg.role,
           attachments: msg.attachments,
           createdAt: msg.createdAt,
+          model_id: msg.model_id,
         }));
 
         await db.insert(message).values(validMessageBatch);

@@ -281,6 +281,13 @@
       "when": 1742242261850,
       "tag": "0039_sweet_mordo",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1742326869979,
+      "tag": "0040_outgoing_doorman",
+      "breakpoints": true
     }
   ]
 }
