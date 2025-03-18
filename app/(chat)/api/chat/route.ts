@@ -240,10 +240,10 @@ export async function POST(request: Request) {
             runningTally.totalTokens += usage.totalTokens || 0;
           }
 
-          if (stepCounter === 3) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            throw new Error('This is a test error on step 4');
-          }
+          // if (stepCounter === 3) {
+          //   await new Promise(resolve => setTimeout(resolve, 2000));
+          //   throw new Error('This is a test error on step 4');
+          // }
         },
 
         /* ---- ON FINISH ---- */
