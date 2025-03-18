@@ -46,8 +46,8 @@ export default async function ProfilePage() {
   // Limit to just a preview (3 agents)
   const agentPreview = userAgents.slice(0, 3).map(agent => ({
     ...agent,
-    createdAt: agent.createdAt || new Date(),
-    updatedAt: agent.updatedAt || new Date(),
+    createdAt: (agent as any).createdAt || new Date(),
+    updatedAt: (agent as any).updatedAt || new Date(),
     customization: (agent as any).customization || {
       overview: {
         title: "Welcome to your AI assistant!",
