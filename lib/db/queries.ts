@@ -11,7 +11,6 @@ import {
   document,
   type Suggestion,
   suggestion,
-  type Message,
   message,
   agents,
   models,
@@ -25,9 +24,9 @@ import {
   toolGroupTools,
   userCredits,
   userTransactions,
-  transactionTypeEnum,
   tags,
   agentTags,
+  type DBMessage,
 } from './schema';  
 import { ArtifactKind } from '@/components/artifact/artifact';
 
@@ -135,7 +134,7 @@ export async function saveMessages({
   messages, 
   model_id,
 }: { 
-  messages: Array<Message>; 
+  messages: Array<DBMessage>; 
   model_id?: string;
 }) {
   try {
@@ -881,7 +880,7 @@ export async function searchChatsByContent({
         messageId: message.id,
         chatId: message.chatId,
         role: message.role,
-        content: message.content,
+        content: message.parts,
         createdAt: message.createdAt
       })
       .from(message)
@@ -890,10 +889,10 @@ export async function searchChatsByContent({
         and(
           eq(chat.userId, userId), // Uses the index on chat.userId
           or(
-            sql`CAST(${message.content} AS TEXT) ILIKE ${'%' + searchTerm + '%'}`,
-            sql`CAST(${message.content}->>'text' AS TEXT) ILIKE ${'%' + searchTerm + '%'}`,
-            sql`CAST(${message.content}->>'value' AS TEXT) ILIKE ${'%' + searchTerm + '%'}`,
-            sql`CAST(${message.content}->>'content' AS TEXT) ILIKE ${'%' + searchTerm + '%'}`
+            sql`CAST(${message.parts} AS TEXT) ILIKE ${'%' + searchTerm + '%'}`,
+            sql`CAST(${message.parts}->>'text' AS TEXT) ILIKE ${'%' + searchTerm + '%'}`,
+            sql`CAST(${message.parts}->>'value' AS TEXT) ILIKE ${'%' + searchTerm + '%'}`,
+            sql`CAST(${message.parts}->>'content' AS TEXT) ILIKE ${'%' + searchTerm + '%'}`
           )
         )
       );
@@ -1198,7 +1197,7 @@ export async function getUserTransactions(
         description: userTransactions.description,
         created_at: userTransactions.created_at,
         messageId: userTransactions.messageId,
-        messageContent: message.content,
+        messageContent: message.parts,
       })
       .from(userTransactions)
       .leftJoin(message, eq(userTransactions.messageId, message.id))

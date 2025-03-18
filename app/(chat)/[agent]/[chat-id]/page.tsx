@@ -8,7 +8,8 @@ import {
   getAgentWithModelById,
   getAgentWithAvailableModels
 } from '@/lib/db/queries';
-import { convertToUIMessages } from '@/lib/utils';
+import { DBMessage } from '@/lib/db/schema';
+import { Attachment, UIMessage } from 'ai';
 
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { DataStreamHandler } from '@/components/util/data-stream-handler';
@@ -45,6 +46,19 @@ export default async function Page(props: {
 
   const session = await auth();
   const messagesFromDb = await getMessagesByChatId({ id: chatId });
+
+  function convertToUIMessages(messages: Array<DBMessage>): Array<UIMessage> {
+    return messages.map((message) => ({
+      id: message.id,
+      parts: message.parts as UIMessage['parts'],
+      role: message.role as UIMessage['role'],
+      // Note: content will soon be deprecated in @ai-sdk/react
+      content: '',
+      createdAt: message.createdAt,
+      experimental_attachments:
+        (message.attachments as Array<Attachment>) ?? [],
+    }));
+  }
 
 
 

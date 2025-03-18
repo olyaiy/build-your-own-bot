@@ -1,6 +1,6 @@
 'use client';
 
-import type { Attachment, Message } from 'ai';
+import type { Attachment, UIMessage } from 'ai';
 import { useChat } from 'ai/react';
 import { useState, useEffect } from 'react';
 import { useSWRConfig } from 'swr';
@@ -33,7 +33,7 @@ export function Chat({
   id: string;
   agent: Agent;
   availableModels?: ModelWithDefault[];
-  initialMessages: Array<Message>;
+  initialMessages: Array<UIMessage>;
   selectedChatModel: string;
   selectedVisibilityType: VisibilityType;
   isReadonly: boolean;

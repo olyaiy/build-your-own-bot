@@ -89,7 +89,7 @@ export default async function Layout({
           strategy="beforeInteractive"
         />
       </head>
-      <body className=" bg-background font-sans antialiased">
+      <body className=" bg-background font-sans">
         <Providers>
           <ThemeProvider
             attribute="class"

@@ -1,6 +1,6 @@
 'use client';
 
-import type { ChatRequestOptions, Message } from 'ai';
+import type { UIMessage } from 'ai';
 import cx from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useState, useEffect } from 'react';
@@ -22,6 +22,7 @@ import { MessageReasoning } from '@/components/chat/message-reasoning';
 import { PreviewAttachment } from '../util/preview-attachment';
 import { ToolSection } from '../agent/tool-section';
 import { CopyButton } from '@/components/util/copy-button';
+import { UseChatHelpers } from 'ai/react';
 
 const ToolInvocationItem = memo(({ 
   toolInvocation, 
@@ -66,51 +67,17 @@ const PurePreviewMessage = ({
   isCompact = false,
 }: {
   chatId: string;
-  message: Message;
+  message: UIMessage;
   isLoading: boolean;
-  setMessages: (
-    messages: Message[] | ((messages: Message[]) => Message[]),
-  ) => void;
-  reload: (
-    chatRequestOptions?: ChatRequestOptions,
-  ) => Promise<string | null | undefined>;
+  setMessages: UseChatHelpers['setMessages'];
+  reload: UseChatHelpers['reload'];
   isReadonly: boolean;
   agentImageUrl?: string;
   isCompact?: boolean;
 }) => {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
 
-  // Process the message to extract content and reasoning from either format
-  const processMessageContent = (message: Message) => {
-    // For messages with parts (new format)
-    if (message.parts && Array.isArray(message.parts)) {
-      let textContent = '';
-      let reasoningContent = null;
-      
-      message.parts.forEach(part => {
-        if (part.type === 'text' && part.text) {
-          textContent += part.text;
-        } else if (part.type === 'reasoning') {
-          // Extract the reasoning content from the part
-          reasoningContent = part.reasoning || '';
-        }
-      });
-      
-      return {
-        content: textContent || message.content,
-        reasoning: reasoningContent || message.reasoning
-      };
-    }
-    
-    // For legacy format
-    return {
-      content: message.content,
-      reasoning: message.reasoning
-    };
-  };
-
-  const { content, reasoning } = processMessageContent(message);
-  const hasToolInvocations = message.toolInvocations && message.toolInvocations.length > 0;
+ 
 
   return (
     <AnimatePresence>
@@ -165,89 +132,85 @@ const PurePreviewMessage = ({
               </div>
             )}
 
-            {reasoning && (
-              <MessageReasoning
-                isLoading={isLoading}
-                reasoning={reasoning}
-              />
-            )}
+{message.parts?.map((part, index) => {
+              const { type } = part;
+              const key = `message-${message.id}-part-${index}`;
 
-            {/* Edit and Copy buttons for user messages */}
-            {message.role === 'user' && !isReadonly && mode === 'view' && (
-              <div className="flex justify-end gap-1">
-                <CopyButton 
-                  textToCopy={content as string} 
-                  className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100 relative"
-                />
-                
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
-                      onClick={() => {
-                        setMode('edit');
-                      }}
-                    >
-                      <PencilEditIcon />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Edit message</TooltipContent>
-                </Tooltip>
-              </div>
-            )}
+              if (type === 'reasoning') {
+                return (
+                  <MessageReasoning
+                    key={key}
+                    isLoading={isLoading}
+                    reasoning={part.reasoning}
+                  />
+                );
+              }
 
-            
+              if (type === 'text') {
+                if (mode === 'view') {
+                  return (
+                    <div key={key} className="flex flex-row gap-2 items-start">
+                      {message.role === 'user' && !isReadonly && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              data-testid="message-edit-button"
+                              variant="ghost"
+                              className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
+                              onClick={() => {
+                                setMode('edit');
+                              }}
+                            >
+                              <PencilEditIcon />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Edit message</TooltipContent>
+                        </Tooltip>
+                      )}
 
-            {/* Message content section */}
-            {(content || reasoning) && mode === 'view' && (
-              <div className="flex flex-row gap-2 items-start">
-                <div
-                  className={cn('flex flex-col gap-4', {
-                    'bg-primary text-primary-foreground px-3 ml-12 py-2 rounded-xl max-w-full':
-                      message.role === 'user',
-                  })}
-                >
-                  <Markdown>{content as string}</Markdown>
-                </div>
-              </div>
-            )}
+                      <div
+                        data-testid="message-content"
+                        className={cn('flex flex-col gap-4', {
+                          'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
+                            message.role === 'user',
+                        })}
+                      >
+                        <Markdown>{part.text}</Markdown>
+                      </div>
+                    </div>
+                  );
+                }
 
-            {/* Edit message section */}
-            {mode === 'edit' && content && (
-              <div className="flex flex-row gap-2 items-start">
-                <div className="size-8" />
+                if (mode === 'edit') {
+                  return (
+                    <div key={key} className="flex flex-row gap-2 items-start">
+                      <div className="size-8" />
 
-                <MessageEditor
-                  key={message.id}
-                  message={{
-                    ...message,
-                    content: content as string
-                  }}
-                  setMode={setMode}
-                  setMessages={setMessages}
-                  reload={reload}
-                />
-              </div>
-            )}
+                      <MessageEditor
+                        key={message.id}
+                        message={message}
+                        setMode={setMode}
+                        setMessages={setMessages}
+                        reload={reload}
+                      />
+                    </div>
+                  );
+                }
+              }
 
- {/* Tool invocations section */}
- {hasToolInvocations && (
-              <div className="flex flex-col gap-4">
-                {message.toolInvocations?.map((toolInvocation) => (
-                  <ToolInvocationItem 
+              if (type === 'tool-invocation') {
+                const { toolInvocation } = part;
+                const { toolName, toolCallId, state } = toolInvocation;
+
+                <ToolInvocationItem 
                     key={toolInvocation.toolCallId} 
                     toolInvocation={toolInvocation} 
                     isReadonly={isReadonly} 
                     isCompact={isCompact}
                   />
-                ))}
-              </div>
-            )}
+              }
+            })}
 
-           
-
-            {/* Message actions section */}
             {!isReadonly && (
               <MessageActions
                 key={`action-${message.id}`}
@@ -256,13 +219,14 @@ const PurePreviewMessage = ({
                 isLoading={isLoading}
               />
             )}
-
           </div>
         </div>
       </motion.div>
     </AnimatePresence>
   );
 };
+
+
 
 export const PreviewMessage = memo(
   PurePreviewMessage,
@@ -330,3 +294,5 @@ export const ThinkingMessage = () => {
     </motion.div>
   );
 };
+
+

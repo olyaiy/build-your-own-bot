@@ -1,4 +1,4 @@
-import { Message } from 'ai';
+import { UIMessage } from 'ai';
 import { PreviewMessage, ThinkingMessage } from '@/components/chat/message';
 import { useScrollToBottom } from '@/components/hooks/use-scroll-to-bottom';
 import { useMemo, memo} from 'react';
@@ -21,7 +21,7 @@ import { UseChatHelpers } from 'ai/react';
 interface MessagesProps {
   chatId: string;
   status: UseChatHelpers['status'];
-  messages: Array<Message>;
+  messages: Array<UIMessage>;
   setMessages: UseChatHelpers['setMessages'];
   reload: UseChatHelpers['reload'];
   isReadonly: boolean;

@@ -1,7 +1,6 @@
 
-import { Message } from 'ai';
+import { UIMessage } from 'ai';
 import { memo } from 'react';
-import equal from 'fast-deep-equal';
 import { UIArtifact } from './artifact';
 import { PreviewMessage } from '../chat/message';
 import { useScrollToBottom } from '../hooks/use-scroll-to-bottom';
@@ -10,7 +9,7 @@ import { UseChatHelpers } from 'ai/react';
 interface ArtifactMessagesProps {
   chatId: string;
   status: UseChatHelpers['status'];
-  messages: Array<Message>;
+  messages: Array<UIMessage>;
   setMessages: UseChatHelpers['setMessages'];
   reload: UseChatHelpers['reload'];
   isReadonly: boolean;

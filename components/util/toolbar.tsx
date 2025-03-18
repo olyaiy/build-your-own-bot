@@ -25,7 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { sanitizeUIMessages } from '@/lib/utils';
+
 
 import {
   ArrowUpIcon,
@@ -442,7 +442,7 @@ const PureToolbar = ({
             className="p-3"
             onClick={() => {
               stop();
-              setMessages((messages) => sanitizeUIMessages(messages));
+              setMessages((messages) => messages);
             }}
           >
             <StopIcon />

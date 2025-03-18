@@ -1,5 +1,6 @@
 import {
-  type Message,
+  type Message,UIMessage,
+  appendResponseMessages,
   createDataStreamResponse,
   smoothStream,
   streamText,
@@ -20,7 +21,7 @@ import {
 import {
   generateUUID,
   getMostRecentUserMessage,
-  sanitizeResponseMessages,
+  getTrailingMessageId,
 } from '@/lib/utils';
 import { generateTitleFromUserMessage } from '../../actions';
 import { toolRegistry } from '@/lib/ai/tools/registry';
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
     searchEnabled,
   }: { 
     id: string; 
-    messages: Array<Message>; 
+    messages: Array<UIMessage>; 
     selectedChatModel: string; 
     selectedModelId: string;
     agentId: string;
@@ -84,12 +85,18 @@ export async function POST(request: Request) {
     }
   }
 
+
+  
   // THEN save messages 
   await saveMessages({
     messages: [{
-      ...userMessage, 
-      model_id: selectedModelId,
+
       chatId: id,
+      id: userMessage.id,
+      role: 'user',
+      parts: userMessage.parts,
+      attachments: userMessage.experimental_attachments ?? [],
+      model_id: selectedModelId,
       createdAt: new Date(),
     }],
   });
@@ -197,79 +204,95 @@ export async function POST(request: Request) {
 
         
 
-        onStepFinish: async ({ stepType, response, reasoning, usage }) => {
-          // Increment step counter for each step
-          stepCounter++;
+        // onStepFinish: async ({ stepType, response, reasoning, usage }) => {
+        //   // Increment step counter for each step
+        //   stepCounter++;
 
-          if (session.user?.id) {
-            try {
-              const sanitizedResponseMessages = sanitizeResponseMessages({
-                messages: response.messages,
-                reasoning,
-              });
+        //   if (session.user?.id) {
+        //     try {
+        //       const sanitizedResponseMessages = sanitizeResponseMessages({
+        //         messages: response.messages,
+        //         reasoning,
+        //       });
               
-              // Filter out messages that already exist in accumulatedMessages
-              const newMessages = sanitizedResponseMessages.filter(msg => 
-                !accumulatedMessages.some(existingMsg => existingMsg.id === msg.id)
-              );
+        //       // Filter out messages that already exist in accumulatedMessages
+        //       const newMessages = sanitizedResponseMessages.filter(msg => 
+        //         !accumulatedMessages.some(existingMsg => existingMsg.id === msg.id)
+        //       );
               
-              if (newMessages.length < sanitizedResponseMessages.length) {
-                // Filtered out duplicate messages
-              }
+        //       if (newMessages.length < sanitizedResponseMessages.length) {
+        //         // Filtered out duplicate messages
+        //       }
               
-              accumulatedMessages.push(...newMessages.map((message) => {
-                return {
-                  id: message.id,
-                  chatId: id,
-                  role: message.role,
-                  content: message.content,
-                  createdAt: new Date(),
-                  model_id: selectedModelId
-                };
-              }));
+        //       accumulatedMessages.push(...newMessages.map((message) => {
+        //         return {
+        //           id: message.id,
+        //           chatId: id,
+        //           role: message.role,
+        //           content: message.content,
+        //           createdAt: new Date(),
+        //           model_id: selectedModelId
+        //         };
+        //       }));
             
-            } catch (error) {
-              // Failed to save chat TEMPORARILY
-            }
-          }
+        //     } catch (error) {
+        //       // Failed to save chat TEMPORARILY
+        //     }
+        //   }
 
-          // Update running tally if usage is available
-          if (usage) {
-            runningTally.promptTokens += usage.promptTokens || 0;
-            runningTally.completionTokens += usage.completionTokens || 0;
-            runningTally.totalTokens += usage.totalTokens || 0;
-          }
+        //   // Update running tally if usage is available
+        //   if (usage) {
+        //     runningTally.promptTokens += usage.promptTokens || 0;
+        //     runningTally.completionTokens += usage.completionTokens || 0;
+        //     runningTally.totalTokens += usage.totalTokens || 0;
+        //   }
 
-          // if (stepCounter === 3) {
-          //   await new Promise(resolve => setTimeout(resolve, 2000));
-          //   throw new Error('This is a test error on step 4');
-          // }
-        },
+        //   // if (stepCounter === 3) {
+        //   //   await new Promise(resolve => setTimeout(resolve, 2000));
+        //   //   throw new Error('This is a test error on step 4');
+        //   // }
+        // },
 
         /* ---- ON FINISH ---- */
         onFinish: async ({ response, reasoning, usage }) => {
           // Save the messages
           if (session.user?.id) {
             try {
-              const sanitizedResponseMessages = sanitizeResponseMessages({
-                messages: response.messages,
-                reasoning,
+              // const sanitizedResponseMessages = sanitizeResponseMessages({
+              //   messages: response.messages,
+              //   reasoning,
+              // });
+
+              const assistantId = getTrailingMessageId({
+                messages: response.messages.filter(
+                  (message) => message.role === 'assistant',
+                ),
               });
-              
-              // Track which message IDs we're saving
-              sanitizedResponseMessages.forEach(msg => savedMessageIds.add(msg.id));
+
+              if (!assistantId) {
+                throw new Error('No assistant message found!');
+              }
+
+              const [, assistantMessage] = appendResponseMessages({
+                messages: [userMessage],
+                responseMessages: response.messages,
+              });
+
               
               await saveMessages({
-                messages: sanitizedResponseMessages.map((message) => {
-                  return {
-                    id: message.id,
+                messages: [
+                  {
+
+                    id: assistantId,
                     chatId: id,
-                    role: message.role,
-                    content: message.content,
+                    role: assistantMessage.role,
+                    parts: assistantMessage.parts,
+                    attachments:
+                        assistantMessage.experimental_attachments ?? [],
                     createdAt: new Date(),
                     model_id: selectedModelId
-                  };
-                }),
+                  },
+                ],
               });
 
 
@@ -279,7 +302,7 @@ export async function POST(request: Request) {
                 agentId: agentId,
                 userId: session.user.id,
                 type: creatorId === session.user.id ? 'self_usage' : 'usage',
-                messageId: sanitizedResponseMessages[0]?.id,
+                messageId: assistantId,
                 modelId: selectedModelId,
                 costPerMillionInput: modelDetails.cost_per_million_input_tokens || '0',
                 costPerMillionOutput: modelDetails.cost_per_million_output_tokens || '0',
