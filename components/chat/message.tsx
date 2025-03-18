@@ -151,12 +151,17 @@ const PurePreviewMessage = ({
                   return (
                     <div key={key} className="flex flex-row gap-2 items-start">
                       {message.role === 'user' && !isReadonly && (
+                        <div className="flex flex-row gap-2 items-center">
+                          <CopyButton 
+                            className="p-2 h-fit opacity-0 group-hover/message:opacity-100" 
+                            textToCopy={part.text} 
+                          />
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
                               data-testid="message-edit-button"
                               variant="ghost"
-                              className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
+                              className="p-2 h-fit opacity-0 group-hover/message:opacity-100"
                               onClick={() => {
                                 setMode('edit');
                               }}
@@ -166,6 +171,7 @@ const PurePreviewMessage = ({
                           </TooltipTrigger>
                           <TooltipContent>Edit message</TooltipContent>
                         </Tooltip>
+                        </div>
                       )}
 
                       <div
@@ -265,32 +271,110 @@ export const PreviewMessage = memo(
   },
 );
 
-export const ThinkingMessage = () => {
-  const role = 'assistant';
+export const ThinkingMessage = ({ agentImageUrl }: { agentImageUrl?: string }) => {
+  const [elapsedTime, setElapsedTime] = useState(0);
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedTime(prev => prev + 1);
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <motion.div
-      className="w-full mx-auto max-w-3xl px-4 group/message "
+      className="w-full mx-auto max-w-3xl px-0 group/message relative"
       initial={{ y: 5, opacity: 0 }}
-      animate={{ y: 0, opacity: 1, transition: { delay: 1 } }}
-      data-role={role}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      data-role="assistant"
     >
-      <div
-        className={cx(
-          'flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl ',
-          {
-            'group-data-[role=user]/message:bg-muted ': true,
-          },
-        )}
-      >
-        <div className="size-8  flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
-          <SparklesIcon size={14} />
+      <div className="flex flex-row gap-4 w-full">
+        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background overflow-hidden relative">
+          {agentImageUrl ? (
+            <Image 
+              src={agentImageUrl} 
+              alt="Agent avatar" 
+              width={32} 
+              height={32} 
+              className="size-full object-cover"
+            />
+          ) : (
+            <div className="translate-y-px">
+              <SparklesIcon size={14} />
+            </div>
+          )}
         </div>
 
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex flex-col gap-4 text-muted-foreground">
-            Thinking...
+        <div className="flex flex-col gap-2 w-full justify-center">
+          <div className="flex flex-row items-center h-8 gap-2 text-muted-foreground">
+            <div className="flex flex-row items-center gap-1.5">
+              <span className="font-medium">Thinking</span>
+              <div className="flex gap-1 items-center">
+                <motion.div
+                  className="w-1.5 h-1.5 rounded-full bg-primary"
+                  animate={{
+                    scale: [0.5, 1, 0.5],
+                    opacity: [0.3, 1, 0.3]
+                  }}
+                  transition={{
+                    duration: 0.8,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0
+                  }}
+                />
+                <motion.div
+                  className="w-1.5 h-1.5 rounded-full bg-primary"
+                  animate={{
+                    scale: [0.5, 1, 0.5],
+                    opacity: [0.3, 1, 0.3]
+                  }}
+                  transition={{
+                    duration: 0.8,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0.15
+                  }}
+                />
+                <motion.div
+                  className="w-1.5 h-1.5 rounded-full bg-primary"
+                  animate={{
+                    scale: [0.5, 1, 0.5],
+                    opacity: [0.3, 1, 0.3]
+                  }}
+                  transition={{
+                    duration: 0.8,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0.3
+                  }}
+                />
+              </div>
+            </div>
+            
+            {elapsedTime > 3 && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="text-xs text-muted-foreground/70 ml-1"
+              >
+                {elapsedTime}s
+              </motion.div>
+            )}
           </div>
+          
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            transition={{ duration: 0.4 }}
+            className="text-xs text-muted-foreground/80 max-w-lg"
+          >
+            Working on a thoughtful response{elapsedTime > 8 ? ". This might take a moment for complex questions" : ""}
+          </motion.div>
+          <span className="sr-only">AI is thinking - elapsed time: {elapsedTime} seconds</span>
         </div>
       </div>
     </motion.div>
