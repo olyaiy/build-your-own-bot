@@ -42,7 +42,7 @@ export default async function ProfilePage() {
 
 
   // Fetch user's agents
-  const userAgents = await getAgents(userId, true);
+  const userAgents = await getAgents(userId, true, false, true);
   // Limit to just a preview (3 agents)
   const agentPreview = userAgents.slice(0, 3).map(agent => ({
     ...agent,
