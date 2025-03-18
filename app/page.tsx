@@ -10,9 +10,11 @@ export default function Page() {
         <>
             <div className="container mx-auto p-4">
                 <HowItWorksBanner />
-                <Suspense fallback={<AgentListSkeleton />}>
-                    <AgentContainer />
-                </Suspense>
+                <div id="agent-list">
+                    <Suspense fallback={<AgentListSkeleton />}>
+                        <AgentContainer />
+                    </Suspense>
+                </div>
             </div>
             <MainFooter />
         </>

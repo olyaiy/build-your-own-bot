@@ -55,20 +55,34 @@ function StepCard({ icon, title, description, isActive, onClick, index }: StepCa
       </div>
       
       <div className="flex items-start gap-3 sm:gap-4">
-        <motion.div 
-          className={`p-2 sm:p-3 rounded-full ${
-            isActive 
-              ? "bg-gradient-to-r from-blue-600 to-purple-600 shadow-md shadow-blue-500/20" 
-              : "bg-slate-800"
-          }`}
-          animate={{ 
-            scale: isActive ? 1.1 : 1,
-            rotate: isActive ? 5 : 0
-          }}
-          transition={{ duration: 0.3 }}
-        >
-          {icon}
-        </motion.div>
+        <div className="relative">
+          <motion.div 
+            className={`p-2 sm:p-3 rounded-full ${
+              isActive 
+                ? "bg-gradient-to-r from-blue-600 to-purple-600 shadow-md shadow-blue-500/20" 
+                : "bg-slate-800"
+            }`}
+            animate={{ 
+              scale: isActive ? 1.1 : 1,
+              rotate: isActive ? 5 : 0
+            }}
+            transition={{ duration: 0.3 }}
+          >
+            {icon}
+          </motion.div>
+          <motion.div 
+            className="absolute -top-3 -left-3 flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs font-bold shadow-lg shadow-blue-500/30 border border-white/25"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ 
+              scale: isActive ? 1.1 : 1, 
+              opacity: 1,
+              rotate: isActive ? -5 : 0
+            }}
+            transition={{ duration: 0.4, delay: 0.1 + (index * 0.05) }}
+          >
+            {index + 1}
+          </motion.div>
+        </div>
         
         <div className="flex-1">
           <motion.h3 

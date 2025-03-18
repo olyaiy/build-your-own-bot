@@ -47,12 +47,12 @@ export function HowItWorksBanner() {
               </p>
               
               {!isMobile && (
-                <div className="flex flex-wrap gap-4 pt-2">
+                <div className="flex flex-col gap-4 pt-2">
                   <Link 
-                    href="/marketplace" 
+                    href="/#agent-list" 
                     className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-medium transition-all hover:shadow-lg hover:shadow-blue-500/20 hover:scale-105"
                   >
-                    Explore Marketplace
+                    Explore Agents
                     <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>

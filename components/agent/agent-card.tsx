@@ -16,9 +16,10 @@ interface AgentCardProps {
   };
   userId?: string;
   onClick?: (agentId: string) => void;
+  stepNumber?: number;
 }
 
-export function AgentCard({ agent, userId, onClick }: AgentCardProps) {
+export function AgentCard({ agent, userId, onClick, stepNumber }: AgentCardProps) {
   const handleClick = () => {
     if (onClick) onClick(agent.id);
   };
@@ -31,6 +32,14 @@ export function AgentCard({ agent, userId, onClick }: AgentCardProps) {
             <div className="absolute top-2 right-2 z-10">
               <Badge variant="secondary" className="text-[10px] px-2 py-0 h-5 bg-muted">
                 {agent.visibility}
+              </Badge>
+            </div>
+          )}
+          
+          {stepNumber && (
+            <div className="absolute top-2 left-2 z-10">
+              <Badge className="w-6 h-6 rounded-full flex items-center justify-center bg-blue-500 text-white p-0 font-semibold">
+                {stepNumber}
               </Badge>
             </div>
           )}
