@@ -6,6 +6,18 @@
 
 ![Agent Vendor Banner](https://agentvendor.ca/og-image.jpg)
 
+## Platform Overview
+
+<div align="center">
+  <img src="/images/ss1-marketplace-home-page.png" alt="Marketplace Home Page" width="45%">
+  <img src="/images/ss2-conversation.png" alt="Conversation Interface" width="45%" style="margin-left: 10px;">
+</div>
+
+<div align="center">
+  <img src="/images/ss3-agent-creation-page.png" alt="Agent Creation Interface" width="45%">
+  <img src="/images/ss4-agent-view-page.png" alt="Agent Management Dashboard" width="45%" style="margin-left: 10px;">
+</div>
+
 ## Transform AI Expertise into Value
 
 Agent Vendor is a marketplace where **AI creators** build specialized agents and **users** discover tailored AI solutions - creating a sustainable ecosystem that rewards quality and expertise.
