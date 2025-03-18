@@ -21,13 +21,13 @@ export function HowItWorksBanner() {
   
   return (
     <section className="w-full mb-16 rounded-xl overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white">
-      <div className="relative px-4 sm:px-8 py-4 md:px-12 md:py-20">
+      <div className="relative p-4 sm:px-8 md:px-12 md:py-20">
         {/* Enhanced decorative elements */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500" />
-        <div className="absolute -bottom-12 -right-12 w-48 h-48 rounded-full bg-blue-500/15 blur-3xl" />
-        <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-purple-500/15 blur-3xl" />
-        <div className="absolute top-1/2 left-1/4 w-24 h-24 rounded-full bg-pink-500/10 blur-2xl" />
-        <div className="absolute bottom-1/4 right-1/3 w-16 h-16 rounded-full bg-blue-500/10 blur-xl" />
+        <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500" />
+        <div className="absolute -bottom-12 -right-12 size-48 rounded-full bg-blue-500/15 blur-3xl" />
+        <div className="absolute -top-12 -left-12 size-48 rounded-full bg-purple-500/15 blur-3xl" />
+        <div className="absolute top-1/2 left-1/4 size-24 rounded-full bg-pink-500/10 blur-2xl" />
+        <div className="absolute bottom-1/4 right-1/3 size-16 rounded-full bg-blue-500/10 blur-xl" />
         
         {/* Subtle grid pattern overlay */}
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
@@ -53,7 +53,7 @@ export function HowItWorksBanner() {
                     className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-medium transition-all hover:shadow-lg hover:shadow-blue-500/20 hover:scale-105"
                   >
                     Explore Agents
-                    <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="ml-2 size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   </Link>

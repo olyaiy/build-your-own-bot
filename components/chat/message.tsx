@@ -324,7 +324,7 @@ export const ThinkingMessage = ({ agentImageUrl }: { agentImageUrl?: string }) =
               <span className="font-medium">Thinking</span>
               <div className="flex gap-1 items-center">
                 <motion.div
-                  className="w-1.5 h-1.5 rounded-full bg-primary"
+                  className="size-1.5 rounded-full bg-primary"
                   animate={{
                     scale: [0.5, 1, 0.5],
                     opacity: [0.3, 1, 0.3]
@@ -337,7 +337,7 @@ export const ThinkingMessage = ({ agentImageUrl }: { agentImageUrl?: string }) =
                   }}
                 />
                 <motion.div
-                  className="w-1.5 h-1.5 rounded-full bg-primary"
+                  className="size-1.5 rounded-full bg-primary"
                   animate={{
                     scale: [0.5, 1, 0.5],
                     opacity: [0.3, 1, 0.3]
@@ -350,7 +350,7 @@ export const ThinkingMessage = ({ agentImageUrl }: { agentImageUrl?: string }) =
                   }}
                 />
                 <motion.div
-                  className="w-1.5 h-1.5 rounded-full bg-primary"
+                  className="size-1.5 rounded-full bg-primary"
                   animate={{
                     scale: [0.5, 1, 0.5],
                     opacity: [0.3, 1, 0.3]

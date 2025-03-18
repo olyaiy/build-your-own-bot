@@ -299,7 +299,7 @@ export default function AgentView({ agentData, models }: AgentViewProps) {
       <Card>
         <CardHeader>
           <CardTitle>Technical Details</CardTitle>
-          <CardDescription>Advanced information about this agent's configuration</CardDescription>
+          <CardDescription>Advanced information about this agent&apos;s configuration</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Models Section */}

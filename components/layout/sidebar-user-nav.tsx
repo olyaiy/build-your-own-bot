@@ -65,8 +65,8 @@ export function UserNav({ variant = 'sidebar', user }: UserNavProps) {
 
   if (isLoading && variant === 'header') {
     return (
-      <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-        <span className="w-6 h-6 rounded-full bg-muted animate-pulse" />
+      <Button variant="ghost" size="sm" className="size-8 p-0">
+        <span className="size-6 rounded-full bg-muted animate-pulse" />
       </Button>
     );
   }
@@ -122,7 +122,7 @@ export function UserNav({ variant = 'sidebar', user }: UserNavProps) {
         {variant === 'header' ? (
           <Button variant="ghost" className="flex items-center gap-2 h-8 px-2 py-1" size="sm">
             {/* Header-specific trigger */}
-            <div className="relative w-6 h-6 rounded-full overflow-hidden">
+            <div className="relative size-6 rounded-full overflow-hidden">
               <Image
                 src={`https://avatar.vercel.sh/${user.email || 'anonymous'}`}
                 alt={displayName ?? 'User Avatar'}
@@ -134,7 +134,7 @@ export function UserNav({ variant = 'sidebar', user }: UserNavProps) {
             <span className="max-w-[100px] truncate hidden sm:inline-block text-sm font-normal">
               {displayName || 'Anonymous'}
             </span>
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            <ChevronDown className="size-3.5 text-muted-foreground" />
           </Button>
         ) : (
           <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent bg-background data-[state=open]:text-sidebar-accent-foreground h-10">
@@ -155,7 +155,7 @@ export function UserNav({ variant = 'sidebar', user }: UserNavProps) {
       <DropdownMenuContent align="end" className="w-56">
         {/* Common dropdown content */}
         <div className="flex items-center justify-start gap-2 p-2">
-          <div className={`relative ${variant === 'header' ? 'w-8 h-8' : 'w-10 h-10'} rounded-full overflow-hidden`}>
+          <div className={`relative ${variant === 'header' ? 'size-8' : 'size-10'} rounded-full overflow-hidden`}>
             <Image
               src={`https://avatar.vercel.sh/${user.email || 'anonymous'}`}
               alt={displayName ?? 'User Avatar'}
