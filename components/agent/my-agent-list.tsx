@@ -155,11 +155,19 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [], timePeri
 
   // Get display text for current time period
   const getTimePeriodDisplay = () => {
+    const now = new Date();
+    const currentMonth = now.toLocaleString('default', { month: 'long' });
+    const currentYear = now.getFullYear();
+    
+    const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+      .toLocaleString('default', { month: 'long' });
+    const previousMonthYear = new Date(now.getFullYear(), now.getMonth() - 1, 1).getFullYear();
+    
     switch (timePeriod) {
       case 'current-month':
-        return 'Current Month';
+        return `${currentMonth} ${currentYear}`;
       case 'previous-month':
-        return 'Previous Month';
+        return `${previousMonth} ${previousMonthYear}`;
       default:
         return 'All Time';
     }
@@ -184,14 +192,14 @@ export function MyAgentList({ agents: initialAgents, userId, tags = [], timePeri
               value={timePeriod}
               onValueChange={handleTimePeriodChange}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[220px]">
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                <SelectValue placeholder={getTimePeriodDisplay()} />
+                <span>Earnings: {getTimePeriodDisplay()}</span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all-time">All Time</SelectItem>
-                <SelectItem value="current-month">Current Month</SelectItem>
-                <SelectItem value="previous-month">Previous Month</SelectItem>
+                <SelectItem value="all-time">All Time Earnings</SelectItem>
+                <SelectItem value="current-month">This Month ({new Date().toLocaleString('default', { month: 'long' })})</SelectItem>
+                <SelectItem value="previous-month">Last Month ({new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleString('default', { month: 'long' })})</SelectItem>
               </SelectContent>
             </Select>
           </div>
