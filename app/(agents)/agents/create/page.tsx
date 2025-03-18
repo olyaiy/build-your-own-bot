@@ -2,10 +2,15 @@ import AgentForm from "@/components/agent/agent-form";
 import { auth } from "@/app/(auth)/auth";
 import { db, getAllToolGroups, getAllTags } from "@/lib/db/queries";
 import { models } from "@/lib/db/schema";
+import { redirect } from "next/navigation";
 
 export default async function CreateAgentPage() {
   const session = await auth();
   
+  if (!session?.user) {
+    redirect("/login");
+  }
+
   const [modelsList, toolGroups, tags] = await Promise.all([
     db.select({
       id: models.id,
