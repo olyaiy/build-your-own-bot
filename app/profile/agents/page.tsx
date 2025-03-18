@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function MyAgentsPage({ 
   searchParams 
 }: { 
-  searchParams: { timePeriod?: string } 
+  searchParams: Promise<{ timePeriod?: string }> 
 }) {
   const session = await auth();
   
@@ -21,8 +21,9 @@ export default async function MyAgentsPage({
     redirect("/login");
   }
   
-  // Get the time period from search params or default to all-time
-  const timePeriod = searchParams.timePeriod || 'all-time';
+  // Await the searchParams promise and get the time period or default to all-time
+  const resolvedParams = await searchParams;
+  const timePeriod = resolvedParams.timePeriod || 'all-time';
   
   // Fetch only agents created by the current user including models, tools, tags, and earnings
   const userAgents = await getAgents(session.user.id, true, true, true, timePeriod);
