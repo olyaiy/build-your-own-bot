@@ -117,7 +117,7 @@ const PurePreviewMessage = ({
             </div>
           )}
 
-          <div className={cn("flex flex-col gap-4 w-full relative ", {
+          <div className={cn("flex flex-col w-full relative ", {
             "max-w-full": !isCompact,
           })}>
             
@@ -194,7 +194,6 @@ const PurePreviewMessage = ({
                   return (
                     <div key={key} className="flex flex-row gap-2 items-start">
                       <div className="size-8" />
-
                       <MessageEditor
                         key={message.id}
                         message={message}
@@ -226,7 +225,7 @@ const PurePreviewMessage = ({
 
             {!isReadonly && message.role === 'assistant' && (
 
-              <div className="flex flex-row gap-2 -mt-6">
+              <div className="flex flex-row gap-2 ">
                 <CopyButton 
                 className="h-fit opacity-0 group-hover/message:opacity-100" 
                 textToCopy={message.parts?.map((part) => {

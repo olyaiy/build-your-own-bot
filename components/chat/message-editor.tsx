@@ -1,9 +1,9 @@
 'use client';
 
 import { ChatRequestOptions, Message } from 'ai';
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
+import { Textarea } from '../ui/textarea';
 import { deleteTrailingMessages } from '@/app/(chat)/actions';
 import { UseChatHelpers } from 'ai/react';
 
@@ -22,8 +22,13 @@ export function MessageEditor({
   reload,
 }: MessageEditorProps) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  console.log('message', message);
 
-  const [draftContent, setDraftContent] = useState<string>(message.content);
+  const [draftContent, setDraftContent] = useState<string>(message.parts?.map((part) => {
+    if ('text' in part) return part.text;
+    if ('reasoning' in part) return part.reasoning;
+    return '';
+  }).filter(Boolean).join('\n') || '');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -47,6 +52,7 @@ export function MessageEditor({
   return (
     <div className="flex flex-col gap-2 w-full">
       <Textarea
+        data-testid="message-editor"
         ref={textareaRef}
         className="bg-transparent outline-none overflow-hidden resize-none !text-base rounded-xl w-full"
         value={draftContent}
@@ -64,6 +70,7 @@ export function MessageEditor({
           Cancel
         </Button>
         <Button
+          data-testid="message-editor-send-button"
           variant="default"
           className="h-fit py-2 px-3"
           disabled={isSubmitting}
