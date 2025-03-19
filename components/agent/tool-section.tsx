@@ -9,6 +9,7 @@ import { DocumentPreview } from '../document/document-preview'
 import { DocumentToolCall, DocumentToolResult } from '../document/document'
 import { skip } from 'node:test'
 import ImageGenerationSection from './image-generation-section'
+import LogoGenerationSection from './logo-generation-section'
 
 interface ToolSectionProps {
   tool: ToolInvocation
@@ -54,6 +55,8 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
         console.log('🌐 TOOL STATE:', state)
         console.log('🔍 TOOL:', tool)
         return <ToolWrapper><ImageGenerationSection tool={tool} /></ToolWrapper>;
+      case 'createLogo':
+        return <ToolWrapper><LogoGenerationSection tool={tool} /></ToolWrapper>;
       case 'createDocument':
         return <ToolWrapper><DocumentPreview isReadonly={isReadonly} result={result} /></ToolWrapper>;
       case 'updateDocument':
@@ -94,6 +97,8 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
       return <ToolWrapper><Weather /></ToolWrapper>;
     case 'createImage':
       return <ToolWrapper><ImageGenerationSection tool={tool} /></ToolWrapper>;
+    case 'createLogo':
+      return <ToolWrapper><LogoGenerationSection tool={tool} /></ToolWrapper>;
     case 'createDocument':
       return <ToolWrapper><DocumentPreview isReadonly={isReadonly} args={args} /></ToolWrapper>;
     case 'updateDocument':

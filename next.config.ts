@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
       {
         // Added the domain from the deprecated config
         hostname: 'pub-8ddd283c539f458b8f9ee190cb5cbbdd.r2.dev',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fal.media',
       }
     ],
   },
