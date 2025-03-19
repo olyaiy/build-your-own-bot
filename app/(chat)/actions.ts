@@ -68,8 +68,8 @@ export async function generateTitleFromUserMessage({
       url: typedError.url
     });
     
-    // Return first 8 characters of the message content as fallback title
-    return message.content.slice(0, 8) || "New Chat";
+    // Return first 80 characters of the message content as fallback title
+    return message.content.slice(0, 80) || "New Chat";
   }
 }
 
