@@ -12,31 +12,44 @@ interface SuggestedActionsProps {
     message: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions,
   ) => Promise<string | null | undefined>;
+  suggestedPrompts?: string[];
 }
 
-function PureSuggestedActions({ chatId, append, agentId }: SuggestedActionsProps) {
-  const suggestedActions = [
-    {
-      title: 'What are the advantages',
-      label: 'of using Next.js?',
-      action: 'What are the advantages of using Next.js?',
-    },
-    {
-      title: 'Write code to',
-      label: `demonstrate djikstra's algorithm`,
-      action: `Write code to demonstrate djikstra's algorithm`,
-    },
-    {
-      title: 'Help me write an essay',
-      label: `about silicon valley`,
-      action: `Help me write an essay about silicon valley`,
-    },
-    {
-      title: 'What is the weather',
-      label: 'in San Francisco?',
-      action: 'What is the weather in San Francisco?',
-    },
-  ];
+function PureSuggestedActions({ chatId, append, agentId, suggestedPrompts = [] }: SuggestedActionsProps) {
+  // Use provided suggestedPrompts if available, otherwise fall back to default actions
+  const suggestedActions = suggestedPrompts.length > 0 
+    ? suggestedPrompts.map(prompt => {
+        const words = prompt.split(' ');
+        const boldPart = words.slice(0, 3).join(' ');
+        const regularPart = words.slice(3).join(' ');
+        return {
+          title: boldPart,
+          label: regularPart,
+          action: prompt,
+        };
+      })
+    : [
+      {
+        title: 'What are the',
+        label: 'advantages of using Next.js?',
+        action: 'What are the advantages of using Next.js?',
+      },
+      {
+        title: 'Write code to',
+        label: `demonstrate djikstra's algorithm`,
+        action: `Write code to demonstrate djikstra's algorithm`,
+      },
+      {
+        title: 'Help me write',
+        label: `an essay about silicon valley`,
+        action: `Help me write an essay about silicon valley`,
+      },
+      {
+        title: 'What is the',
+        label: 'weather in San Francisco?',
+        action: 'What is the weather in San Francisco?',
+      },
+    ];
 
   return (
     <div className="grid sm:grid-cols-2 gap-2 w-full">
@@ -59,12 +72,14 @@ function PureSuggestedActions({ chatId, append, agentId }: SuggestedActionsProps
                 content: suggestedAction.action,
               });
             }}
-            className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-auto justify-start items-start"
+            className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-24 justify-start items-start"
           >
             <span className="font-medium">{suggestedAction.title}</span>
-            <span className="text-muted-foreground">
-              {suggestedAction.label}
-            </span>
+            {suggestedAction.label && (
+              <span className="text-muted-foreground">
+                {suggestedAction.label}
+              </span>
+            )}
           </Button>
         </motion.div>
       ))}

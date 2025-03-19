@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getAgentWithAvailableModels } from '@/lib/db/queries';
+import { getAgentWithAvailableModels, getSuggestedPromptsByAgentId } from '@/lib/db/queries';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { generateUUID } from '@/lib/utils';
 import { Chat } from '@/components/chat/chat';
@@ -66,10 +66,11 @@ export default async function Page({ params }: { params: Promise<{ agent: string
   const defaultModel = agentData.availableModels.find(model => model.isDefault);
   const defaultModelId = defaultModel?.id || DEFAULT_CHAT_MODEL;
 
+  // Fetch suggested prompts
+  const suggestedPrompts = await getSuggestedPromptsByAgentId(agentId);
 
   // Generate a unique ID for this chat session
   const id = generateUUID();
-
 
   return (
     <>
@@ -86,6 +87,7 @@ export default async function Page({ params }: { params: Promise<{ agent: string
         selectedChatModel={defaultModelId}
         selectedVisibilityType="public"
         isReadonly={false}
+        suggestedPrompts={suggestedPrompts}
       />
       <DataStreamHandler id={id} />
     </>

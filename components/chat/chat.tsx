@@ -28,7 +28,8 @@ export function Chat({
   selectedChatModel,
   selectedVisibilityType,
   isReadonly,
-  isAuthenticated
+  isAuthenticated,
+  suggestedPrompts = []
 }: {
   id: string;
   agent: Agent;
@@ -38,6 +39,7 @@ export function Chat({
   selectedVisibilityType: VisibilityType;
   isReadonly: boolean;
   isAuthenticated: boolean;
+  suggestedPrompts?: string[];
 }) {
   const { mutate } = useSWRConfig();
   const [currentModel, setCurrentModel] = useState<string>(selectedChatModel);
@@ -189,6 +191,7 @@ export function Chat({
                     isReadonly={isReadonly}
                     searchEnabled={searchEnabled}
                     setSearchEnabled={setSearchEnabled}
+                    suggestedPrompts={suggestedPrompts}
                   />
                 </div>
               )}
@@ -218,6 +221,7 @@ export function Chat({
               isReadonly={isReadonly}
               searchEnabled={searchEnabled}
               setSearchEnabled={setSearchEnabled}
+              suggestedPrompts={suggestedPrompts}
             />
           </form>
         )}

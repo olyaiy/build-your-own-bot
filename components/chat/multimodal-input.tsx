@@ -59,6 +59,7 @@ function PureMultimodalInput({
   searchEnabled,
   setSearchEnabled,
   isAuthenticated,
+  suggestedPrompts,
 }: {
   chatId: string;
   agentId: string;
@@ -70,7 +71,6 @@ function PureMultimodalInput({
   setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
   messages: Array<Message>;
   setMessages: Dispatch<SetStateAction<Array<Message>>>;
-
   append: UseChatHelpers['append'];
   handleSubmit: UseChatHelpers['handleSubmit'];
   isAuthenticated: boolean;
@@ -81,6 +81,7 @@ function PureMultimodalInput({
   isReadonly: boolean;
   searchEnabled: boolean;
   setSearchEnabled: Dispatch<SetStateAction<boolean>>;
+  suggestedPrompts?: string[];
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -420,7 +421,12 @@ function PureMultimodalInput({
         attachments.length === 0 &&
         uploadQueue.length === 0 && (
           <div className="mt-4">
-            <SuggestedActions append={append} chatId={chatId} agentId={agentId} />
+            <SuggestedActions 
+              append={append} 
+              chatId={chatId} 
+              agentId={agentId} 
+              suggestedPrompts={suggestedPrompts} 
+            />
           </div>
         )}
     </div>
