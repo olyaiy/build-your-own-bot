@@ -27,6 +27,7 @@ import {
   tags,
   agentTags,
   type DBMessage,
+  suggestedPrompts,
 } from './schema';  
 import { ArtifactKind } from '@/components/artifact/artifact';
 
@@ -1574,5 +1575,61 @@ export async function getMostCommonTags(limit?: number) {
   } catch (error) {
     console.error('Error getting most common tags:', error);
     return [];
+  }
+}
+
+export async function getSuggestedPromptsByAgentId(agentId: string): Promise<string[]> {
+  try {
+    const [result] = await db
+      .select({
+        prompts: suggestedPrompts.prompts
+      })
+      .from(suggestedPrompts)
+      .where(eq(suggestedPrompts.agentId, agentId));
+
+    // If no prompts found, return default array
+    if (!result) {
+      return [
+        "What are the advantages of using Next.js?",
+        "Help me write an essay about silicon valley",
+        "Write code to demonstrate djikstras algorithm",
+        "What is the weather in San Francisco?"
+      ];
+    }
+
+    return result.prompts as string[];
+  } catch (error) {
+    console.error('Failed to get suggested prompts for agent:', error);
+    // Return default prompts on error
+    return [
+      "What are the advantages of using Next.js?",
+      "Help me write an essay about silicon valley",
+      "Write code to demonstrate djikstras algorithm",
+      "What is the weather in San Francisco?"
+    ];
+  }
+}
+
+export async function upsertSuggestedPrompts(agentId: string, prompts: string[]): Promise<void> {
+  try {
+    // First try to update existing record
+    const updateResult = await db
+      .update(suggestedPrompts)
+      .set({ prompts })
+      .where(eq(suggestedPrompts.agentId, agentId))
+      .returning();
+
+    // If no record was updated (updateResult is empty), insert a new one
+    if (!updateResult.length) {
+      await db
+        .insert(suggestedPrompts)
+        .values({
+          agentId,
+          prompts
+        });
+    }
+  } catch (error) {
+    console.error('Failed to upsert suggested prompts:', error);
+    throw error;
   }
 }

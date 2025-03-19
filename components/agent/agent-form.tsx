@@ -13,9 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateAgent, createAgent, deleteAgent } from "@/app/(agents)/actions";
+import { updateAgent, createAgent, deleteAgent, upsertSuggestedPrompts } from "@/app/(agents)/actions";
 import { useRouter } from "next/navigation";
-import { Switch } from "@/components/ui/switch";
 import { 
   AlertCircle, 
   Loader2, 
@@ -54,6 +53,7 @@ import {
   PopoverTrigger 
 } from "@/components/ui/popover";
 import { AgentImageUploader } from "./agent-image-uploader";
+import { PromptSuggestionEditor } from "./prompt-suggestion-editor";
 
 // Tag interface for dropdown selection
 interface TagInfo {
@@ -119,6 +119,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
     showPoints: initialData?.customization?.overview?.showPoints || false,
     points: initialData?.customization?.overview?.points || []
   });
+  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
   const router = useRouter();
   const systemPromptRef = useRef<HTMLTextAreaElement>(null);
 
@@ -145,14 +146,27 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
             style: {
               colorSchemeId: colorSchemeId,
             }
-          }
+          },
+          suggestedPrompts: suggestedPrompts.filter(p => p.trim() !== "") // Include filtered suggested prompts
         };
 
         if (mode === "edit") {
           await updateAgent({ ...baseData, id: initialData!.id });
+          
+          // If we have an id, also save the suggested prompts
+          if (initialData?.id) {
+            await upsertSuggestedPrompts(initialData.id, suggestedPrompts.filter(p => p.trim() !== ""));
+          }
+          
           toast.success("Agent updated successfully");
         } else {
-          await createAgent(baseData);
+          const result = await createAgent(baseData);
+          
+          // If we have a new agent id, save the suggested prompts
+          if (result?.id) {
+            await upsertSuggestedPrompts(result.id, suggestedPrompts.filter(p => p.trim() !== ""));
+          }
+          
           toast.success("Agent created successfully");
           router.push("/");
         }
@@ -597,6 +611,16 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
             <OverviewEditor 
               overview={overviewCustomization} 
               onChange={setOverviewCustomization} 
+            />
+          </div>
+
+          <Separator className="my-8" />
+
+          {/* Prompt Suggestions Section */}
+          <div className="pt-2">
+            <PromptSuggestionEditor
+              agentId={initialData?.id}
+              onChange={setSuggestedPrompts}
             />
           </div>
         </CardContent>

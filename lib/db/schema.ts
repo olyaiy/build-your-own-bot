@@ -129,6 +129,22 @@ export const agents = pgTable("agents", {
  
 export type Agent = typeof agents.$inferSelect;
 
+export const suggestedPrompts = pgTable("suggested_prompts", {
+  agentId: uuid("agent_id").primaryKey().references(() => agents.id, { onDelete: "cascade" }),
+  prompts: jsonb("prompts").notNull().default([
+    "What are the advantages of using Next.js?",
+    "Help me write an essay about silicon valley",
+    "Write code to demonstrate djikstras algorithm",
+    "What is the weather in San Francisco?"
+  ]),
+}, (table) => {
+  return {
+    agentIdIdx: index("suggested_prompts_agent_id_idx").on(table.agentId),
+  };
+});
+
+export type SuggestedPrompts = typeof suggestedPrompts.$inferSelect;
+
 export interface AgentCustomization {
   overview: {
     title: string;

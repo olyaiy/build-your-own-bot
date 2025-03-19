@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAgent as createAgentQuery, deleteAgentQuery, getAgentById, updateAgentById, createTag, db } from '@/lib/db/queries';
-import { agentModels, agentToolGroups } from '@/lib/db/schema';
+import { agentModels, agentToolGroups, agents, models, agentTags, tags, suggestedPrompts } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
 
 export async function createAgent({
@@ -59,7 +59,7 @@ export async function createAgent({
       customization,
       tagIds: processedTagIds
     });
-    
+
     // If alternate models were provided, add them to the agent
     if (alternateModelIds.length > 0 && result?.id) {
       const alternateModelsData = alternateModelIds.map(alternateModelId => ({
@@ -70,7 +70,7 @@ export async function createAgent({
       
       await db.insert(agentModels).values(alternateModelsData);
     }
-    
+
     // If tool groups were provided, add them to the agent
     if (toolGroupIds.length > 0 && result?.id) {
       const toolGroupsData = toolGroupIds.map(toolGroupId => ({
@@ -82,10 +82,10 @@ export async function createAgent({
     }
     
     revalidatePath('/');
-    return result;
+    return result; // Return the created agent
   } catch (error) {
     console.error('Failed to create agent:', error);
-    throw new Error('Failed to create agent');
+    throw error; // Return the error for better error handling
   }
 }
 
@@ -313,4 +313,59 @@ async function processNewTags(tagIds: string[] = []) {
   }
   
   return processedTagIds;
+}
+
+export async function getSuggestedPromptsByAgentId(agentId: string): Promise<string[]> {
+  try {
+    const result = await db.select({
+      prompts: suggestedPrompts.prompts
+    })
+    .from(suggestedPrompts)
+    .where(eq(suggestedPrompts.agentId, agentId));
+
+    // If no prompts found, return default array
+    if (!result.length) {
+      return [
+        "What can you help me with?",
+        "Tell me about yourself", 
+        "What features do you have?",
+        "How do I get started?"
+      ];
+    }
+
+    return result[0].prompts as string[];
+  } catch (error) {
+    console.error('Failed to get suggested prompts for agent:', error);
+    // Return default prompts on error
+    return [
+      "What can you help me with?",
+      "Tell me about yourself", 
+      "What features do you have?",
+      "How do I get started?"
+    ];
+  }
+}
+
+export async function upsertSuggestedPrompts(agentId: string, prompts: string[]): Promise<void> {
+  try {
+    // First try to update existing record
+    const updateResult = await db
+      .update(suggestedPrompts)
+      .set({ prompts })
+      .where(eq(suggestedPrompts.agentId, agentId))
+      .returning();
+
+    // If no record was updated (updateResult is empty), insert a new one
+    if (!updateResult.length) {
+      await db
+        .insert(suggestedPrompts)
+        .values({
+          agentId,
+          prompts
+        });
+    }
+  } catch (error) {
+    console.error('Failed to upsert suggested prompts:', error);
+    throw error;
+  }
 }
