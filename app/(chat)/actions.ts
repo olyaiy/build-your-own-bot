@@ -30,10 +30,13 @@ export async function generateTitleFromUserMessage({
   message: Message;
 }) {
   try {
-    // console.log('Attempting to generate title with model:', 'title-model');
-    // console.log('myProvider configuration:', JSON.stringify(myProvider, null, 2));
     const modelToUse = myProvider.languageModel('title-model');
-    // console.log('Model object:', JSON.stringify(modelToUse, null, 2));
+
+    // Truncate message content to 5000 characters if needed
+    const truncatedMessage = {
+      ...message,
+      content: message.content.slice(0, 5000)
+    };
     
     const { text: title } = await generateText({
       model: modelToUse,
@@ -42,7 +45,7 @@ export async function generateTitleFromUserMessage({
     - ensure it is not more than 80 characters long
     - the title should be a summary of the user's message
     - do not use quotes or colons`,
-      prompt: JSON.stringify(message),
+      prompt: JSON.stringify(truncatedMessage),
     });
 
     return title;
@@ -65,8 +68,8 @@ export async function generateTitleFromUserMessage({
       url: typedError.url
     });
     
-    // Return a fallback title to prevent the application from crashing
-    return "New Conversation";
+    // Return first 8 characters of the message content as fallback title
+    return message.content.slice(0, 8) || "New Chat";
   }
 }
 
