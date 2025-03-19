@@ -122,6 +122,23 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
   const router = useRouter();
   const systemPromptRef = useRef<HTMLTextAreaElement>(null);
+  const agentNameRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Add state to track form values for prompt generation
+  const [formValues, setFormValues] = useState({
+    title: initialData?.agentDisplayName || '',
+    description: initialData?.description || '',
+    systemPrompt: initialData?.systemPrompt || ''
+  });
+
+  // Update form values when inputs change
+  const handleFormValueChange = (field: keyof typeof formValues, value: string) => {
+    setFormValues(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -337,6 +354,8 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
                       placeholder="Enter a name for your agent"
                       defaultValue={initialData?.agentDisplayName || ""}
                       className="mt-2"
+                      ref={agentNameRef}
+                      onChange={(e) => handleFormValueChange('title', e.target.value)}
                     />
                   </div>
                   
@@ -360,6 +379,8 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
                       placeholder="Describe what your agent does"
                       defaultValue={initialData?.description || ""}
                       className="mt-2 min-h-24"
+                      ref={descriptionRef}
+                      onChange={(e) => handleFormValueChange('description', e.target.value)}
                     />
                   </div>
                 </div>
@@ -573,6 +594,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
                   defaultValue={initialData?.systemPrompt}
                   ref={systemPromptRef}
                   onInput={() => adjustSystemPromptHeight()}
+                  onChange={(e) => handleFormValueChange('systemPrompt', e.target.value)}
                 />
                 <div className="absolute bottom-3 right-3">
                   <TooltipProvider>
@@ -621,6 +643,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
             <PromptSuggestionEditor
               agentId={initialData?.id}
               onChange={setSuggestedPrompts}
+              formValues={formValues}
             />
           </div>
         </CardContent>

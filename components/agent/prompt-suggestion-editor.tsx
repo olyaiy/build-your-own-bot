@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { X, Plus, MessageSquare, Loader2 } from "lucide-react";
+import { X, Plus, MessageSquare, Loader2, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,20 +12,28 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { getSuggestedPromptsByAgentId, upsertSuggestedPrompts } from "@/app/(agents)/actions";
+import { generatePromptSuggestion } from "@/app/(chat)/actions";
 
 interface PromptSuggestionEditorProps {
   agentId?: string;  // Optional for new agents
   initialPrompts?: string[];
   onChange?: (prompts: string[]) => void;
+  formValues?: {
+    title: string;
+    description: string;
+    systemPrompt: string;
+  };
 }
 
 export function PromptSuggestionEditor({ 
   agentId, 
   initialPrompts,
-  onChange 
+  onChange,
+  formValues 
 }: PromptSuggestionEditorProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [prompts, setPrompts] = useState<string[]>(initialPrompts || [
     "What can you help me with?",
     "Tell me about yourself",
@@ -96,6 +104,56 @@ export function PromptSuggestionEditor({
     }
   }, [agentId, prompts]);
 
+  const handleTestPromptSuggestion = async () => {
+    if (!formValues?.title) {
+      toast.error('Please enter an agent name first');
+      return;
+    }
+
+    // Calculate available slots (max 4 - current valid prompts)
+    const validPrompts = prompts.filter(p => p.trim() !== "");
+    const availableSlots = Math.max(0, 4 - validPrompts.length);
+
+    if (availableSlots === 0) {
+      toast.warning('No slots available. Remove some prompts first.');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const suggestions = await generatePromptSuggestion({
+        title: formValues.title,
+        description: formValues.description,
+        count: availableSlots,
+        existingPrompts: validPrompts
+      });
+      
+      console.log('Generated Prompt Suggestions:', {
+        availableSlots,
+        existingPrompts: validPrompts,
+        newSuggestions: suggestions
+      });
+
+      // Add new suggestions to existing prompts
+      const newPrompts = [...prompts];
+      suggestions.forEach(suggestion => {
+        if (newPrompts.length < 4) {
+          newPrompts.push(suggestion);
+        }
+      });
+      
+      setPrompts(newPrompts);
+      onChange?.(newPrompts);
+      toast.success(`Generated ${suggestions.length} new suggestions!`);
+      
+    } catch (error) {
+      console.error('Error generating prompt suggestions:', error);
+      toast.error('Failed to generate prompt suggestions');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   // Preview of how the prompts will appear in chat
   const renderPromptPreview = () => {
     const validPrompts = prompts.filter(p => p.trim() !== "");
@@ -112,12 +170,12 @@ export function PromptSuggestionEditor({
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-4 bg-muted/20 rounded-md border">
         {validPrompts.map((prompt, index) => (
-          <button
+          <div
             key={index}
-            className="text-left px-3 py-2 bg-card hover:bg-accent rounded-md border text-sm shadow-sm transition-colors"
+            className="text-left px-3 py-2 bg-card rounded-md border text-sm shadow-sm"
           >
             {prompt || "Empty prompt"}
-          </button>
+          </div>
         ))}
       </div>
     );
@@ -139,6 +197,37 @@ export function PromptSuggestionEditor({
             </Tooltip>
           </TooltipProvider>
         </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleTestPromptSuggestion}
+                disabled={isGenerating || !formValues?.title}
+                className="relative group transition-all hover:shadow-md"
+              >
+                <div className="flex items-center gap-2">
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="size-3.5 animate-spin" />
+                      <span>Generating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="size-3.5 group-hover:scale-110 transition-transform" />
+                      <span>Generate Ideas</span>
+                    </>
+                  )}
+                </div>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <p>Generate AI-powered prompt suggestions based on your agent's description</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {isLoading ? (
