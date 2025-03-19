@@ -72,11 +72,11 @@ function PureSuggestedActions({ chatId, append, agentId, suggestedPrompts = [] }
                 content: suggestedAction.action,
               });
             }}
-            className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-24 justify-start items-start"
+            className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-24 justify-start items-start whitespace-normal"
           >
             <span className="font-medium">{suggestedAction.title}</span>
             {suggestedAction.label && (
-              <span className="text-muted-foreground">
+              <span className="text-muted-foreground break-words">
                 {suggestedAction.label}
               </span>
             )}

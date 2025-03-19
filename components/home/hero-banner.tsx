@@ -84,15 +84,15 @@ export function HeroBanner() {
             {/* Call-to-action buttons */}
             <div className="flex gap-3 pt-1">
               {/* Primary CTA - Create Agent */}
-              <Link href="/agents/create">
-                <Button className="group" size="sm">
+              <Button asChild className="group h-9" size="sm">
+                <Link href="/agents/create">
                   Create Your Agent
                   <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               
               {/* Secondary CTA - Browse Agents with smooth scroll */}
-              <Button onClick={scrollToAgents} className="group" size="sm" variant="outline">
+              <Button onClick={scrollToAgents} className="group h-9" size="sm" variant="outline">
                 Browse Agents
                 <Search className="ml-1.5 h-3.5 w-3.5" />
               </Button>
