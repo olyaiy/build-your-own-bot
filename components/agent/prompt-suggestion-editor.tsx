@@ -168,15 +168,28 @@ export function PromptSuggestionEditor({
     }
     
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-4 bg-muted/20 rounded-md border">
-        {validPrompts.map((prompt, index) => (
-          <div
-            key={index}
-            className="text-left px-3 py-2 bg-card rounded-md border text-sm shadow-sm"
-          >
-            {prompt || "Empty prompt"}
-          </div>
-        ))}
+      <div className="grid sm:grid-cols-2 gap-2 w-full">
+        {validPrompts.map((prompt, index) => {
+          const words = prompt.split(' ');
+          const boldPart = words.slice(0, 3).join(' ');
+          const regularPart = words.slice(3).join(' ');
+          
+          return (
+            <div
+              key={index}
+              className={index > 1 ? 'hidden sm:block' : 'block'}
+            >
+              <div className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 flex flex-col w-full h-24 justify-start items-start bg-card hover:bg-accent/50 transition-colors">
+                <span className="font-medium">{boldPart}</span>
+                {regularPart && (
+                  <span className="text-muted-foreground mt-1">
+                    {regularPart}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     );
   };
