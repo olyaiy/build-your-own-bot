@@ -83,10 +83,17 @@ export default function AgentTagSelector({
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Add tag on Enter
-    if (e.key === 'Enter' && newTagInput.trim() !== '') {
+    if (e.key === 'Enter') {
       e.preventDefault();
-      handleAddNewTag();
+      
+      // Only create new tag if no matches exist
+      const hasExactMatch = availableTags.some(
+        tag => tag.name.toLowerCase() === newTagInput.trim().toLowerCase()
+      );
+
+      if (!hasExactMatch && newTagInput.trim() !== '') {
+        handleAddNewTag();
+      }
     }
   };
 

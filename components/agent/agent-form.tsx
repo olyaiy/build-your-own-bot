@@ -217,6 +217,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
       setSelectedTags([...selectedTags, tag]);
     }
     setTagPopoverOpen(false);
+    setNewTagInput("");
   };
 
   return (
