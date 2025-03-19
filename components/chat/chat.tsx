@@ -163,7 +163,7 @@ export function Chat({
             />
           ) : (
             <div className="flex flex-col h-full justify-center items-center px-4 md:px-8 gap-6">
-              <div className="w-full md:max-w-3xl">
+              <div className="w-full md:max-w-3xl overflow-scroll  overflow-x-hidden">
                 <Overview agent={agent} />
               </div>
               
