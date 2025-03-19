@@ -21,7 +21,7 @@ export function HowItWorksBanner() {
   
   return (
     <section className="w-full mb-16 rounded-xl overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white">
-      <div className="relative p-4 sm:px-8 md:px-12 md:py-20">
+      <div className="relative sm:px-8 md:px-12 md:py-20">
         {/* Enhanced decorative elements */}
         <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500" />
         <div className="absolute -bottom-12 -right-12 size-48 rounded-full bg-blue-500/15 blur-3xl" />

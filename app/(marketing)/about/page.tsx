@@ -430,7 +430,7 @@ export default function AboutPage() {
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white relative overflow-hidden">
         {/* Top border gradient */}
-        <div className="absolute inset-x-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500" />
+        <div className="absolute inset-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500" />
         
         {/* Decorative elements */}
         <div className="absolute -bottom-12 -right-12 size-48 rounded-full bg-blue-500/15 blur-3xl" />
