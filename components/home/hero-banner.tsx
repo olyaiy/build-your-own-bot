@@ -40,9 +40,12 @@ export function HeroBanner() {
           {/* Left content section - spans 7 columns on desktop */}
           <div className="md:col-span-7 space-y-4">
             {/* Main heading with accent text */}
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              AI Agent Marketplace
-              <span className="text-blue-400 block mt-0.5">Powered by Experts</span>
+            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">
+              Level The <span className="relative text-green-300 italic">
+                Earning
+                <span className="absolute -bottom-0 left-0 w-full h-1 bg-green-300/20 rounded-full"></span>
+              </span>&nbsp;Field 
+              <span className="text-blue-400 block mt-1 text-xl sm:text-2xl font-medium">Find niche AI agents or create + monitize your own</span>
             </h1>
             
             {/* Value propositions section */}
