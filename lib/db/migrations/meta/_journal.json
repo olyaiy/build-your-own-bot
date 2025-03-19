@@ -302,6 +302,13 @@
       "when": 1742351126599,
       "tag": "0042_clean_zodiak",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1742366108408,
+      "tag": "0043_slim_crystal",
+      "breakpoints": true
     }
   ]
 }

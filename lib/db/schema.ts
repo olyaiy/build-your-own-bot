@@ -299,21 +299,6 @@ export const message = pgTable("Message_v2", {
 
 export type DBMessage = InferSelectModel<typeof message>;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const tools = pgTable("tools", {
   id: uuid("id").defaultRandom().primaryKey(),
   tool_display_name: varchar("tool_display_name", { length: 255 }).notNull(),
@@ -383,7 +368,7 @@ export const userTransactions = pgTable('user_transactions', {
   amount: numeric('amount', { precision: 19, scale: 9 }).notNull(),
   type: transactionTypeEnum('type').notNull(),
   description: text('description'),
-  messageId: uuid('message_id').references(() => messageDeprecated.id, { onDelete: 'set null' }),
+  messageId: uuid('message_id').references(() => message.id, { onDelete: 'set null' }),
   modelId: uuid('model_id').references(() => models.id, { onDelete: 'set null' }),
   agentId: uuid('agent_id').references(() => agents.id),
   tokenAmount: integer('token_amount'),

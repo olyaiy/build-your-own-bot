@@ -8,6 +8,8 @@ import { searchTool } from './search';
 import { Session } from 'next-auth';
 import { DataStreamWriter, Message } from 'ai';
 import { createImage } from './generate-image';
+import { generateLogo } from './generate-logo';
+
 interface ToolRegistryProps {
   session?: Session;
   dataStream?: DataStreamWriter;
@@ -21,4 +23,5 @@ export const toolRegistry = ({ session, dataStream }: ToolRegistryProps = {}) =>
   retrieveTool,
   searchTool,
   createImage,
+  createLogo: generateLogo,
 });

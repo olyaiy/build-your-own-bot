@@ -129,17 +129,23 @@ export async function POST(request: Request) {
       /* -------- TOOLS SET UP -------- */
         // Fetch the tool groups for this agent
         const agentToolGroups = await getToolGroupsByAgentId(agentId);
+        console.log('🔍 AGENT TOOL GROUPS:', JSON.stringify(agentToolGroups, null, 2));
+
         // Get all the tools from the agent's tool groups
         const toolsPromises = agentToolGroups.map(toolGroup => 
           getToolsByToolGroupId(toolGroup.id)
         );
         const toolsResults = await Promise.all(toolsPromises);
+        console.log('🔧 TOOLS FROM GROUPS:', JSON.stringify(toolsResults, null, 2));
+
         // Flatten and get unique tool names
         const availableToolNames = [...new Set(
           toolsResults
             .flat()
             .map(tool => tool.tool)
         )];
+        console.log('🛠️ AVAILABLE TOOL NAMES:', availableToolNames);
+
         // Create tools object with the appropriate tools
         const registry = toolRegistry({ 
           session, 
@@ -158,12 +164,13 @@ export async function POST(request: Request) {
           }
 
           
-          if (toolName in registry && registry[toolName as keyof typeof registry]) {
+          if (registry[toolName as keyof typeof registry]) {
             tools[toolName] = registry[toolName as keyof typeof registry];
           }
         }
         // Get the list of tool names that are actually available
         const activeToolNames = Object.keys(tools);
+        console.log('🔍 ACTIVE TOOL NAMES:', activeToolNames);
 
 
      
