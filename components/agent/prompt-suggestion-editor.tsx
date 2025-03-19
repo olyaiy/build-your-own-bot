@@ -237,7 +237,7 @@ export function PromptSuggestionEditor({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="left">
-              <p>Generate AI-powered prompt suggestions based on your agent's description</p>
+              <p>Generate AI-powered prompt suggestions based on your agent&apos;s description</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -245,7 +245,7 @@ export function PromptSuggestionEditor({
 
       {isLoading ? (
         <div className="flex items-center justify-center h-32">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <Loader2 className="size-6 animate-spin text-muted-foreground" />
         </div>
       ) : (
         <div className="space-y-5">
@@ -266,9 +266,9 @@ export function PromptSuggestionEditor({
                   variant="ghost"
                   size="icon"
                   onClick={() => handleRemovePrompt(index)}
-                  className="h-10 w-10 rounded-full hover:bg-destructive/10 hover:text-destructive"
+                  className="size-10 rounded-full hover:bg-destructive/10 hover:text-destructive"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="size-4" />
                 </Button>
               </div>
             ))}
@@ -284,7 +284,7 @@ export function PromptSuggestionEditor({
                 disabled={prompts.length >= 4}
                 className="flex items-center gap-1"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="size-4" />
                 <span>Add Prompt</span>
               </Button>
               
@@ -304,7 +304,7 @@ export function PromptSuggestionEditor({
               >
                 {isSaving ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 size-4 animate-spin" />
                     Saving...
                   </>
                 ) : "Save Prompts"}
