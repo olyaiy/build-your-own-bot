@@ -85,7 +85,7 @@ const LogoGenerationSection = ({ tool }: LogoGenerationSectionProps = {}) => {
           </div>
         )}
 
-        <div className="w-full">
+        <div className="w-full relative">
           {isGenerating ? (
             <div className="relative aspect-square w-full max-w-[400px] mx-auto rounded-md overflow-hidden border border-border">
               <div className="absolute inset-0 flex items-center justify-center bg-muted">
@@ -100,7 +100,7 @@ const LogoGenerationSection = ({ tool }: LogoGenerationSectionProps = {}) => {
             </div>
           ) : logoUrl ? (
             <div 
-              className="relative aspect-square w-full max-w-[400px] mx-auto rounded-md overflow-hidden border border-border"
+              className="relative h-full min-h-[400px] w-full max-w-[400px] mx-auto rounded-md overflow-hidden border border-border"
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
             >
@@ -122,7 +122,7 @@ const LogoGenerationSection = ({ tool }: LogoGenerationSectionProps = {}) => {
               )}
             </div>
           ) : (
-            <div className="relative aspect-square w-full max-w-[400px] mx-auto rounded-md overflow-hidden border border-border">
+            <div className="relative  w-full max-w-[400px] mx-auto rounded-md overflow-hidden border border-border">
               <div className="absolute inset-0 flex items-center justify-center bg-muted">
                 <p className="text-sm text-muted-foreground">No logo available</p>
               </div>
