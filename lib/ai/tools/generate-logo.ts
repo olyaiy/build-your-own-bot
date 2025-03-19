@@ -29,7 +29,7 @@ export const generateLogo = tool({
         input: {
           prompt,
           aspect_ratio: aspectRatio,
-          expand_prompt: false,
+          expand_prompt: expandPrompt,
           style: style
         },
         logs: true,

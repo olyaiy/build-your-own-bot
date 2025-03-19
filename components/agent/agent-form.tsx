@@ -252,9 +252,10 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-10  mx-auto  overflow-hidden">
-      <Card className="shadow-sm">
-        <CardHeader className="pb-6 flex flex-row justify-between items-center">
+    <form onSubmit={handleSubmit} className="space-y-8 mx-auto overflow-hidden">
+      {/* Main Card - Basic Info */}
+      <Card className="shadow-sm border-2">
+        <CardHeader className="pb-6 flex flex-row justify-between items-center border-b">
           <div>
             <CardTitle className="text-2xl font-bold">
               {mode === 'create' ? 'Create New Agent' : 'Edit Agent'}
@@ -316,7 +317,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-8">
+        <CardContent className="space-y-8 pt-6">
           <div className="grid grid-cols-1 md:grid-cols-6 gap-8">
             {/* Image Upload Area with 4:3 aspect ratio - Now using child component */}
             <div className="col-span-1 md:col-span-2">
@@ -330,7 +331,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
             {/* Right Column - Basic Information - Improved layout */}
             <div className="col-span-1 md:col-span-4 space-y-6">
               {/* Basic Agent Details */}
-              <div>
+              <div className="bg-slate-50 dark:bg-slate-900/40 p-5 rounded-lg border">
                 <h3 className="text-lg font-medium mb-4">Basic Information</h3>
                 <div className="grid grid-cols-1 gap-6">
                   <div>
@@ -387,7 +388,7 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
               </div>
 
               {/* Appearance Settings */}
-              <div>
+              <div className="bg-slate-50 dark:bg-slate-900/40 p-5 rounded-lg border">
                 <h3 className="text-lg font-medium mb-4">Appearance</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
@@ -419,258 +420,296 @@ export default function AgentForm({ mode, userId, models, toolGroups, tags, init
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          <Separator className="my-8" />
+      {/* AI Models Section */}
+      <Card className="shadow-sm border-2">
+        <CardHeader className="pb-4 border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <CardTitle className="text-lg font-semibold">AI Models</CardTitle>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <AlertCircle className="size-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[300px]">
+                    <p>Select the AI models that will power your agent. The primary model will be used by default, with alternates available as fallbacks.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <Badge variant="outline" className="text-xs bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900">
+              Required
+            </Badge>
+          </div>
+          <CardDescription>
+            Choose the primary model and optional alternate models for your agent
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <ModelSelectorSection
+            models={models}
+            primaryModelId={primaryModelId}
+            alternateModelIds={alternateModelIds}
+            onPrimaryModelChange={setPrimaryModelId}
+            onAlternateModelsChange={setAlternateModelIds}
+          />
+        </CardContent>
+      </Card>
 
-          {/* Models Section - Using the new component with improved header */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <h3 className="text-lg font-semibold">AI Models</h3>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <AlertCircle className="size-4 text-gray-400" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[300px]">
-                      <p>Select the AI models that will power your agent. The primary model will be used by default, with alternates available as fallbacks.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <Badge variant="outline" className="text-xs bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900">
-                Required
+      {/* Tool Groups Section */}
+      <Card className="shadow-sm border-2">
+        <CardHeader className="pb-4 border-b">
+          <CardTitle className="text-lg font-semibold">Tool Groups</CardTitle>
+          <CardDescription>
+            Enable specific tools and capabilities for your agent
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <ToolGroupSelector
+            toolGroups={toolGroups}
+            selectedToolGroupIds={selectedToolGroupIds}
+            onChange={setSelectedToolGroupIds}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Tags Section */}
+      <Card className="shadow-sm border-2">
+        <CardHeader className="pb-4 border-b">
+          <CardTitle className="text-lg font-semibold">Tags</CardTitle>
+          <CardDescription>
+            Add tags to help users discover your agent
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap gap-2 mb-4">
+            {selectedTags.map(tag => (
+              <Badge 
+                key={tag.id} 
+                variant="secondary"
+                className="flex items-center gap-1 px-3 py-1.5 text-sm"
+              >
+                {tag.name}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTag(tag.id)}
+                  className="ml-1 rounded-full outline-none hover:text-red-500 focus:ring-2 focus:ring-primary"
+                >
+                  <X className="size-3.5" />
+                </button>
               </Badge>
-            </div>
-            <ModelSelectorSection
-              models={models}
-              primaryModelId={primaryModelId}
-              alternateModelIds={alternateModelIds}
-              onPrimaryModelChange={setPrimaryModelId}
-              onAlternateModelsChange={setAlternateModelIds}
-            />
+            ))}
           </div>
-
-          {/* Tool Groups */}
-          <div className="mb-6">
-            <ToolGroupSelector
-              toolGroups={toolGroups}
-              selectedToolGroupIds={selectedToolGroupIds}
-              onChange={setSelectedToolGroupIds}
-            />
-          </div>
-
-          {/* Tags Selector */}
-          <div className="mb-6">
-            <div className="flex flex-col space-y-2">
-              <Label htmlFor="tags" className="text-base font-semibold">
-                Tags
-              </Label>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {selectedTags.map(tag => (
-                  <Badge 
-                    key={tag.id} 
-                    variant="secondary"
-                    className="flex items-center gap-1 px-3 py-1.5 text-sm"
-                  >
-                    {tag.name}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag.id)}
-                      className="ml-1 rounded-full outline-none hover:text-red-500 focus:ring-2 focus:ring-primary"
-                    >
-                      <X className="size-3.5" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-              <Popover open={tagPopoverOpen} onOpenChange={setTagPopoverOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    type="button"
-                    aria-expanded={tagPopoverOpen}
-                    className="justify-between w-full bg-background"
-                  >
-                    <span>Add tags...</span>
-                    <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0" align="start">
-                  <Command>
-                    <CommandInput 
-                      placeholder="Search or create tags..." 
-                      value={newTagInput}
-                      onValueChange={handleTagInputChange}
-                    />
-                    <CommandList>
-                      <CommandEmpty>
-                        {newTagInput.trim() !== "" && (
-                          <CommandItem
-                            value={`create-${newTagInput}`}
-                            className="flex items-center gap-2 cursor-pointer"
-                            onSelect={handleAddNewTag}
-                          >
-                            <PlusCircle className="size-4" />
-                            <span>Create &quot;{newTagInput}&quot;</span>
-                          </CommandItem>
-                        )}
-                        {newTagInput.trim() === "" && (
-                          <p className="py-3 px-4 text-sm text-muted-foreground">
-                            No tags found. Type to create a new tag.
-                          </p>
-                        )}
-                      </CommandEmpty>
-                      <CommandGroup heading="Available Tags">
-                        {tags
-                          .filter(tag => 
-                            tag.name.toLowerCase().includes(newTagInput.toLowerCase()) &&
-                            !selectedTags.some(selected => selected.id === tag.id)
-                          )
-                          .map(tag => (
-                            <CommandItem
-                              key={tag.id}
-                              value={tag.name}
-                              onSelect={() => handleSelectTag(tag)}
-                              className="flex items-center justify-between cursor-pointer"
-                            >
-                              <span>{tag.name}</span>
-                              <Check
-                                className={`size-4 ${
-                                  selectedTags.some(selected => selected.id === tag.id)
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                }`}
-                              />
-                            </CommandItem>
-                          ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <p className="text-sm text-muted-foreground">
-                Tags help users find your agent. You can add existing tags or create new ones.
-              </p>
-            </div>
-          </div>
-
-          {/* System Prompt Section - Improved with better guidance */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <h3 className="text-lg font-semibold">System Prompt</h3>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <AlertCircle className="size-4 text-gray-400" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[300px]">
-                      <p>The system prompt defines how your agent behaves. Be specific about its role, knowledge, and preferred response style.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <Badge variant="outline" className="text-xs bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900">
-                Required
-              </Badge>
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Label htmlFor="systemPrompt" className="text-sm font-medium">
-                  Instructions for your agent
-                </Label>
-              </div>
-              <div className="relative">
-                <Textarea
-                  id="systemPrompt"
-                  name="systemPrompt"
-                  placeholder={mode === "create" 
-                    ? "e.g. You are a friendly assistant! Keep your responses concise and helpful." 
-                    : "Enter system prompt"}
-                  className="min-h-[180px] max-h-[75vh] overflow-y-auto font-mono text-sm leading-relaxed pr-4"
-                  required
-                  defaultValue={initialData?.systemPrompt}
-                  ref={systemPromptRef}
-                  onInput={() => adjustSystemPromptHeight()}
-                  onChange={(e) => handleFormValueChange('systemPrompt', e.target.value)}
+          <Popover open={tagPopoverOpen} onOpenChange={setTagPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                type="button"
+                aria-expanded={tagPopoverOpen}
+                className="justify-between w-full bg-background"
+              >
+                <span>Add tags...</span>
+                <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0" align="start">
+              <Command>
+                <CommandInput 
+                  placeholder="Search or create tags..." 
+                  value={newTagInput}
+                  onValueChange={handleTagInputChange}
                 />
-                <div className="absolute bottom-3 right-3">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="p-1.5 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer">
-                          <AlertCircle className="size-4 text-gray-500" />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-[300px]">
-                        <p className="font-medium mb-1">Tips for effective system prompts:</p>
-                        <ul className="text-xs space-y-1 list-disc pl-4">
-                          <li>Define the agent&apos;s role clearly (e.g., &quot;You are a math tutor&quot;)</li>
-                          <li>Specify tone and style (formal, casual, technical)</li>
-                          <li>Set response length preferences (concise, detailed)</li>
-                          <li>Include any domain-specific knowledge</li>
-                          <li>Define how to handle uncertain questions</li>
-                        </ul>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-              <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 p-2 rounded border border-gray-100 dark:border-gray-800">
-                <span className="flex items-center gap-1">
-                  <InfoIcon className="size-3.5" />
-                  This prompt is invisible to users but guides how your agent responds
-                </span>
+                <CommandList>
+                  <CommandEmpty>
+                    {newTagInput.trim() !== "" && (
+                      <CommandItem
+                        value={`create-${newTagInput}`}
+                        className="flex items-center gap-2 cursor-pointer"
+                        onSelect={handleAddNewTag}
+                      >
+                        <PlusCircle className="size-4" />
+                        <span>Create &quot;{newTagInput}&quot;</span>
+                      </CommandItem>
+                    )}
+                    {newTagInput.trim() === "" && (
+                      <p className="py-3 px-4 text-sm text-muted-foreground">
+                        No tags found. Type to create a new tag.
+                      </p>
+                    )}
+                  </CommandEmpty>
+                  <CommandGroup heading="Available Tags">
+                    {tags
+                      .filter(tag => 
+                        tag.name.toLowerCase().includes(newTagInput.toLowerCase()) &&
+                        !selectedTags.some(selected => selected.id === tag.id)
+                      )
+                      .map(tag => (
+                        <CommandItem
+                          key={tag.id}
+                          value={tag.name}
+                          onSelect={() => handleSelectTag(tag)}
+                          className="flex items-center justify-between cursor-pointer"
+                        >
+                          <span>{tag.name}</span>
+                          <Check
+                            className={`size-4 ${
+                              selectedTags.some(selected => selected.id === tag.id)
+                                ? "opacity-100"
+                                : "opacity-0"
+                            }`}
+                          />
+                        </CommandItem>
+                      ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <p className="text-sm text-muted-foreground mt-3">
+            Tags help users find your agent. You can add existing tags or create new ones.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* System Prompt Section */}
+      <Card className="shadow-sm border-2">
+        <CardHeader className="pb-4 border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <CardTitle className="text-lg font-semibold">System Prompt</CardTitle>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <AlertCircle className="size-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[300px]">
+                    <p>The system prompt defines how your agent behaves. Be specific about its role, knowledge, and preferred response style.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <Badge variant="outline" className="text-xs bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900">
+              Required
+            </Badge>
+          </div>
+          <CardDescription>
+            Define how your agent should behave and respond
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="systemPrompt" className="text-sm font-medium">
+                Instructions for your agent
+              </Label>
+            </div>
+            <div className="relative">
+              <Textarea
+                id="systemPrompt"
+                name="systemPrompt"
+                placeholder={mode === "create" 
+                  ? "e.g. You are a friendly assistant! Keep your responses concise and helpful." 
+                  : "Enter system prompt"}
+                className="min-h-[180px] max-h-[75vh] overflow-y-auto font-mono text-sm leading-relaxed pr-4"
+                required
+                defaultValue={initialData?.systemPrompt}
+                ref={systemPromptRef}
+                onInput={() => adjustSystemPromptHeight()}
+                onChange={(e) => handleFormValueChange('systemPrompt', e.target.value)}
+              />
+              <div className="absolute bottom-3 right-3">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="p-1.5 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer">
+                        <AlertCircle className="size-4 text-gray-500" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-[300px]">
+                      <p className="font-medium mb-1">Tips for effective system prompts:</p>
+                      <ul className="text-xs space-y-1 list-disc pl-4">
+                        <li>Define the agent&apos;s role clearly (e.g., &quot;You are a math tutor&quot;)</li>
+                        <li>Specify tone and style (formal, casual, technical)</li>
+                        <li>Set response length preferences (concise, detailed)</li>
+                        <li>Include any domain-specific knowledge</li>
+                        <li>Define how to handle uncertain questions</li>
+                      </ul>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
-          </div>
-
-          {/* Customization Section */}
-          <div className="space-y-5">
-            <h3 className="text-lg font-semibold">Customize Welcome Screen</h3>
-            <OverviewEditor 
-              overview={overviewCustomization} 
-              onChange={setOverviewCustomization} 
-            />
-          </div>
-
-          <Separator className="my-8" />
-
-          {/* Prompt Suggestions Section */}
-          <div className="pt-2">
-            <PromptSuggestionEditor
-              agentId={initialData?.id}
-              onChange={setSuggestedPrompts}
-              formValues={formValues}
-            />
+            <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 p-2 rounded border border-gray-100 dark:border-gray-800">
+              <span className="flex items-center gap-1">
+                <InfoIcon className="size-3.5" />
+                This prompt is invisible to users but guides how your agent responds
+              </span>
+            </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between border-t pt-6">
-          <Button 
-            type="button" 
-            variant="outline"
-            onClick={() => router.push('/')}
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={isPending || !primaryModelId}
-            className="min-w-[120px]"
-          >
-            {isPending ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
-                {mode === 'create' ? 'Creating...' : 'Updating...'}
-              </>
-            ) : (
-              <>{mode === 'create' ? 'Create' : 'Update'} Agent</>
-            )}
-          </Button>
-        </CardFooter>
       </Card>
+
+      {/* Welcome Screen Customization */}
+      <Card className="shadow-sm border-2">
+        <CardHeader className="pb-4 border-b">
+          <CardTitle className="text-lg font-semibold">Customize Welcome Screen</CardTitle>
+          <CardDescription>
+            Personalize what users see when they first interact with your agent
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <OverviewEditor 
+            overview={overviewCustomization} 
+            onChange={setOverviewCustomization} 
+          />
+        </CardContent>
+      </Card>
+
+      {/* Prompt Suggestions */}
+      <Card className="shadow-sm border-2">
+        <CardHeader className="pb-4 border-b">
+          <CardTitle className="text-lg font-semibold">Prompt Suggestions</CardTitle>
+          <CardDescription>
+            Add example prompts to help users get started with your agent
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <PromptSuggestionEditor
+            agentId={initialData?.id}
+            onChange={setSuggestedPrompts}
+            formValues={formValues}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Form Footer */}
+      <div className="flex justify-between bg-slate-50 dark:bg-slate-900/40 p-5 rounded-lg border">
+        <Button 
+          type="button" 
+          variant="outline"
+          onClick={() => router.push('/')}
+        >
+          Cancel
+        </Button>
+        <Button 
+          type="submit" 
+          disabled={isPending || !primaryModelId}
+          className="min-w-[120px]"
+        >
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 size-4 animate-spin" />
+              {mode === 'create' ? 'Creating...' : 'Updating...'}
+            </>
+          ) : (
+            <>{mode === 'create' ? 'Create' : 'Update'} Agent</>
+          )}
+        </Button>
+      </div>
       <input type="hidden" name="userId" value={userId || ''} />
     </form>
   );
