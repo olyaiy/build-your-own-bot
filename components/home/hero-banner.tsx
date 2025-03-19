@@ -33,26 +33,26 @@ export function HeroBanner() {
 
   return (
     // Main container with gradient background
-    <div className="w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-xl mb-8 overflow-hidden">
-      <div className="container px-4 py-6 mx-auto">
+    <div className="w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-lg sm:rounded-xl mb-6 sm:mb-8 overflow-hidden">
+      <div className="container px-3 sm:px-4 py-5 sm:py-8 mx-auto">
         {/* Responsive grid layout: 1 column on mobile, 12 columns on desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center">
           {/* Left content section - spans 7 columns on desktop */}
-          <div className="md:col-span-7 space-y-4">
+          <div className="md:col-span-7 space-y-3 sm:space-y-4">
             {/* Main heading with accent text */}
-            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">
-              Level The <span className="relative text-green-300 italic">
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
+              Level The <span className="relative text-blue-400 italic">
                 Earning
-                <span className="absolute -bottom-0 left-0 w-full h-1 bg-green-300/20 rounded-full"></span>
+                <span className="absolute -bottom-0 left-0 w-full h-1 bg-blue-400/20 rounded-full"></span>
               </span>&nbsp;Field 
-              <span className="text-blue-400 block mt-1 text-xl sm:text-2xl font-medium">Find niche AI agents or create + monitize your own</span>
+              <span className="text-blue-400 block mt-2 text-2xl sm:text-2xl font-medium">Find niche AI agents or create + monetize your own</span>
             </h1>
             
             {/* Value propositions section */}
-            <div className="space-y-3">
+            <div className="space-y-3 py-2">
               {/* Creator value proposition */}
-              <div className="flex items-start gap-3">
-                <div className="bg-blue-500/20 p-1.5 rounded-full">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="bg-blue-500/20 p-1.5 rounded-full flex-shrink-0">
                   <div className="w-5 h-5 flex items-center justify-center text-blue-400 font-semibold text-sm">1</div>
                 </div>
                 <div>
@@ -62,8 +62,8 @@ export function HeroBanner() {
               </div>
               
               {/* User value proposition */}
-              <div className="flex items-start gap-3">
-                <div className="bg-purple-500/20 p-1.5 rounded-full">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="bg-purple-500/20 p-1.5 rounded-full flex-shrink-0">
                   <div className="w-5 h-5 flex items-center justify-center text-purple-400 font-semibold text-sm">2</div>
                 </div>
                 <div>
@@ -73,8 +73,8 @@ export function HeroBanner() {
               </div>
               
               {/* Community value proposition */}
-              <div className="flex items-start gap-3">
-                <div className="bg-green-500/20 p-1.5 rounded-full">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="bg-green-500/20 p-1.5 rounded-full flex-shrink-0">
                   <div className="w-5 h-5 flex items-center justify-center text-green-400 font-semibold text-sm">3</div>
                 </div>
                 <div>
@@ -85,9 +85,9 @@ export function HeroBanner() {
             </div>
             
             {/* Call-to-action buttons */}
-            <div className="flex gap-3 pt-1">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-2">
               {/* Primary CTA - Create Agent */}
-              <Button asChild className="group h-9" size="sm">
+              <Button asChild className="group h-10 sm:h-9 w-full sm:w-auto" size="sm">
                 <Link href="/agents/create">
                   Create Your Agent
                   <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
@@ -95,7 +95,7 @@ export function HeroBanner() {
               </Button>
               
               {/* Secondary CTA - Browse Agents with smooth scroll */}
-              <Button onClick={scrollToAgents} className="group h-9" size="sm" variant="outline">
+              <Button onClick={scrollToAgents} className="group h-10 sm:h-9 w-full sm:w-auto" size="sm" variant="outline">
                 Browse Agents
                 <Search className="ml-1.5 h-3.5 w-3.5" />
               </Button>
