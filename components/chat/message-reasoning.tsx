@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDownIcon, LoaderIcon } from '@/components/util/icons';
+import { ChevronDownIcon } from '@/components/util/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Markdown } from '@/components/util/markdown';
 import { cn } from '@/lib/utils';
@@ -40,8 +40,46 @@ export function MessageReasoning({
       {isLoading ? (
         <div className="flex flex-row gap-2 items-center">
           <div className="font-medium">Reasoning</div>
-          <div className="animate-spin">
-            <LoaderIcon />
+          <div className="flex gap-1 items-center">
+            <motion.div
+              className="size-1.5 rounded-full bg-primary"
+              animate={{
+                scale: [0.5, 1, 0.5],
+                opacity: [0.3, 1, 0.3]
+              }}
+              transition={{
+                duration: 0.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0
+              }}
+            />
+            <motion.div
+              className="size-1.5 rounded-full bg-primary"
+              animate={{
+                scale: [0.5, 1, 0.5],
+                opacity: [0.3, 1, 0.3]
+              }}
+              transition={{
+                duration: 0.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.15
+              }}
+            />
+            <motion.div
+              className="size-1.5 rounded-full bg-primary"
+              animate={{
+                scale: [0.5, 1, 0.5],
+                opacity: [0.3, 1, 0.3]
+              }}
+              transition={{
+                duration: 0.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.3
+              }}
+            />
           </div>
         </div>
       ) : (
