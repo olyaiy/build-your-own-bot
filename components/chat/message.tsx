@@ -146,6 +146,20 @@ const PurePreviewMessage = ({
                 );
               }
 
+              if (type === 'file' && part.mimeType?.startsWith('image/')) {
+                return (
+                  <Image
+                    key={key}
+                    src={`data:${part.mimeType};base64,${part.data}`}
+                    alt="Generated image"
+                    width={512}
+                    height={512}
+                    className="rounded-lg"
+                    unoptimized
+                  />
+                );
+              }
+
               if (type === 'text') {
                 if (mode === 'view') {
                   return (

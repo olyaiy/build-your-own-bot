@@ -180,11 +180,11 @@ export async function POST(request: Request) {
         // Model
           model: myProvider.languageModel(selectedChatModel),
         // System Prompt
-          system: systemPrompt({ 
-            selectedChatModel, 
-            agentSystemPrompt,
-            hasSearchTool: activeToolNames.includes('searchTool')
-          }),
+          // system: systemPrompt({ 
+          //   selectedChatModel, 
+          //   agentSystemPrompt,
+          //   hasSearchTool: activeToolNames.includes('searchTool')
+          // }),
         // Messages
           messages,
         // Max Steps
@@ -210,65 +210,11 @@ export async function POST(request: Request) {
         toolCallStreaming: true,
 
         
-
-        // onStepFinish: async ({ stepType, response, reasoning, usage }) => {
-        //   // Increment step counter for each step
-        //   stepCounter++;
-
-        //   if (session.user?.id) {
-        //     try {
-        //       const sanitizedResponseMessages = sanitizeResponseMessages({
-        //         messages: response.messages,
-        //         reasoning,
-        //       });
-              
-        //       // Filter out messages that already exist in accumulatedMessages
-        //       const newMessages = sanitizedResponseMessages.filter(msg => 
-        //         !accumulatedMessages.some(existingMsg => existingMsg.id === msg.id)
-        //       );
-              
-        //       if (newMessages.length < sanitizedResponseMessages.length) {
-        //         // Filtered out duplicate messages
-        //       }
-              
-        //       accumulatedMessages.push(...newMessages.map((message) => {
-        //         return {
-        //           id: message.id,
-        //           chatId: id,
-        //           role: message.role,
-        //           content: message.content,
-        //           createdAt: new Date(),
-        //           model_id: selectedModelId
-        //         };
-        //       }));
-            
-        //     } catch (error) {
-        //       // Failed to save chat TEMPORARILY
-        //     }
-        //   }
-
-        //   // Update running tally if usage is available
-        //   if (usage) {
-        //     runningTally.promptTokens += usage.promptTokens || 0;
-        //     runningTally.completionTokens += usage.completionTokens || 0;
-        //     runningTally.totalTokens += usage.totalTokens || 0;
-        //   }
-
-        //   // if (stepCounter === 3) {
-        //   //   await new Promise(resolve => setTimeout(resolve, 2000));
-        //   //   throw new Error('This is a test error on step 4');
-        //   // }
-        // },
-
         /* ---- ON FINISH ---- */
         onFinish: async ({ response, reasoning, usage }) => {
           // Save the messages
           if (session.user?.id) {
             try {
-              // const sanitizedResponseMessages = sanitizeResponseMessages({
-              //   messages: response.messages,
-              //   reasoning,
-              // });
 
               const assistantId = getTrailingMessageId({
                 messages: response.messages.filter(
@@ -289,7 +235,6 @@ export async function POST(request: Request) {
               await saveMessages({
                 messages: [
                   {
-
                     id: assistantId,
                     chatId: id,
                     role: assistantMessage.role,
