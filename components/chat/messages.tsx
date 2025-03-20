@@ -4,7 +4,7 @@ import { useScrollToBottom } from '@/components/hooks/use-scroll-to-bottom';
 import { useMemo, memo} from 'react';
 import equal from 'fast-deep-equal';
 import type { Agent } from '@/lib/db/schema';
-import { UseChatHelpers } from 'ai/react';
+import { UseChatHelpers } from '@ai-sdk/react';
 
 /**
  * Interface defining the props for the Messages component

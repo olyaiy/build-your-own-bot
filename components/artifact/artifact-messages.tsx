@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { UIArtifact } from './artifact';
 import { PreviewMessage } from '../chat/message';
 import { useScrollToBottom } from '../hooks/use-scroll-to-bottom';
-import { UseChatHelpers } from 'ai/react';
+import { UseChatHelpers } from '@ai-sdk/react';
 
 interface ArtifactMessagesProps {
   chatId: string;

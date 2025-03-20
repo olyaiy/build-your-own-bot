@@ -1,5 +1,5 @@
 import { Suggestion } from '@/lib/db/schema';
-import { UseChatHelpers } from 'ai/react';
+import { UseChatHelpers } from '@ai-sdk/react';
 import { ComponentType, Dispatch, ReactNode, SetStateAction } from 'react';
 import { DataStreamDelta } from '@/components/util/data-stream-handler';
 import { UIArtifact } from '@/components/artifact/artifact';

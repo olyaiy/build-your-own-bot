@@ -41,6 +41,9 @@ importers:
       '@ai-sdk/perplexity':
         specifier: ^1.0.4
         version: 1.0.9(zod@3.24.2)
+      '@ai-sdk/react':
+        specifier: ^1.1.25
+        version: 1.1.25(react@19.0.0-rc-45804af1-20241021)(zod@3.24.2)
       '@aws-sdk/client-s3':
         specifier: ^3.750.0
         version: 3.772.0

@@ -27,7 +27,7 @@ import equal from 'fast-deep-equal';
 import { MultimodalInput } from '../chat/multimodal-input';
 import { VersionFooter } from '../layout/version-footer';
 import { Toolbar } from '../util/toolbar';
-import { UseChatHelpers } from 'ai/react';
+import { UseChatHelpers } from '@ai-sdk/react';
 
 export const artifactDefinitions = [
   textArtifact,

@@ -22,7 +22,7 @@ import { MessageReasoning } from '@/components/chat/message-reasoning';
 import { PreviewAttachment } from '../util/preview-attachment';
 import { ToolSection } from '../agent/tool-section';
 import { CopyButton } from '@/components/util/copy-button';
-import { UseChatHelpers } from 'ai/react';
+import { UseChatHelpers } from '@ai-sdk/react';
 
 const ToolInvocationItem = memo(({ 
   toolInvocation, 

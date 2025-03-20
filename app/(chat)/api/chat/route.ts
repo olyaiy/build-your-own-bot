@@ -54,6 +54,17 @@ export async function POST(request: Request) {
 console.log('THE MESSAGES SENT TO THE MODEL ARE')
 console.log(messages)
 
+// Set content to empty string for all messages
+// const messagesWithEmptyContent = messages.map(msg => ({
+//   ...msg,
+//   content: ''
+// }));
+
+// console.log('MESSAGES WITH EMPTY CONTENT ARE')
+// console.log(messagesWithEmptyContent)
+
+
+
   // Get the session
   const session = await auth();
 

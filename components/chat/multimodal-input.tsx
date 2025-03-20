@@ -36,7 +36,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { PreviewAttachment } from '../util/preview-attachment';
 import { checkAgentHasSearchTool } from '@/lib/db/actions';
-import { UseChatHelpers } from 'ai/react';
+import { UseChatHelpers } from '@ai-sdk/react';
 
 function PureMultimodalInput({
   chatId,
@@ -142,6 +142,8 @@ function PureMultimodalInput({
   const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
 
   const submitForm = useCallback(() => {
+
+  
 
     if (isAuthenticated) {
       window.history.replaceState({}, '', `/${agentId}/${chatId}`);
