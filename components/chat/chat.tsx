@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react';
 import { useSWRConfig } from 'swr';
 import type { Agent } from '@/lib/db/schema';
 import { useLocalStorage } from 'usehooks-ts';
-
 import { ChatHeader } from '@/components/chat/chat-header';
 import { generateUUID } from '@/lib/utils';
 import { MultimodalInput } from '@/components/chat/multimodal-input';
@@ -102,16 +101,10 @@ export function Chat({
         errorMessage.includes('Unauthorized') || 
         (error instanceof Error && error.message.includes('Unauthorized'))
       ) {
-        console.log('UNAUTHORIZED ERROR');
-        console.log('INPUT:', input);
-        console.log('ATTACHMENTS:', attachments);
-        console.log('MESSAGES:', messages);
-        console.log('CHAT ID:', id);
-        console.log('AGENT ID:', agent.id);
+
 
         // Save input to localStorage before showing auth popup
         if (input && input.trim() !== '' && input.trim().length > 1) {
-          console.log('Saving input to localStorage FROM CHAT.TSX:', input);
           localStorage.setItem('input', JSON.stringify(input));
         }
 
@@ -119,7 +112,6 @@ export function Chat({
         setIsAuthPopupOpen(true);
       } else {
         // Show regular error toast for other errors
-        console.log('Error:', errorMessage);
         toast.error(errorMessage);
       }
     },

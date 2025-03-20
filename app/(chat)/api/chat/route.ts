@@ -50,6 +50,10 @@ export async function POST(request: Request) {
     searchEnabled?: boolean;
   } = await request.json();
   
+// console logging messages
+console.log('THE MESSAGES SENT TO THE MODEL ARE')
+console.log(messages)
+
   // Get the session
   const session = await auth();
 
@@ -84,8 +88,6 @@ export async function POST(request: Request) {
       return new Response('Failed to create chat', { status: 500 });
     }
   }
-
-
   
   // THEN save messages 
   await saveMessages({
@@ -167,6 +169,7 @@ export async function POST(request: Request) {
         }
         // Get the list of tool names that are actually available
         const activeToolNames = Object.keys(tools);
+
 
 
      
@@ -262,6 +265,8 @@ export async function POST(request: Request) {
             }
                   
             } catch (error) {
+              console.log('failed to save chat')
+              console.log(error)
               // Failed to save chat
             }
           }

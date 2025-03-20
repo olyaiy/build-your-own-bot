@@ -80,8 +80,11 @@ export const retrieveTool = tool({
     } 
 
     if (!results) {
-      console.log("🚨🚨🚨 MASSIVE ERROR IN TOOL CALL ------------------------")
-      return "ERROR IN TOOL CALL"
+      return {
+        results: [],
+        images: [],
+        query: ''
+      }
     }
 
     return results

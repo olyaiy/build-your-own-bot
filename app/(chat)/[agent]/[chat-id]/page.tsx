@@ -70,6 +70,7 @@ export default async function Page(props: {
   const messagesFromDb = await getMessagesByChatId({ id: chatId });
 
   function convertToUIMessages(messages: Array<DBMessage>): Array<UIMessage> {
+  
     return messages.map((message) => ({
       id: message.id,
       parts: message.parts as UIMessage['parts'],
@@ -81,6 +82,7 @@ export default async function Page(props: {
         (message.attachments as Array<Attachment>) ?? [],
     }));
   }
+
 
   return (
     <>

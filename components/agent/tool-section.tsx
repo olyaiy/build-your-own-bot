@@ -51,9 +51,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
       case 'getWeather':
         return <ToolWrapper><Weather weatherAtLocation={result} /></ToolWrapper>;
       case 'createImage':
-        console.log('🔍 CREATE IMAGE TOOL CALLED INSIDE TOOL SECTION UI --------------------------------')
-        console.log('🌐 TOOL STATE:', state)
-        console.log('🔍 TOOL:', tool)
+ 
         return <ToolWrapper><ImageGenerationSection tool={tool} /></ToolWrapper>;
       case 'createLogo':
         return <ToolWrapper><LogoGenerationSection tool={tool} /></ToolWrapper>;

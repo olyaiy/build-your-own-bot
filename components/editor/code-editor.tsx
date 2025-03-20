@@ -105,7 +105,7 @@ function areEqual(prevProps: EditorProps, nextProps: EditorProps) {
   if (prevProps.isCurrentVersion !== nextProps.isCurrentVersion) return false;
   if (prevProps.status === 'streaming' && nextProps.status === 'streaming')
     return false;
-  if (prevProps.content !== nextProps.content) return false;
+  if (prevProps !== nextProps) return false;
 
   return true;
 }

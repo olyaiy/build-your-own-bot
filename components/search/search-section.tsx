@@ -53,10 +53,8 @@ export function SearchSection({
   )
 
 
-  // console.log('🔍 SEARCH TOOL CALLED INSIDE TOOL SECTION UI -------------------------------- WITH STATE:', state)
-  // console.log('🔍 TOOL:', tool)
   
-console.log('THE STATE FOR THIS TOOL CALL OF', tool.toolName, 'IS:', state)
+
   return (
     <CollapsibleMessage
       role="assistant"

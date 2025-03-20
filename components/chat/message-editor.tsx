@@ -22,7 +22,7 @@ export function MessageEditor({
   reload,
 }: MessageEditorProps) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  console.log('message', message);
+;
 
   const [draftContent, setDraftContent] = useState<string>(message.parts?.map((part) => {
     if ('text' in part) return part.text;

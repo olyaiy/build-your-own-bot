@@ -128,11 +128,6 @@ export function PromptSuggestionEditor({
         existingPrompts: validPrompts
       });
       
-      console.log('Generated Prompt Suggestions:', {
-        availableSlots,
-        existingPrompts: validPrompts,
-        newSuggestions: suggestions
-      });
 
       // Add new suggestions to existing prompts
       const newPrompts = [...prompts];

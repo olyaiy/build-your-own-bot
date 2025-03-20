@@ -147,6 +147,8 @@ export async function saveMessages({
     }));
 
 
+
+
     await db.insert(message).values(messagesToSave);
     
     // Return the messages with their generated IDs

@@ -132,7 +132,7 @@ const PurePreviewMessage = ({
               </div>
             )}
 
-{message.parts?.map((part, index) => {
+      {message.parts?.map((part, index) => {
               const { type } = part;
               const key = `message-${message.id}-part-${index}`;
 
@@ -277,7 +277,7 @@ export const PreviewMessage = memo(
     if (prevProps.agentImageUrl !== nextProps.agentImageUrl) return false;
     
     // Check content changes
-    if (prevProps.message.content !== nextProps.message.content) return false;
+    if (prevProps.message !== nextProps.message) return false;
     
     // Check tool invocations
     if (

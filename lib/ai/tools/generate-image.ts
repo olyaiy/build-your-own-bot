@@ -58,7 +58,7 @@ export const createImage = tool({
           
           // Create a direct URL to the R2 public bucket
           const publicUrl = `https://pub-8ddd283c539f458b8f9ee190cb5cbbdd.r2.dev/${filename}`;
-          console.log(`Uploaded image to R2: ${publicUrl}`);
+          
 
           results.push({
             url: publicUrl,

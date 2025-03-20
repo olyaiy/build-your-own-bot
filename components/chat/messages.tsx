@@ -145,7 +145,7 @@ export const Messages = memo(PureMessages, (prevProps: MessagesProps, nextProps:
     if (prevProps.status && nextProps.status) return false;
     // Re-render if messages are added or removed
     if (prevProps.messages.length !== nextProps.messages.length) return false;
-    // Deep comparison of messages to detect content changes
+    // Deep comparison of messages to detect  changes
     if (!equal(prevProps.messages, nextProps.messages)) return false;
     // Re-render if tool data changes
     if (!equal(prevProps.toolCallData, nextProps.toolCallData)) return false;
