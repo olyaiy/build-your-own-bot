@@ -87,6 +87,8 @@ export function Chat({
     generateId: generateUUID,
     onFinish: () => {
       mutate('/api/history');
+      console.log("THE MESSAGES AFTER ARE")
+      console.log( messages);
     },
     onError: (error) => {
       // Check for unauthorized error

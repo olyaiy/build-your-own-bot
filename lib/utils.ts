@@ -2,9 +2,6 @@ import type {
   CoreAssistantMessage,
   CoreToolMessage,
   Message,
-  TextStreamPart,
-  ToolInvocation,
-  ToolSet,
   UIMessage,
 } from 'ai';
 import { type ClassValue, clsx } from 'clsx';
@@ -59,39 +56,7 @@ export function generateUUID(): string {
   });
 }
 
-// ----- 1 ----- //
-function addToolMessageToChat({
-  toolMessage,
-  messages,
-}: {
-  toolMessage: CoreToolMessage;
-  messages: Array<Message>;
-}): Array<Message> {
-  return messages.map((message) => {
-    if (message.toolInvocations) {
-      return {
-        ...message,
-        toolInvocations: message.toolInvocations.map((toolInvocation) => {
-          const toolResult = toolMessage.content.find(
-            (tool) => tool.toolCallId === toolInvocation.toolCallId,
-          );
 
-          if (toolResult) {
-            return {
-              ...toolInvocation,
-              state: 'result',
-              result: toolResult.result,
-            };
-          }
-
-          return toolInvocation;
-        }),
-      };
-    }
-
-    return message;
-  });
-}
 
 
 

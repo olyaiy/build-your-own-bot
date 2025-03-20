@@ -1,5 +1,6 @@
 import {
-  type Message,UIMessage,
+  type 
+  UIMessage,
   appendResponseMessages,
   createDataStreamResponse,
   smoothStream,
@@ -50,20 +51,6 @@ export async function POST(request: Request) {
     searchEnabled?: boolean;
   } = await request.json();
   
-// console logging messages
-console.log('THE MESSAGES SENT TO THE MODEL ARE')
-console.log(messages)
-
-// Set content to empty string for all messages
-// const messagesWithEmptyContent = messages.map(msg => ({
-//   ...msg,
-//   content: ''
-// }));
-
-// console.log('MESSAGES WITH EMPTY CONTENT ARE')
-// console.log(messagesWithEmptyContent)
-
-
 
   // Get the session
   const session = await auth();
@@ -221,7 +208,7 @@ console.log(messages)
 
         
         /* ---- ON FINISH ---- */
-        onFinish: async ({ response, reasoning, usage }) => {
+        onFinish: async ({ response , usage }) => {
           // Save the messages
           if (session.user?.id) {
             try {

@@ -69,20 +69,20 @@ export default async function Page(props: {
 
   const messagesFromDb = await getMessagesByChatId({ id: chatId });
 
+
+
   function convertToUIMessages(messages: Array<DBMessage>): Array<UIMessage> {
-  
     return messages.map((message) => ({
       id: message.id,
       parts: message.parts as UIMessage['parts'],
       role: message.role as UIMessage['role'],
-      // Note: content will soon be deprecated in @ai-sdk/react
-      content: '',
+      // JSON stringify the entire message parts for content
+      content: JSON.stringify(message.parts),
       createdAt: message.createdAt,
       experimental_attachments:
         (message.attachments as Array<Attachment>) ?? [],
     }));
   }
-
 
   return (
     <>

@@ -20,7 +20,7 @@
 	},
 	"dependencies": {
 		"@agentic/ai-sdk": "^7.5.1",
-		"@ai-sdk/anthropic": "^1.1.15",
+		"@ai-sdk/anthropic": "^1.1.19",
 		"@ai-sdk/deepseek": "^0.1.13",
 		"@ai-sdk/fal": "^0.0.8",
 		"@ai-sdk/fireworks": "^0.1.14",
@@ -29,6 +29,7 @@
 		"@ai-sdk/mistral": "^1.1.15",
 		"@ai-sdk/openai": "1.2.1",
 		"@ai-sdk/perplexity": "^1.0.4",
+		"@ai-sdk/provider": "1.0.12",
 		"@ai-sdk/react": "^1.1.25",
 		"@aws-sdk/client-s3": "^3.750.0",
 		"@aws-sdk/s3-request-presigner": "^3.750.0",
@@ -121,7 +122,7 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"@ai-sdk/provider": "1.0.9"
+			"@ai-sdk/provider": "1.0.12"
 		}
 	},
 	"devDependencies": {
