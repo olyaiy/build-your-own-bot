@@ -129,14 +129,12 @@ export async function POST(request: Request) {
       /* -------- TOOLS SET UP -------- */
         // Fetch the tool groups for this agent
         const agentToolGroups = await getToolGroupsByAgentId(agentId);
-        console.log('🔍 AGENT TOOL GROUPS:', JSON.stringify(agentToolGroups, null, 2));
 
         // Get all the tools from the agent's tool groups
         const toolsPromises = agentToolGroups.map(toolGroup => 
           getToolsByToolGroupId(toolGroup.id)
         );
         const toolsResults = await Promise.all(toolsPromises);
-        console.log('🔧 TOOLS FROM GROUPS:', JSON.stringify(toolsResults, null, 2));
 
         // Flatten and get unique tool names
         const availableToolNames = [...new Set(
@@ -144,7 +142,6 @@ export async function POST(request: Request) {
             .flat()
             .map(tool => tool.tool)
         )];
-        console.log('🛠️ AVAILABLE TOOL NAMES:', availableToolNames);
 
         // Create tools object with the appropriate tools
         const registry = toolRegistry({ 
@@ -170,7 +167,6 @@ export async function POST(request: Request) {
         }
         // Get the list of tool names that are actually available
         const activeToolNames = Object.keys(tools);
-        console.log('🔍 ACTIVE TOOL NAMES:', activeToolNames);
 
 
      
@@ -180,11 +176,11 @@ export async function POST(request: Request) {
         // Model
           model: myProvider.languageModel(selectedChatModel),
         // System Prompt
-          // system: systemPrompt({ 
-          //   selectedChatModel, 
-          //   agentSystemPrompt,
-          //   hasSearchTool: activeToolNames.includes('searchTool')
-          // }),
+          system: systemPrompt({ 
+            selectedChatModel, 
+            agentSystemPrompt,
+            hasSearchTool: activeToolNames.includes('searchTool')
+          }),
         // Messages
           messages,
         // Max Steps
