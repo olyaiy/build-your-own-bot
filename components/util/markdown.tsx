@@ -15,7 +15,12 @@ const components: Partial<Components> = {
     const childrenArray = Children.toArray(children);
     const hasPre = childrenArray.some(child => 
       isValidElement(child) && 
-      (child.type === 'pre' || (child.props && child.props.node && child.props.node.tagName === 'code' && !child.props.inline))
+      (child.type === 'pre' || (child.props && 
+        (typeof child.props === 'object' && 
+        'node' in (child.props as object) && 
+        ((child.props as any).node?.tagName === 'code' && 
+        'inline' in (child.props as object) && 
+        !(child.props as any).inline))))
     );
     
     return hasPre ? <>{children}</> : <p>{children}</p>;
