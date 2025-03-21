@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { GalleryVerticalEnd } from "lucide-react";
+
 
 import { AuthForm } from '@/components/auth/auth-form';
 import { SubmitButton } from '@/components/util/submit-button';
@@ -15,6 +15,7 @@ export default function Page() {
   const router = useRouter();
 
   const [email, setEmail] = useState('');
+  const [userName, setUserName] = useState('');
   const [isSuccessful, setIsSuccessful] = useState(false);
 
   const [state, formAction] = useActionState<RegisterActionState, FormData>(
@@ -40,6 +41,7 @@ export default function Page() {
 
   const handleSubmit = (formData: FormData) => {
     setEmail(formData.get('email') as string);
+    setUserName(formData.get('userName') as string);
     formAction(formData);
   };
 
@@ -55,7 +57,27 @@ export default function Page() {
               </p>
             </div>
             
-            <AuthForm action={handleSubmit} defaultEmail={email} className="space-y-6">
+            <AuthForm 
+              action={handleSubmit} 
+              defaultEmail={email} 
+              additionalFields={
+                <div className="space-y-2">
+                  <label htmlFor="userName" className="text-sm font-medium">
+                    Username
+                  </label>
+                  <input
+                    id="userName"
+                    name="userName"
+                    type="text"
+                    defaultValue={userName}
+                    required
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    placeholder="johndoe"
+                  />
+                </div>
+              }
+              className="space-y-6"
+            >
               <SubmitButton 
                 isSuccessful={isSuccessful}
                 className="w-full font-medium"

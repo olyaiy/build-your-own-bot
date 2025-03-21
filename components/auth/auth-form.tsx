@@ -7,15 +7,19 @@ export function AuthForm({
   action,
   children,
   defaultEmail = '',
+  additionalFields,
+  className = '',
 }: {
   action: NonNullable<
     string | ((formData: FormData) => void | Promise<void>) | undefined
   >;
   children: React.ReactNode;
   defaultEmail?: string;
+  additionalFields?: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <Form action={action} className="flex flex-col gap-4 px-4 sm:px-16">
+    <Form action={action} className={`flex flex-col gap-4 px-4 sm:px-16 ${className}`}>
       <div className="flex flex-col gap-2">
         <Label
           htmlFor="email"
@@ -36,6 +40,9 @@ export function AuthForm({
           defaultValue={defaultEmail}
         />
       </div>
+
+      {/* Render additional fields if provided */}
+      {additionalFields}
 
       <div className="flex flex-col gap-2">
         <Label
