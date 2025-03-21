@@ -32,11 +32,11 @@ function PureArtifactMessages({
   return (
     <div
       ref={messagesContainerRef}
-      className="flex flex-col gap-4 size-full overflow-y-scroll overflow-x-hidden px-0 min-w-0 "
+      className="flex flex-col gap-4 size-full overflow-y-scroll overflow-x-hidden px-0 min-w-0  pt-8"
     >
-      <div className="px-4 flex flex-col items-stretch  gap-8 ">
+      <div className="px-4 flex flex-col items-stretch  gap-4  ">
         {messages.map((message, index) => (
-          <div key={message.id} className=" relative overflow-hidden ">
+          <div key={message.id} className=" relative overflow-hidden  ">
             <PreviewMessage
               chatId={chatId}
               message={message}

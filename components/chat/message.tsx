@@ -90,7 +90,7 @@ const PurePreviewMessage = ({
         
         <div
           className={cn(
-            'flex flex-col sm:flex-row gap-4 w-full group-data-[role=user]/message:ml-auto',
+            'flex flex-col sm:flex-row gap-4 w-full group-data-[role=user]/message:ml-auto ',
             {
               'w-full': mode === 'edit',
               'group-data-[role=user]/message:w-fit': mode !== 'edit',
@@ -163,22 +163,12 @@ const PurePreviewMessage = ({
               if (type === 'text') {
                 if (mode === 'view') {
                   return (
-                    <div key={key} className="flex flex-col  items-start">
-                     
+                    <div key={key} className="flex flex-row  items-end">
 
-                      {/* Message content */}
-                      <div
-                        data-testid="message-content"
-                        className={cn('flex flex-col gap-4', {
-                          'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
-                            message.role === 'user',
-                        })}
-                      >
-                        <Markdown>{part.text}</Markdown>
-                      </div>
-                      {/* USER Message Actions */}
-                      {message.role === 'user' && !isReadonly && (
-                        <div className="flex flex-row gap-2 items-center">
+
+                       {/* USER Message Actions */}
+                       {message.role === 'user' && !isReadonly && (
+                        <div className="flex flex-row gap-2 items-center  ">
                           <CopyButton 
                             className="p-2 h-fit opacity-0 group-hover/message:opacity-100" 
                             textToCopy={part.text} 
@@ -200,6 +190,19 @@ const PurePreviewMessage = ({
                         </Tooltip>
                         </div>
                       )}
+                     
+
+                      {/* Message content */}
+                      <div
+                        data-testid="message-content"
+                        className={cn('flex flex-col gap-4', {
+                          'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
+                            message.role === 'user',
+                        })}
+                      >
+                        <Markdown>{part.text}</Markdown>
+                      </div>
+                     
                     </div>
                   );
                 }
