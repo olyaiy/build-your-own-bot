@@ -10,6 +10,7 @@ import { DataStreamWriter, Message, UIMessage } from 'ai';
 import { createImage } from './generate-image';
 import { generateLogo } from './generate-logo';
 import { newsSearchTool } from './news-search';
+import { imageSearchTool } from './image-search';
 
 interface ToolRegistryProps {
   session?: Session;
@@ -24,6 +25,7 @@ export const toolRegistry = ({ session, dataStream }: ToolRegistryProps = {}) =>
   retrieveTool,
   searchTool,
   newsSearch: newsSearchTool,
+  imageSearch: imageSearchTool,
   createImage,
   createLogo: generateLogo,
 });

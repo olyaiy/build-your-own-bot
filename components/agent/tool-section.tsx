@@ -11,6 +11,7 @@ import { skip } from 'node:test'
 import ImageGenerationSection from './image-generation-section'
 import LogoGenerationSection from './logo-generation-section'
 import { NewsSection } from '../search/news-section'
+import { ImageSection } from '../search/image-section'
 
 interface ToolSectionProps {
   tool: ToolInvocation
@@ -95,6 +96,17 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
             />
           </ToolWrapper>
         );
+      case 'imageSearch':
+        return (
+          <ToolWrapper>
+            <ImageSection 
+              tool={tool}
+              isOpen={effectiveIsOpen}
+              onOpenChange={handleOpenChange}
+              state={state}
+            />
+          </ToolWrapper>
+        );
       default:
         return <ToolWrapper><pre className="whitespace-pre-wrap break-all">{JSON.stringify(result, null, 2)}</pre></ToolWrapper>;
     }
@@ -144,10 +156,21 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
           />
         </ToolWrapper>
       );
-    case 'newsSearchTool':
+    case 'newsSearch':
       return (
         <ToolWrapper>
           <NewsSection 
+            tool={tool}
+            isOpen={effectiveIsOpen}
+            onOpenChange={handleOpenChange}
+            state={state}
+          />
+        </ToolWrapper>
+      );
+    case 'imageSearch':
+      return (
+        <ToolWrapper>
+          <ImageSection 
             tool={tool}
             isOpen={effectiveIsOpen}
             onOpenChange={handleOpenChange}
