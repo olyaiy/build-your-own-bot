@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { GalleryVerticalEnd } from "lucide-react";
 
 import { AuthForm } from '@/components/auth/auth-form';
 import { SubmitButton } from '@/components/util/submit-button';
@@ -43,28 +44,52 @@ export default function Page() {
   };
 
   return (
-    <div className="flex h-dvh w-full items-start pt-12 md:pt-0 md:items-center justify-center bg-background">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl gap-12 flex flex-col">
-        <div className="flex flex-col items-center justify-center gap-2 px-4 text-center sm:px-16">
-          <h3 className="text-xl font-semibold dark:text-zinc-50">Sign Up</h3>
-          <p className="text-sm text-gray-500 dark:text-zinc-400">
-            Create an account with your email and password
-          </p>
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <a href="#" className="flex items-center gap-2 font-medium">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <GalleryVerticalEnd className="size-4" />
+            </div>
+            Agent Vendor
+          </a>
         </div>
-        <AuthForm action={handleSubmit} defaultEmail={email}>
-          <SubmitButton isSuccessful={isSuccessful}>Sign Up</SubmitButton>
-          <p className="text-center text-sm text-gray-600 mt-4 dark:text-zinc-400">
-            {'Already have an account? '}
-            <Link
-              href="/login"
-              className="font-semibold text-gray-800 hover:underline dark:text-zinc-200"
-            >
-              Sign in
-            </Link>
-            {' instead.'}
-          </p>
-        </AuthForm>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-md">
+            <div className="mb-8 text-center">
+              <h1 className="text-2xl font-bold tracking-tight">Create Account</h1>
+              <p className="text-sm text-muted-foreground">
+                Enter your details to register a new account
+              </p>
+            </div>
+            
+            <AuthForm action={handleSubmit} defaultEmail={email} className="space-y-6">
+              <SubmitButton 
+                isSuccessful={isSuccessful}
+                className="w-full font-medium"
+              >
+                Sign Up
+              </SubmitButton>
+              
+              <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+                <span className="relative z-10 bg-card px-2 text-muted-foreground">
+                  Already have an account?
+                </span>
+              </div>
+              
+              <p className="text-center text-sm">
+                <Link
+                  href="/login"
+                  className="font-medium text-primary hover:underline underline-offset-4"
+                >
+                  Sign in instead
+                </Link>
+              </p>
+            </AuthForm>
+          </div>
+        </div>
       </div>
+      <div className="hidden lg:block bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500"></div>
     </div>
   );
 }
