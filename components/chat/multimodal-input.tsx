@@ -306,14 +306,14 @@ function PureMultimodalInput({
 
       {/* Model Selector and Search Toggle */}
       {!isReadonly && (
-        <div className="w-full flex flex-wrap justify-between items-center gap-2">
+        <div className="w-full flex justify-between items-center gap-2">
           {/* Model Selector - only show if we have models */}
           {availableModels.length > 1 && (
             <Select
               value={currentModel}
               onValueChange={onModelChange}
             >
-              <SelectTrigger className="h-8 w-full md:w-52 text-xs">
+              <SelectTrigger className="h-8 w-[50%] sm:w-full md:w-52 text-xs">
                 <SelectValue placeholder="Select model" />
               </SelectTrigger>
               <SelectContent position="popper" className="max-w-[90vw] md:max-w-none">
@@ -331,7 +331,7 @@ function PureMultimodalInput({
           
           {/* Search Toggle - Only show if agent has search tool */}
           {hasSearchTool && (
-            <div className="flex items-center space-x-2 cursor-pointer">
+            <div className="flex items-center space-x-2 cursor-pointer order-first ">
               <Switch
                 id="search-toggle"
                 checked={searchEnabled}
@@ -345,7 +345,11 @@ function PureMultimodalInput({
                 onClick={() => status !== 'ready' && setSearchEnabled(!searchEnabled)}
               >
                 <SearchIcon size={12} />
-                <span>Web Search {searchEnabled ? 'On' : 'Off'}</span>
+                {width && width <= 768 ? (
+                  <span>Search</span>
+                ) : (
+                  <span>Web Search {searchEnabled ? 'On' : 'Off'}</span>
+                )}
               </Label>
             </div>
           )}

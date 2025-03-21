@@ -80,7 +80,7 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
 
     return (
       <>
-        <div className="flex flex-row py-8 md:p-20 px-4">
+        <div className="flex flex-row py-8 md:p-20 px-4 ">
           <Editor
             content={content}
             suggestions={metadata ? metadata.suggestions : []}

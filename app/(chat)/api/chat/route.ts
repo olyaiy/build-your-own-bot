@@ -30,7 +30,8 @@ import { hasCredits, INSUFFICIENT_CREDITS_MESSAGE } from '@/lib/credits';
 
 
 export async function POST(request: Request) {
-
+  console.time('total-request');
+  console.time('parse-request');
   const {
     id,
     messages,
@@ -50,10 +51,13 @@ export async function POST(request: Request) {
     creatorId: string;
     searchEnabled?: boolean;
   } = await request.json();
+  console.timeEnd('parse-request');
   
 
   // Get the session
+  console.time('auth-check');
   const session = await auth();
+  console.timeEnd('auth-check');
 
   // If the user is not logged in, return an error
   if (!session || !session.user || !session.user.id) {
@@ -61,13 +65,17 @@ export async function POST(request: Request) {
   }
 
   // Check if user has enough credits
+  console.time('credits-check');
   const userHasCredits = await hasCredits(session.user.id);
+  console.timeEnd('credits-check');
   if (!userHasCredits) {
     return new Response(INSUFFICIENT_CREDITS_MESSAGE, { status: 402 });
   }
 
   // Get the most recent user message
+  console.time('get-user-message');
   const userMessage = getMostRecentUserMessage(messages);
+  console.timeEnd('get-user-message');
 
   // If the user message is not found, return an error
   if (!userMessage) {
@@ -75,19 +83,25 @@ export async function POST(request: Request) {
   }
 
   // Get the chat
+  console.time('get-chat');
   const chat = await getChatById({ id });
+  console.timeEnd('get-chat');
 
   // If the chat is not found, generate a title and save the chat FIRST
   if (!chat) {
+    console.time('generate-and-save-chat');
     const title = await generateTitleFromUserMessage({ message: userMessage });
     try {
       await saveChat({ id, userId: session.user.id, title, agentId });
     } catch (error) {
+      console.timeEnd('generate-and-save-chat');
       return new Response('Failed to create chat', { status: 500 });
     }
+    console.timeEnd('generate-and-save-chat');
   }
   
   // THEN save messages 
+  console.time('save-messages');
   await saveMessages({
     messages: [{
 
@@ -100,10 +114,13 @@ export async function POST(request: Request) {
       createdAt: new Date(),
     }],
   });
+  console.timeEnd('save-messages');
 
   // Get the model details
+  console.time('get-model-details');
   const modelDetails = await getModelById(selectedModelId);
   const providerOptions = modelDetails?.provider_options;
+  console.timeEnd('get-model-details');
 
   // Initialize running tally for usage outside execute to make it accessible to onError
   const runningTally = {
@@ -124,9 +141,10 @@ export async function POST(request: Request) {
   // 
   return createDataStreamResponse({
     execute: async (dataStream) => {
-
+      console.time('dataStream-execute');
 
       /* -------- TOOLS SET UP -------- */
+      console.time('tools-setup');
         // Fetch the tool groups for this agent
         const agentToolGroups = await getToolGroupsByAgentId(agentId);
 
@@ -167,11 +185,12 @@ export async function POST(request: Request) {
         }
         // Get the list of tool names that are actually available
         const activeToolNames = Object.keys(tools);
-
+        console.timeEnd('tools-setup');
 
 
      
     /* -------- STREAM TEXT -------- */
+      console.time('stream-text-start');
       const result = streamText({
         
         // Model
@@ -270,14 +289,14 @@ export async function POST(request: Request) {
           }
         },
       });
-
-
+      console.timeEnd('stream-text-start');
+      console.timeEnd('total-request');
 
       result.consumeStream();      
       result.mergeIntoDataStream(dataStream, {
         sendReasoning: true,
       });
-
+      console.timeEnd('dataStream-execute');
     },
     
     /* -------- ERROR HANDLING -------- */
