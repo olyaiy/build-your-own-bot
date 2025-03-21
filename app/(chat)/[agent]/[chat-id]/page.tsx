@@ -69,15 +69,32 @@ export default async function Page(props: {
 
   const messagesFromDb = await getMessagesByChatId({ id: chatId });
 
-
-
   function convertToUIMessages(messages: Array<DBMessage>): Array<UIMessage> {
     return messages.map((message) => ({
       id: message.id,
       parts: message.parts as UIMessage['parts'],
       role: message.role as UIMessage['role'],
-      // JSON stringify the entire message parts for content
-      content: JSON.stringify(message.parts),
+      // Extract clean text content from parts
+      content: (message.parts as UIMessage['parts'])
+        .map(part => {
+          if (part.type === 'text') return part.text;
+          if (part.type === 'tool-invocation') {
+            const result = part.toolInvocation.state === 'result' 
+              ? part.toolInvocation.result 
+              : null;
+            // Extract relevant content from search results
+            if (result?.results) {
+              return result.results
+                .slice(0, 3) // Show top 3 results
+                .map((r: { title: string; content: string }) => `${r.title}\n${r.content}`)
+                .join('\n\n');
+            }
+            return '';
+          }
+          return '';
+        })
+        .filter(Boolean)
+        .join('\n'),
       createdAt: message.createdAt,
       experimental_attachments:
         (message.attachments as Array<Attachment>) ?? [],
