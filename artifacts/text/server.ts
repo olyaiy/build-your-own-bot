@@ -6,15 +6,29 @@ import { myProvider } from '@/lib/ai/models';
 
 export const textDocumentHandler = createDocumentHandler<'text'>({
   kind: 'text',
-  onCreateDocument: async ({ title, dataStream }) => {
+  onCreateDocument: async ({ title, dataStream, messages }) => {
+    console.log('the messages in the tool CALL ON CREATE DOCUMENT ARE THE FOLLOWING: ')
+    console.log(messages.map((message) => message.content).join('\n'))
     let draftContent = '';
 
     const { fullStream } = streamText({
       model: myProvider.languageModel('artifact-model'),
       system:
-        'Write about the given topic. Markdown is supported. Use headings wherever appropriate.',
+        `Write about the given topic. 
+        Markdown is supported. 
+        Use headings wherever appropriate.`,
+      // messages,
       experimental_transform: smoothStream({ chunking: 'word' }),
-      prompt: title,
+      prompt: `
+      based on the conversation history, write a document about the users requests.
+      The conversation history is the following:
+      ${JSON.stringify(messages)}
+
+
+      You are an expert writer with 20+ years of experience writinng.
+      The title of the document is: ${title}
+      `,
+      
     });
 
     for await (const delta of fullStream) {

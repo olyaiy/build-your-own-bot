@@ -6,7 +6,7 @@ import { requestSuggestions } from './request-suggestions';
 import { retrieveTool } from './retrieve';
 import { searchTool } from './search';
 import { Session } from 'next-auth';
-import { DataStreamWriter, Message } from 'ai';
+import { DataStreamWriter, Message, UIMessage } from 'ai';
 import { createImage } from './generate-image';
 import { generateLogo } from './generate-logo';
 

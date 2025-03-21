@@ -6,7 +6,7 @@ import {
   artifactKinds,
   documentHandlersByArtifactKind,
 } from '@/lib/artifacts/server';
-
+import { UIMessage } from 'ai';
 interface CreateDocumentProps {
   session: Session;
   dataStream: DataStreamWriter;
@@ -20,8 +20,9 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
       title: z.string(),
       kind: z.enum(artifactKinds),
     }),
-    execute: async ({ title, kind }) => {
+    execute: async ({ title, kind }, { messages }) => {
       const id = generateUUID();
+ 
 
       dataStream.writeData({
         type: 'kind',
@@ -57,6 +58,7 @@ export const createDocument = ({ session, dataStream }: CreateDocumentProps) =>
         title,
         dataStream,
         session,
+        messages,
       });
 
       dataStream.writeData({ type: 'finish', content: '' });
