@@ -6,6 +6,8 @@ import { groq } from '@ai-sdk/groq';
 import { auth } from '@/app/(auth)/auth';
 import crypto from 'crypto';
 import { z } from 'zod';
+import { chat as chatTable } from '@/lib/db/schema';
+
 
 import {
   deleteMessagesByChatIdAfterTimestamp,
@@ -15,10 +17,12 @@ import {
   getMessagesByChatId,
   saveChat,
   saveMessages,
+  db,
 } from '@/lib/db/queries';
 
 import { myProvider } from '@/lib/ai/models';
 import { VisibilityType } from '@/components/util/visibility-selector';
+import { eq } from 'drizzle-orm';
 
 export async function saveChatModelAsCookie(model: string) {
   const cookieStore = await cookies();
@@ -256,5 +260,34 @@ export async function generatePromptSuggestion({
       "What are your limitations?",
       "Show me some example tasks"
     ].slice(0, count);
+  }
+}
+
+
+
+
+
+
+export async function generateTitleAsynchronously({ 
+  message, 
+  chatId 
+}: { 
+  message: Message; 
+  chatId: string;
+}) {
+  try {
+    // Generate the title using the existing function
+    const title = await generateTitleFromUserMessage({ message });
+    
+    // Update the chat with the AI-generated title
+    const chat = await getChatById({ id: chatId });
+    if (chat && chat.title !== title) {
+      await db.update(chatTable)
+        .set({ title })
+        .where(eq(chatTable.id, chatId));
+    }
+  } catch (error) {
+    console.error('Async title generation error:', error);
+    // The error is caught but not propagated - this is a background task
   }
 }

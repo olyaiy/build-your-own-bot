@@ -24,7 +24,7 @@ import {
   getMostRecentUserMessage,
   getTrailingMessageId,
 } from '@/lib/utils';
-import { generateTitleFromUserMessage } from '../../actions';
+import { generateTitleAsynchronously, generateTitleFromUserMessage } from '../../actions';
 import { toolRegistry } from '@/lib/ai/tools/registry';
 import { hasCredits, INSUFFICIENT_CREDITS_MESSAGE } from '@/lib/credits';
 
@@ -89,16 +89,23 @@ export async function POST(request: Request) {
 
   // If the chat is not found, generate a title and save the chat FIRST
   if (!chat) {
-    console.time('generate-and-save-chat');
-    const title = await generateTitleFromUserMessage({ message: userMessage });
+    console.time('save-new-chat');
     try {
-      await saveChat({ id, userId: session.user.id, title, agentId });
+      // Save the chat immediately with "New Chat" as the temporary title
+      await saveChat({ id, userId: session.user.id, title: "New Chat", agentId });
+      
+      // Asynchronously generate a better title without blocking
+      generateTitleAsynchronously({ 
+        message: userMessage, 
+        chatId: id
+      }).catch(err => console.error('Async title generation failed:', err));
     } catch (error) {
-      console.timeEnd('generate-and-save-chat');
+      console.timeEnd('save-new-chat');
       return new Response('Failed to create chat', { status: 500 });
     }
-    console.timeEnd('generate-and-save-chat');
+    console.timeEnd('save-new-chat');
   }
+
   
   // THEN save messages 
   console.time('save-messages');
