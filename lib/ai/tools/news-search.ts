@@ -80,10 +80,10 @@ export const newsSearchTool = tool({
 // Utility function for direct API access
 export async function braveNewsSearch(
   query: string,
-  country?: string,
-  searchLang?: string,
+  country?: z.infer<typeof newsSearchSchema>['country'],
+  searchLang?: z.infer<typeof newsSearchSchema>['search_lang'],
   count: number = 10,
-  freshness?: string
+  freshness?: z.infer<typeof newsSearchSchema>['freshness']
 ): Promise<SearchResults> {
   return newsSearchTool.execute(
     { query, country, search_lang: searchLang, count, freshness },

@@ -48,6 +48,9 @@ export const Section: React.FC<SectionProps> = ({
     case 'Sources':
       icon = <Newspaper size={iconSize} className={iconClassName} />
       break
+    case 'News':
+      icon = <Newspaper size={iconSize} className={iconClassName} />
+      break
     case 'Answer':
       icon = <BookCheck size={iconSize} className={iconClassName} />
       break

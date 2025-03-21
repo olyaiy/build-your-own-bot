@@ -9,6 +9,7 @@ import { Session } from 'next-auth';
 import { DataStreamWriter, Message, UIMessage } from 'ai';
 import { createImage } from './generate-image';
 import { generateLogo } from './generate-logo';
+import { newsSearchTool } from './news-search';
 
 interface ToolRegistryProps {
   session?: Session;
@@ -22,6 +23,7 @@ export const toolRegistry = ({ session, dataStream }: ToolRegistryProps = {}) =>
   requestSuggestions: session && dataStream ? requestSuggestions({ session, dataStream }) : undefined,
   retrieveTool,
   searchTool,
+  newsSearch: newsSearchTool,
   createImage,
   createLogo: generateLogo,
 });

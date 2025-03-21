@@ -10,6 +10,7 @@ import { DocumentToolCall, DocumentToolResult } from '../document/document'
 import { skip } from 'node:test'
 import ImageGenerationSection from './image-generation-section'
 import LogoGenerationSection from './logo-generation-section'
+import { NewsSection } from '../search/news-section'
 
 interface ToolSectionProps {
   tool: ToolInvocation
@@ -51,7 +52,6 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
       case 'getWeather':
         return <ToolWrapper><Weather weatherAtLocation={result} /></ToolWrapper>;
       case 'createImage':
- 
         return <ToolWrapper><ImageGenerationSection tool={tool} /></ToolWrapper>;
       case 'createLogo':
         return <ToolWrapper><LogoGenerationSection tool={tool} /></ToolWrapper>;
@@ -74,10 +74,20 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
           </ToolWrapper>
         );
       case 'searchTool':
-
         return (
           <ToolWrapper>
             <SearchSection 
+              tool={tool}
+              isOpen={effectiveIsOpen}
+              onOpenChange={handleOpenChange}
+              state={state}
+            />
+          </ToolWrapper>
+        );
+      case 'newsSearch':
+        return (
+          <ToolWrapper>
+            <NewsSection 
               tool={tool}
               isOpen={effectiveIsOpen}
               onOpenChange={handleOpenChange}
@@ -127,6 +137,17 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
       return (
         <ToolWrapper>
           <SearchSection 
+            tool={tool}
+            isOpen={effectiveIsOpen}
+            onOpenChange={handleOpenChange}
+            state={state}
+          />
+        </ToolWrapper>
+      );
+    case 'newsSearchTool':
+      return (
+        <ToolWrapper>
+          <NewsSection 
             tool={tool}
             isOpen={effectiveIsOpen}
             onOpenChange={handleOpenChange}
