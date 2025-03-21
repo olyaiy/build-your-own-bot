@@ -5,14 +5,14 @@ import { Search } from "lucide-react";
 import { faqData } from "../faq-data";
 
 // Helper function to highlight the matching text
-function highlightMatch(text: string, query: string): JSX.Element {
+function highlightMatch(text: string, query: string): React.JSX.Element {
   if (!query || query.trim() === '') {
     return <>{text}</>;
   }
 
   const queryLower = query.toLowerCase();
   const textLower = text.toLowerCase();
-  const parts: JSX.Element[] = [];
+  const parts: React.JSX.Element[] = [];
   
   let lastIndex = 0;
   let index = textLower.indexOf(queryLower);
