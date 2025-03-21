@@ -1635,3 +1635,15 @@ export async function upsertSuggestedPrompts(agentId: string, prompts: string[])
     throw error;
   }
 }
+
+
+export const getAgentToolsWithSingleQuery = async (agentId: string) => {
+  // JOIN query that gets all tools for an agent in one database operation
+  return await db.select({
+    tool: tools.tool
+  })
+  .from(agentToolGroups)
+  .innerJoin(toolGroupTools, eq(agentToolGroups.toolGroupId, toolGroupTools.toolGroupId))
+  .innerJoin(tools, eq(toolGroupTools.toolId, tools.id))
+  .where(eq(agentToolGroups.agentId, agentId));
+};

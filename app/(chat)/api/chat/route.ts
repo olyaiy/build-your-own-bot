@@ -18,6 +18,7 @@ import {
   getToolsByToolGroupId,
   getModelById,
   recordTransaction,
+  getAgentToolsWithSingleQuery,
 } from '@/lib/db/queries';
 import {
   generateUUID,
@@ -152,47 +153,38 @@ export async function POST(request: Request) {
 
       /* -------- TOOLS SET UP -------- */
       console.time('tools-setup');
-        // Fetch the tool groups for this agent
-        const agentToolGroups = await getToolGroupsByAgentId(agentId);
+      // Get all tools for this agent in a single database query
+      const agentTools = await getAgentToolsWithSingleQuery(agentId);
 
-        // Get all the tools from the agent's tool groups
-        const toolsPromises = agentToolGroups.map(toolGroup => 
-          getToolsByToolGroupId(toolGroup.id)
-        );
-        const toolsResults = await Promise.all(toolsPromises);
+      // Extract unique tool names
+      const availableToolNames = [...new Set(agentTools.map(tool => tool.tool))];
 
-        // Flatten and get unique tool names
-        const availableToolNames = [...new Set(
-          toolsResults
-            .flat()
-            .map(tool => tool.tool)
-        )];
+      // Create tools object with the appropriate tools
+      const registry = toolRegistry({ 
+        session, 
+        dataStream,
+      });
 
-        // Create tools object with the appropriate tools
-        const registry = toolRegistry({ 
-          session, 
-          dataStream,
-        });
-        const tools: Record<string, any> = {};
-        for (const toolName of availableToolNames) {
-          // Special handling for searchTool based on the searchEnabled flag
-          // Only exclude the search tool if searchEnabled is explicitly false
-          if (toolName === 'searchTool' && searchEnabled === false) {
-            continue; // Skip adding the search tool if searchEnabled is false
-          }
-
-          if (toolName === 'retrieveTool' && searchEnabled === false) {
-            continue; // Skip adding the search tool if searchEnabled is false
-          }
-
-          
-          if (registry[toolName as keyof typeof registry]) {
-            tools[toolName] = registry[toolName as keyof typeof registry];
-          }
+      const tools: Record<string, any> = {};
+      for (const toolName of availableToolNames) {
+        // Special handling for searchTool based on the searchEnabled flag
+        // Only exclude the search tool if searchEnabled is explicitly false
+        if (toolName === 'searchTool' && searchEnabled === false) {
+          continue; // Skip adding the search tool if searchEnabled is false
         }
-        // Get the list of tool names that are actually available
-        const activeToolNames = Object.keys(tools);
-        console.timeEnd('tools-setup');
+
+        if (toolName === 'retrieveTool' && searchEnabled === false) {
+          continue; // Skip adding the search tool if searchEnabled is false
+        }
+        
+        if (registry[toolName as keyof typeof registry]) {
+          tools[toolName] = registry[toolName as keyof typeof registry];
+        }
+      }
+
+      // Get the list of tool names that are actually available
+      const activeToolNames = Object.keys(tools);
+      console.timeEnd('tools-setup');
 
 
      
