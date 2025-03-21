@@ -394,9 +394,9 @@ function PureArtifact({
                     transition: {
                       delay: 0,
                       type: 'spring',
-                      stiffness: 200,
+                      stiffness: 400,
                       damping: 30,
-                      duration: 5000,
+                      duration: 2000,
                     },
                   }
                 : {
@@ -411,9 +411,9 @@ function PureArtifact({
                     transition: {
                       delay: 0,
                       type: 'spring',
-                      stiffness: 200,
+                      stiffness: 400,
                       damping: 30,
-                      duration: 5000,
+                      duration: 2000,
                     },
                   }
             }
@@ -421,9 +421,9 @@ function PureArtifact({
               opacity: 0,
               scale: 0.5,
               transition: {
-                delay: 0.1,
+                delay: 0,
                 type: 'spring',
-                stiffness: 600,
+                stiffness: 400,
                 damping: 30,
               },
             }}

@@ -39,7 +39,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
  
   // Common wrapper for all tool sections to ensure proper width constraints
   const ToolWrapper = ({ children }: { children: React.ReactNode }) => (
-    <div className="w-full max-w-full overflow-hidden">
+    <div className="w-full max-w-full overflow-hidden my-4">
       {children}
     </div>
   );
@@ -62,6 +62,7 @@ export function ToolSection({ tool, isOpen, onOpenChange, isReadonly = false }: 
       case 'requestSuggestions':
         return <ToolWrapper><DocumentToolResult type="request-suggestions" result={result} isReadonly={isReadonly} /></ToolWrapper>;
       case 'retrieveTool':
+        console.log(result)
         return (
           <ToolWrapper>
             <RetrieveSection 

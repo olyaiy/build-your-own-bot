@@ -185,7 +185,7 @@ export async function POST(request: Request) {
         // Messages
           messages,
         // Max Steps
-          maxSteps: 10,
+          maxSteps: 20,
         // Active Tools
           experimental_activeTools:
             supportsTools(selectedChatModel) && activeToolNames.length > 0
