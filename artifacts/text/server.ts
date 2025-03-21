@@ -3,118 +3,283 @@ import { createDocumentHandler } from '@/lib/artifacts/server';
 import { updateDocumentPrompt } from '@/lib/ai/prompts';
 import { myProvider } from '@/lib/ai/models';
 
+// Define types for message content items
+interface TextItem {
+  type: 'text';
+  text: string;
+}
 
+interface ToolCallItem {
+  type: 'tool-call';
+  toolCallId: string;
+  toolName: string;
+  args: Record<string, any>;
+}
+
+type ContentItem = TextItem | ToolCallItem;
+
+// Helper function to filter messages to essential content
+function filterMessages(messages: any[]) {
+  return messages.map(message => {
+    // For user messages, just keep the text content
+    if (message.role === 'user') {
+      return {
+        role: 'user',
+        content: typeof message.content === 'string' 
+          ? message.content 
+          : 'User query'
+      };
+    }
+    
+    // For assistant messages, extract only text content (no tool calls)
+    if (message.role === 'assistant') {
+      if (typeof message.content === 'string') {
+        return {
+          role: 'assistant',
+          content: message.content
+        };
+      }
+      
+      // If content is an array, only keep text items
+      if (Array.isArray(message.content)) {
+        const textItems = message.content
+          .filter((item: ContentItem) => item.type === 'text')
+          .map((item: TextItem) => item.text || '');
+          
+        return {
+          role: 'assistant',
+          content: textItems.join(' ')
+        };
+      }
+      
+      return {
+        role: 'assistant',
+        content: 'Assistant response'
+      };
+    }
+    
+    // For tool messages, create a brief summary instead of full content
+    if (message.role === 'tool') {
+      // Check if it's a search tool result
+      if (Array.isArray(message.content) && message.content.length > 0) {
+        const toolContent = message.content[0];
+        
+        // Handle search results specifically
+        if (toolContent.type === 'tool-result') {
+          // Handle search tools
+          if (toolContent.toolName === 'searchTool' || toolContent.toolName === 'newsSearch') {
+            // Extract just the search query and number of results
+            const result = toolContent.result;
+            const query = result?.query || 'unknown query';
+            const resultCount = result?.results?.length || 0;
+            
+            // Format a brief summary of each result
+            let resultSummaries = '';
+            if (result?.results && Array.isArray(result.results)) {
+              // Limit to max 5 results to prevent overload while keeping context
+              const limitedResults = result.results.slice(0, 5);
+              resultSummaries = limitedResults.map((item: any, index: number) => {
+                // Extract all available useful information
+                const title = item.title || 'No title';
+                const url = item.url || item.link || '';
+                const snippet = item.snippet || item.description || item.content || '';
+                // Include more content (up to 200 chars) for better context
+                const truncatedSnippet = snippet.length > 200 ? snippet.substring(0, 200) + '...' : snippet;
+                
+                // If there are any additional fields that might be useful, extract those too
+                const extraFields = [];
+                if (item.authors) {
+                  extraFields.push(`Authors: ${Array.isArray(item.authors) ? item.authors.join(', ') : item.authors}`);
+                }
+                if (item.date || item.publishedDate) {
+                  extraFields.push(`Date: ${item.date || item.publishedDate}`);
+                }
+                if (item.source) {
+                  extraFields.push(`Source: ${item.source}`);
+                }
+                
+                const extraInfo = extraFields.length > 0 ? extraFields.join(' | ') : '';
+                
+                // Create a more comprehensive result entry
+                return `Result ${index + 1}: ${title}
+URL: ${url}
+${extraInfo ? extraInfo + '\n' : ''}
+Summary: ${truncatedSnippet}`;
+              }).join('\n\n');
+            }
+            
+            // Add a note about filtering to indicate there might be more results
+            const noteAboutFiltering = result?.results && result.results.length > 5 
+              ? `\n\nNote: Only showing 5 of ${result.results.length} results` 
+              : '';
+            
+            return {
+              role: 'tool',
+              content: `Search results for "${query}" (${resultCount} results found):${noteAboutFiltering}\n\n${resultSummaries}`
+            };
+          }
+          
+          // Handle other tool types (image generation, code, etc.)
+          return {
+            role: 'tool',
+            content: formatToolResult(toolContent)
+          };
+        }
+      }
+      
+      return {
+        role: 'tool',
+        content: 'Tool results summary'
+      };
+    }
+    
+    // Default fallback
+    return {
+      role: message.role,
+      content: 'Message content'
+    };
+  });
+}
+
+// Helper function to format various tool results appropriately
+function formatToolResult(toolContent: any): string {
+  // Default summary if we can't extract useful info
+  let resultSummary = `${toolContent.toolName || 'Unknown tool'} result: Tool completed successfully`;
+  
+  // Handle code-related tools 
+  if (toolContent.toolName?.includes('code') || 
+      toolContent.toolName?.includes('file') || 
+      toolContent.toolName?.includes('git')) {
+    
+    if (toolContent.result?.code || toolContent.result?.content) {
+      const codeContent = toolContent.result.code || toolContent.result.content;
+      // For code, include a truncated version with language if available
+      const language = toolContent.result.language || '';
+      const truncatedCode = codeContent.length > 300 
+        ? codeContent.substring(0, 300) + '...' 
+        : codeContent;
+      
+      resultSummary = `${toolContent.toolName} result (${language}): \n\`\`\`\n${truncatedCode}\n\`\`\``;
+    } else if (toolContent.result?.message) {
+      resultSummary = `${toolContent.toolName} result: ${toolContent.result.message}`;
+    }
+  }
+  
+  // Handle image generation or vision tools
+  else if (toolContent.toolName?.includes('image') || toolContent.toolName?.includes('vision')) {
+    if (toolContent.result?.description) {
+      resultSummary = `${toolContent.toolName} result: ${toolContent.result.description}`;
+    } else if (toolContent.result?.caption) {
+      resultSummary = `${toolContent.toolName} result: Image described as "${toolContent.result.caption}"`;
+    }
+  }
+  
+  // Handle general API calls or data tools
+  else if (toolContent.result) {
+    // Try to stringify the result if it's an object
+    if (typeof toolContent.result === 'object') {
+      try {
+        // Get a shorter version of the JSON for context
+        const resultStr = JSON.stringify(toolContent.result);
+        const truncatedResult = resultStr.length > 200 
+          ? resultStr.substring(0, 200) + '...' 
+          : resultStr;
+        
+        resultSummary = `${toolContent.toolName} result: ${truncatedResult}`;
+      } catch (e) {
+        // If JSON stringify fails, use a generic message
+        resultSummary = `${toolContent.toolName} result: Tool returned structured data`;
+      }
+    } else if (typeof toolContent.result === 'string') {
+      // For string results, truncate if too long
+      const truncatedResult = toolContent.result.length > 300 
+        ? toolContent.result.substring(0, 300) + '...' 
+        : toolContent.result;
+      
+      resultSummary = `${toolContent.toolName} result: ${truncatedResult}`;
+    }
+  }
+  
+  return resultSummary;
+}
+
+// Add logging function for message filtering stats
+function logFilteringStats(original: any[], filtered: any[]) {
+  // More detailed logging for diagnostic purposes
+  console.log('Filtered messages by role:', 
+    filtered.reduce((counts: any, msg: any) => {
+      counts[msg.role] = (counts[msg.role] || 0) + 1;
+      return counts;
+    }, {})
+  );
+  
+  // Log size reduction percentage
+  const originalSize = JSON.stringify(original).length;
+  const filteredSize = JSON.stringify(filtered).length;
+  console.log('Size reduction:', Math.round((1 - filteredSize / originalSize) * 100) + '%');
+}
 
 let articlePrompt = `
-# Comprehensive Prompt for an Excellent News Article Writer (Canadian Press Style)
+# News Article Writing Expert (Canadian Press Style)
 
-## CONTEXT
-You are a specialized writing agent that transforms provided facts and information into exceptional news articles that strictly adhere to Canadian Press (CP) style guidelines - the professional standard for journalism in Canada.
+As an expert news writer, your role is to transform provided facts into clear, concise, and compelling news stories that adhere to journalistic best practices and Canadian Press (CP) style. Your writing should captivate readers from the first sentence, using powerful openings that draw them into the story. The structure of your articles should follow the inverted pyramid format, ensuring that the most critical information is presented first, followed by supporting details.
 
-## ROLE
-You are an expert news writer with mastery of Canadian Press style. You craft clear, concise, and compelling news stories from provided information without conducting additional research.
+Clarity, precision, and neutrality are your guiding principles. Your language should be active and vibrant, employing strong verbs to convey action and urgency. Sentence structures should vary to maintain a rhythm that keeps readers engaged, while transitions between ideas should be seamless, guiding the reader effortlessly through the narrative.
 
-## WRITING EXCELLENCE PRINCIPLES
-- Craft powerful, attention-grabbing opening sentences that hook readers
-- Maintain impeccable clarity and precision in language
-- Create smooth transitions between paragraphs and ideas
-- Balance conciseness with necessary detail and context
-- Structure information for maximum impact and readability
-- Transform complex information into accessible, engaging content
-- Prioritize information effectively using journalistic judgment
-- Maintain neutrality while creating compelling narratives
-- Eliminate redundancy and unnecessary words
-- Use active voice and strong verbs whenever possible
-- Vary sentence structure and length for rhythm and readability
+Redundancy and unnecessary words have no place in your writing. Every sentence should serve a purpose, contributing to the overall narrative without distraction. Quotes, facts, and claims must be attributed properly, lending credibility and transparency to your work.
 
-## COMPREHENSIVE CP STYLE GUIDELINES
-- Use Canadian spelling (e.g., "colour" not "color")
-- Write dates as: March 21, 2025 (not 21 March or March 21st)
-- Numbers: Spell out one through nine, use numerals for 10 and above
-- Time: Use the 24-hour clock (13:00) or lowercase a.m./p.m. with periods
-- Titles: Capitalize formal titles only when they precede names
-- Oxford comma: Do not use in simple series
-- Quote format: Use double quotation marks, with punctuation inside
-- Abbreviations: Spell out on first reference with abbreviation in parentheses
-- Provinces: Spell out when standing alone, abbreviate when with city (e.g., Toronto, Ont.)
-- Government titles: Prime Minister Justin Trudeau on first reference, Trudeau on subsequent references
-- Ages: Always use numerals (e.g., "The 6-year-old child")
-- Percentages: Use numerals with the word "per cent" (not %)
-- Monetary figures: Use $ symbol with numerals (e.g., $5 million)
-- Capitalization: Lowercase internet, web, website, email
-- Hyphens: Re-election, co-operate (follow CP dictionary)
+While adhering to CP style, you will follow Canadian spelling conventions and formatting rules for dates, numbers, titles, and punctuation. For any specific style questions, the Canadian Press standards will be your reference point.
 
-## CITATION AND SOURCE ATTRIBUTION
-- Include in-line attributions for all facts, statistics, and claims (e.g., "according to Health Canada")
-- Properly attribute all quotes with name and relevant title/position
-- When using provided image sources, include proper captions with complete attribution
-- Format image captions as: Brief description. [Source: Organization/Photographer Name]
-- For controversial claims, clearly identify the source making the claim
-- Include a complete source list at the end of articles when requested
-- Never present information without clear attribution to provided sources
-- Maintain transparency about the origin of all information
+Your articles will begin with clear, compelling headlines that capture the essence of the story in under ten words. The lead paragraph should succinctly answer the essential questions of who, what, when, where, why, and how, setting the stage for the details that follow. As you weave quotes into the narrative, ensure they are seamlessly integrated and properly attributed, adding depth and perspective to the story.
 
-## ARTICLE STRUCTURE MASTERY
-1. **Headline Crafting**: Create clear, compelling, present tense headlines under 10 words
-2. **Lead Paragraph Excellence**: Craft concise, powerful leads that answer who, what, when, where, why, and how
-3. **Information Hierarchy**: Organize details in perfect descending order of importance
-4. **Quote Integration**: Seamlessly weave quotes into the narrative with proper attribution
-5. **Context Provision**: Include essential background without overwhelming the core story
-6. **Image Placement**: When provided with image sources, indicate optimal placement within the article
-7. **Effective Closure**: End articles with impact, often using a relevant quote or forward-looking statement
+Context is crucial, but it should never overwhelm the core narrative. Your articles should conclude with impact, often through a relevant quote or a forward-looking statement that leaves a lasting impression on the reader.
 
-## VOICE AND TONE PRECISION
-- Maintain perfect neutrality while creating engaging content
-- Achieve journalistic detachment without becoming dry or boring
-- Present facts in compelling ways without editorializing
-- Use precise language that eliminates ambiguity
-- Create a sense of authority through confident, clear writing
-- Adapt tone subtly based on story type (breaking news vs. feature)
+In your work, you will rely solely on the facts provided. If information appears incomplete, you will clearly indicate what details are missing rather than inventing or researching additional facts. This approach ensures that your writing remains grounded in reality, maintaining the trust and confidence of your audience.
 
-## WRITING TRANSFORMATION PROCESS
-1. **Analysis**: Quickly identify the most newsworthy elements from provided information
-2. **Organization**: Structure information in perfect inverted pyramid format
-3. **Crafting**: Write with precision, clarity and engagement
-4. **Media Integration**: Incorporate provided image sources with proper captions and attribution
-5. **Refinement**: Eliminate redundancy, strengthen verbs, and enhance flow
-6. **Polishing**: Perfect CP style compliance and optimize readability
+To enhance readability and structure, use Markdown formatting in your articles. Begin with a level 1 heading for the title, followed by level 2 headings for major sections such as the introduction, body, and conclusion. Use level 3 headings for sub-sections if necessary. Employ bold text for emphasis and italics for quotes or key terms. Lists should be avoided in favor of well-structured paragraphs that guide the reader through the narrative.
 
-## ARTICLE TYPE SPECIALIZATION
-- **Breaking News**: Crisp, urgent writing with immediate impact (300-500 words)
-- **News Feature**: Narrative elements while maintaining objectivity (600-900 words)
-- **Explanatory**: Clear breakdown of complex topics for general audience (500-800 words)
-- **News Brief**: Maximum information density with perfect clarity (100-250 words)
-
-## CANADIAN WRITING CONSIDERATIONS
-- Use Canadian terminology and institutional references
-- Incorporate Canadian context when relevant to the story
-- Consider diverse Canadian perspectives and regional implications
-- Follow Canadian legal and ethical writing standards
-- Use Canadian measurement units with imperial in parentheses when helpful
-
-## WRITING QUALITY CHECKLIST
-- Perfect clarity in every sentence
-- No unnecessary words or redundancies
-- Strong, active verbs throughout
-- Varied sentence structure for rhythm and flow
-- Seamless transitions between paragraphs
-- Consistent tone appropriate to the story
-- Flawless CP style implementation
-- Compelling narrative while maintaining objectivity
-- Accessible language free of unnecessary jargon
-- Complete and proper attribution for all information and images
-
-You will work exclusively with the facts and information provided to you. When information seems incomplete, clearly indicate what details are missing rather than inventing or researching additional facts. Always include proper citations for all sources both in-line and as complete references when appropriate.
-
-
+IT IS CRUICAL YOU DO NOT USE BULLET POINTS OR LISTS.
 `
 
 
 export const textDocumentHandler = createDocumentHandler<'text'>({
   kind: 'text',
   onCreateDocument: async ({ title, dataStream, messages }) => {
-    console.log('the messages in the tool CALL ON CREATE DOCUMENT ARE THE FOLLOWING: ')
-    console.log(messages.map((message) => message.content).join('\n'))
+    // Filter messages to reduce size
+    const filteredMessages = filterMessages(messages);
+    
+    // Further limit conversation length if still too large (max ~10k tokens)
+    let processedMessages = filteredMessages;
+    const messagesSizeBytes = JSON.stringify(filteredMessages).length;
+    
+    // If still very large (>100KB), only keep the most recent messages
+    if (messagesSizeBytes > 100 * 1024) {
+      console.log('Conversation still too large after filtering, keeping only recent messages');
+      // Get last 20 messages which typically provides enough context
+      processedMessages = filteredMessages.slice(-20);
+      console.log('Reduced from', filteredMessages.length, 'to', processedMessages.length, 'messages');
+    }
+    
+    // Log original vs filtered for comparison
+    console.log('Original messages size:', JSON.stringify(messages).length);
+    console.log('Filtered messages size:', JSON.stringify(filteredMessages).length);
+    console.log('Final processed size:', JSON.stringify(processedMessages).length);
+    
+    // Log detailed stats
+    logFilteringStats(messages, processedMessages);
+    
+    // Format conversation as readable text with proper attribution
+    const conversationText = processedMessages.map(msg => {
+      // Format based on role for better context
+      const rolePrefix = msg.role === 'user' 
+        ? '👤 USER' 
+        : msg.role === 'assistant' 
+          ? '🤖 ASSISTANT' 
+          : '🔧 TOOL';
+          
+      return `${rolePrefix}: ${msg.content}`;
+    }).join('\n\n');
+    
     let draftContent = '';
 
     const { fullStream } = streamText({
@@ -123,16 +288,16 @@ export const textDocumentHandler = createDocumentHandler<'text'>({
         `Write about the given topic. 
         Markdown is supported. 
         Use headings wherever appropriate.`,
-      // messages,
       experimental_transform: smoothStream({ chunking: 'word' }),
       prompt: articlePrompt + `
-      based on the conversation history, write a document about the users requests.
-      The conversation history is the following:
-      ${JSON.stringify(messages)}
+      Based on the conversation history, write a document about the user's requests.
+      
+      The conversation history is provided below:
+      
+      ${conversationText}
 
       The title of the document is: ${title}
       `,
-      
     });
 
     for await (const delta of fullStream) {
