@@ -1,68 +1,68 @@
 'use client'
 
-import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
+import { ExternalLink } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
-export interface SearchResultItem {
-  type?: string
-  title?: string
-  url: string
-  content?: string
-  thumbnail?: string
-  source?: string
-}
-
-export interface SearchResultImage {
-  url: string
-  width?: number
-  height?: number
-}
-
-export interface ImageResultsProps {
-  results: SearchResultItem[]
-  images: SearchResultImage[] | string[]
+interface ImageResultsProps {
+  results: Array<{
+    type?: string
+    title?: string
+    link?: string
+    imageUrl?: string
+    [key: string]: any
+  }>
+  images: Array<{
+    url: string
+    alt?: string
+    [key: string]: any
+  } | string>
   query?: string
 }
 
 export function ImageResults({ results, images, query }: ImageResultsProps) {
-  if (!results.length) {
-    return <div className="text-muted-foreground text-sm">No image results found.</div>
+  // Use either results with imageUrl or the images array
+  const displayImages = results.length > 0 
+    ? results.filter(item => item.imageUrl).map(item => ({
+        url: item.imageUrl as string,
+        alt: item.title || query || 'Search result image',
+        link: item.link
+      }))
+    : images.map(img => typeof img === 'string' 
+        ? { url: img, alt: query || 'Search result image' }
+        : img
+      )
+
+  if (!displayImages.length) {
+    return <div className="text-muted-foreground">No image results found</div>
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-2">
-      {results.map((result, i) => {
-        // Handle different image data structures
-        const imageUrl = typeof images[i] === 'string' 
-          ? images[i] as string
-          : (images[i] as SearchResultImage)?.url || result.thumbnail || result.url
-        
-        return (
-          <a 
-            href={result.url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            key={i} 
-            className="overflow-hidden rounded-lg border hover:opacity-90 transition-opacity"
-          >
-            <div className="relative aspect-square">
-              <Image
-                src={imageUrl}
-                alt={result.title || `Image result for ${query}`}
-                fill
-                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                className="object-cover"
-                priority={i < 4}
-              />
-            </div>
-            {result.title && (
-              <div className="p-2 text-xs truncate text-muted-foreground">
-                {result.title}
-              </div>
-            )}
-          </a>
-        )
-      })}
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {displayImages.map((image, i) => (
+        <div key={i} className="relative group aspect-square overflow-hidden rounded-md border">
+          <Image
+            src={image.url}
+            alt={image.alt || ''}
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            className="object-cover transition-transform group-hover:scale-105"
+          />
+          {image.link && (
+            <a 
+              href={image.link} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <Button size="icon" variant="secondary" className="h-8 w-8">
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            </a>
+          )}
+        </div>
+      ))}
     </div>
   )
 } 
